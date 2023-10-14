@@ -10,9 +10,9 @@ int idTest = 14;
 string pathToTest = Path.Combine("data", $"{folder}-Tests", $"{idTest}.txt");
 
 
-View view = View.BuildManualTestingView(pathToTest); 
+// View view = View.BuildManualTestingView(pathToTest); 
 // esta vista permite jugar el juego de manera manual
-// View view = View.BuildConsoleView();  
+View view = View.BuildConsoleView();  
 
 string deckFolder = Path.Combine("data", folder);
 Game game = new Game(view, deckFolder);

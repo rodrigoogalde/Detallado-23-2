@@ -2,13 +2,14 @@ using RawDeal.Cards;
 using RawDeal.SuperStarsCards;
 using RawDealView;
 using RawDealView.Formatters;
+using RawDealView.Options;
 
 namespace RawDeal;
 
 public class Player
 {
     private readonly View _view;
-    public SuperCard? SuperCard;
+    public SuperCard? SuperStarCardInfo;
     public SuperStar SuperStar;
     private readonly List<Card>? _cardsInArsenal;
     private List<Card> _cardsInHand;
@@ -20,6 +21,8 @@ public class Player
     
     private bool _hasHeel;
     private bool _hasFace;
+
+    private const int _maxDeckSize = 60;
 
     public Player(string pathDeck, View view)
     {
@@ -44,19 +47,19 @@ public class Player
     private void SetSuperCard(IReadOnlyList<string> deckLines)
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
-        SuperCard = new SuperCard(superName);
+        SuperStarCardInfo = new SuperCard(superName);
         SetSuperStar();
     }
 
     private void SetSuperStar()
     {
-        if (SuperCard!.Name == "THE UNDERTAKER") { SuperStar = new Theundertaker(SuperCard, this, _view); }
-        else if (SuperCard.Name == "STONE COLD STEVE AUSTIN") { SuperStar = new Stonecold(SuperCard, this, _view); }
-        else if (SuperCard.Name == "CHRIS JERICHO") { SuperStar = new Chrisjericho(SuperCard, this, _view); }
-        else if (SuperCard.Name == "HHH") { SuperStar = new Hhh(SuperCard, this, _view); }
-        else if (SuperCard.Name == "THE ROCK") { SuperStar = new Therock(SuperCard, this, _view); }
-        else if (SuperCard.Name == "KANE") { SuperStar = new Kane(SuperCard, this, _view); }
-        else if (SuperCard.Name == "MANKIND") { SuperStar = new Mankind(SuperCard, this, _view); }
+        if (SuperStarCardInfo!.Name == "THE UNDERTAKER") { SuperStar = new Theundertaker(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "STONE COLD STEVE AUSTIN") { SuperStar = new Stonecold(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "CHRIS JERICHO") { SuperStar = new Chrisjericho(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "HHH") { SuperStar = new Hhh(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "THE ROCK") { SuperStar = new Therock(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "KANE") { SuperStar = new Kane(SuperStarCardInfo, this, _view); }
+        else if (SuperStarCardInfo.Name == "MANKIND") { SuperStar = new Mankind(SuperStarCardInfo, this, _view); }
         
     }
     
@@ -70,16 +73,16 @@ public class Player
     
     private void AddCardToDeck(Card card)
     {
-        card.CheckIfHaveAnotherLogo(SuperCard!);
+        card.CheckIfHaveAnotherLogo(SuperStarCardInfo!);
         CheckIfHaveValidDeckWhenYouAddCard(card);
         _cardsInArsenal!.Add(card);
     }
     
     private void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
     {
-        var typeCards = _cardsInArsenal!.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
-        IsInvalidUniqueCard(cardToAdd, typeCards);
-        IsInvalidNumberOfTypeCards(typeCards, cardToAdd);
+        var numberOfRepeatedCards = _cardsInArsenal!.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
+        IsInvalidUniqueCard(cardToAdd, numberOfRepeatedCards);
+        IsInvalidNumberOfRepeatedCards(numberOfRepeatedCards, cardToAdd);
         IsInvalidFaceAndHeelCombination(cardToAdd);
         IsDeckSizeExceeded();
         IsInvalidLogo(cardToAdd);
@@ -94,43 +97,40 @@ public class Player
 
     public void DrawFirstHand()
     {
-        var cardsToDraw = SuperCard!.HandSize;
+        var cardsToDraw = SuperStarCardInfo!.HandSize;
         for (var i = 0; i < cardsToDraw; i++)
         {
             DrawCard();
         }
     }
 
-    public List<string> CardsInHandInStringFormat() =>
-    (_cardsInHand.Count > 0)
-        ? _cardsInHand.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
-        : new List<string>();
+    public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSet cardSet)
+    {
+        return cardSet switch
+        {
+            CardSet.Hand => TransformListOfCardsIntoStringFormat(_cardsInHand),
+            CardSet.Arsenal => TransformListOfCardsIntoStringFormat(_cardsInArsenal!),
+            CardSet.RingsidePile => TransformListOfCardsIntoStringFormat(_cardsInRingside),
+            CardSet.RingArea => TransformListOfCardsIntoStringFormat(_cardsInRingArea),
+            _ => new List<string>()
+        };
+    }
 
-    public List<string> CardsInArsenalInStringFormat() =>
-    (_cardsInArsenal != null)
-        ? _cardsInArsenal.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
-        : new List<string>();
-    
-    public List<string> CardsInRingsideInStringFormat() =>
-        (_cardsInRingside.Count > 0)
-            ? _cardsInRingside.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
-            : new List<string>();
-    
-    public List<string> CardsInRingAreaInStringFormat() =>
-        (_cardsInRingArea.Count > 0)
-            ? _cardsInRingArea.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
+    private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
+        (cards.Count > 0)
+            ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
             : new List<string>();
 
-    public List<string> PlayableCardsInHandInStringFormat()
+    public List<string> TransformPlayableCardsIntoHandInStringFormat()
     {
         return _cardsInHand.Where(IsPlayableCard).Select(card => Formatter.PlayToString(new FormaterPlayableCardInfo(card, card.Types![0].ToUpper()))).ToList();
     }
     
     public Card DiscardCardPlayableFromHandToRingside(int indexCardToDiscard)
     {
-        List<string> playableCardsInHand = PlayableCardsInHandInStringFormat();
+        List<string> playableCardsInHand = TransformPlayableCardsIntoHandInStringFormat();
         Card cardToDiscard = FindCardsInHandFromPlayableCardInfo(playableCardsInHand, indexCardToDiscard);
-        _view.SayThatPlayerIsTryingToPlayThisCard(SuperCard!.Name, playableCardsInHand[indexCardToDiscard]);
+        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStarCardInfo!.Name, playableCardsInHand[indexCardToDiscard]);
         MoveCardFromHandToRingArea(cardToDiscard);
         return cardToDiscard;
     }
@@ -212,15 +212,17 @@ public class Player
         _cardsInArsenal!.Insert(0, card);
     }
     
-    private static void IsInvalidUniqueCard(Card card, int typeCards)
+    private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
     {
-        if (card.Subtypes!.Contains("Unique") && typeCards > 0)
+        int numberOfRepeatedCardsAllowed = 0;
+        if (card.Subtypes!.Contains("Unique") && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
             throw new InvalidDeckException();
     }
     
-    private static void IsInvalidNumberOfTypeCards(int typeCards, Card card)
+    private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
     {
-        if (!card.Subtypes!.Contains("SetUp") && typeCards >= 3)
+        int numberOfRepeatedCardsAllowed = 3;
+        if (!card.Subtypes!.Contains("SetUp") && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
         {
             throw new InvalidDeckException();
         }
@@ -236,7 +238,7 @@ public class Player
     
     private void IsDeckSizeExceeded()
     {
-        if (_cardsInArsenal!.Count >= 60)
+        if (_cardsInArsenal!.Count >= _maxDeckSize)
             throw new InvalidDeckException();
     }
     
@@ -247,7 +249,7 @@ public class Player
     
     private void IsDeckSizeCorrect()
     {
-        if (_cardsInArsenal!.Count != 60) throw new InvalidDeckException();
+        if (_cardsInArsenal!.Count != _maxDeckSize) throw new InvalidDeckException();
     }
 
     private bool IsPlayableCard(Card card)
@@ -257,6 +259,6 @@ public class Player
     }
     public PlayerInfo GetPlayerInfo()
     {
-        return new PlayerInfo(SuperCard!.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
+        return new PlayerInfo(SuperStarCardInfo!.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
     }
 }

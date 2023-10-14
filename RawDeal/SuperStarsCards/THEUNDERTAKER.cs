@@ -1,5 +1,6 @@
 using RawDeal.Cards;
 using RawDealView;
+using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 
@@ -14,7 +15,9 @@ public class Theundertaker: SuperStar
 
     public override bool HasTheConditionsToUseAbility()
     {
-        return Player.CardsInHandInStringFormat().Count >= 2;
+        // ELIMINAR
+        // return Player.TransformCardsInHandIntoStringFormat().Count >= 2;
+        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand).Count >= 2;
     }
 
     public override void UseAbility(Player playerOnWait)
@@ -25,14 +28,20 @@ public class Theundertaker: SuperStar
     
     private void TheUndertakerAbilityFirtsPart(int totalCardsToDiscard)
     {
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.CardsInHandInStringFormat(),
+        // ELIMINAR
+        // var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.TransformCardsInHandIntoStringFormat(),
+        //     SuperCard.Name, SuperCard.Name, totalCardsToDiscard);
+        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
             SuperCard.Name, SuperCard.Name, totalCardsToDiscard);
         Player.DiscardCardFromHandToRingside(indexCardToDiscard);
     }
     
     private void TheUndertakerAbilitySecondPart()
     {
-        var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, 1, Player.CardsInRingsideInStringFormat());
+        const int cardsToRecover = 1;
+        // ELIMINAR
+        // var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, cardsToRecover, Player.TransformCardsInRingsideIntoStringFormat());
+        var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, cardsToRecover, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.RingsidePile));
         Player.MoveCardFromRingsideToHand(indexCardToTake);
     }
 }
