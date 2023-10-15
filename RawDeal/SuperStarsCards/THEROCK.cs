@@ -26,8 +26,6 @@ public class Therock: SuperStar
 
     public override void UseAbilityBeforeDrawing(Player playerOnWait)
     {
-        // ELIMINAR
-        // if (Player.TransformCardsInRingsideIntoStringFormat().Count > NoCards) AskPlayerIfHeWantsToUseTheRockAbility();
         if (Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.RingsidePile).Count > NoCards) AskPlayerIfHeWantsToUseTheRockAbility();
     }
 
@@ -40,8 +38,6 @@ public class Therock: SuperStar
     {
         const int cardsToRecover = 1;
         GameView.SayThatPlayerIsGoingToUseHisAbility(SuperCard.Name, SuperCard.SuperstarAbility!);
-        // ELIMINAR
-        // int indexCardsToRecover = GameView.AskPlayerToSelectCardsToRecover(SuperCard.Name, cardsToRecover, Player.TransformCardsInRingsideIntoStringFormat());
         int indexCardsToRecover = GameView.AskPlayerToSelectCardsToRecover(SuperCard.Name, cardsToRecover, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.RingsidePile));
         Player.MoveCardFromRingsideToArsenal(indexCardsToRecover);
     }

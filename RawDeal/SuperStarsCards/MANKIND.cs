@@ -26,10 +26,7 @@ public class Mankind: SuperStar
 
     public override bool CanSteelMoreThanOneCard()
     {
-        // ELIMINAR
-        // return Player.TransformCardsInArsenalIntoStringFormat().Count >= OneCard;
         return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count >= OneCard;
-        
     }
     
     public override bool IsManKind()

@@ -18,9 +18,6 @@ public class Stonecold: SuperStar
 
     public override bool HasTheConditionsToUseAbility()
     {
-        // ELIMINAR
-        // return Player.TransformCardsInArsenalIntoStringFormat().Count > NoCards;
-        
         return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count > NoCards;
     }
 
@@ -33,10 +30,6 @@ public class Stonecold: SuperStar
     {
         Player.MoveTopeCardFromArsenalToHand();
         GameView.SayThatPlayerDrawCards(SuperCard.Name, NumberOfCardsToDraw);
-        // ELIMINAR
-        // Player.MoveCardFromHandToArsenalBottom(
-        //     GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name, Player.TransformCardsInHandIntoStringFormat()
-        //     ));
         Player.MoveCardFromHandToArsenalBottom(
             GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand)
             ));

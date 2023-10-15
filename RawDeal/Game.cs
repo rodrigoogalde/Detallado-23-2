@@ -151,13 +151,6 @@ public class Game
         _view.ShowCards(_optionWhichCardsToSee is CardSet.OpponentsRingArea or CardSet.OpponentsRingsidePile
             ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee)
             : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
-
-        // ELIMINAR
-        // if (_optionWhichCardsToSee == CardSet.Hand) { _view.ShowCards(_playerOnTurn.TransformCardsInHandIntoStringFormat()); }
-        // else if (_optionWhichCardsToSee == CardSet.RingArea) {_view.ShowCards(_playerOnTurn.TransformCardsInRingAreaIntoStringFormat());}
-        // else if (_optionWhichCardsToSee == CardSet.RingsidePile) {_view.ShowCards(_playerOnTurn.TransformCardsInRingsideIntoStringFormat());}
-        // else if (_optionWhichCardsToSee == CardSet.OpponentsRingArea) {_view.ShowCards(_playerWaiting.TransformCardsInRingAreaIntoStringFormat());}
-        // else if (_optionWhichCardsToSee == CardSet.OpponentsRingsidePile) {_view.ShowCards(_playerWaiting.TransformCardsInRingsideIntoStringFormat());}
     }
     
     private void ChooseWhichCardDoYouWantToPlayOrPass(int optionCardChoosed)
@@ -204,14 +197,8 @@ public class Game
     
     private void CheckIfSomePlayerRunOutOfArsenalCards()
     {
-        // ELIMINAR
-        // if (_playerOnTurn.TransformCardsInArsenalIntoStringFormat().Count == EmptyDeck) 
-        
         if (_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerWaiting; }
-        
-        // ELIMINAR
-        // else if (_playerWaiting.TransformCardsInArsenalIntoStringFormat().Count == EmptyDeck) 
         else if (_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerOnTurn; }
     }
@@ -224,12 +211,14 @@ public class Game
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()
     {
-        _playerCanUseHisAbility = _playerOnTurn.SuperStar.HasTheConditionsToUseAbility();
+        SuperStar superStar = _playerOnTurn.SuperStar;
+        _playerCanUseHisAbility = superStar.HasTheConditionsToUseAbility();
     }
     
     private void UseSuperCardAbilityBeforeDrawCard()
     {
-        _playerOnTurn.SuperStar.UseAbilityBeforeDrawing(_playerWaiting);
+        SuperStar superStar = _playerOnTurn.SuperStar;
+        superStar.UseAbilityBeforeDrawing(_playerWaiting);
     }
     
     private void UseSuperCardAbilityOncePerTurn()

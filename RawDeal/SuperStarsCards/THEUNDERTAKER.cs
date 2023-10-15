@@ -15,8 +15,6 @@ public class Theundertaker: SuperStar
 
     public override bool HasTheConditionsToUseAbility()
     {
-        // ELIMINAR
-        // return Player.TransformCardsInHandIntoStringFormat().Count >= 2;
         return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand).Count >= 2;
     }
 
@@ -28,9 +26,6 @@ public class Theundertaker: SuperStar
     
     private void TheUndertakerAbilityFirtsPart(int totalCardsToDiscard)
     {
-        // ELIMINAR
-        // var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.TransformCardsInHandIntoStringFormat(),
-        //     SuperCard.Name, SuperCard.Name, totalCardsToDiscard);
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
             SuperCard.Name, SuperCard.Name, totalCardsToDiscard);
         Player.DiscardCardFromHandToRingside(indexCardToDiscard);
@@ -39,8 +34,6 @@ public class Theundertaker: SuperStar
     private void TheUndertakerAbilitySecondPart()
     {
         const int cardsToRecover = 1;
-        // ELIMINAR
-        // var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, cardsToRecover, Player.TransformCardsInRingsideIntoStringFormat());
         var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, cardsToRecover, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.RingsidePile));
         Player.MoveCardFromRingsideToHand(indexCardToTake);
     }

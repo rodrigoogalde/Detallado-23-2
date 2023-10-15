@@ -109,14 +109,23 @@ public class Player
 
     public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSet cardSet)
     {
-        return cardSet switch
+        var cardsInStringFormat = new List<string>();
+        switch (cardSet)
         {
-            CardSet.Hand => TransformListOfCardsIntoStringFormat(_cardsInHand),
-            CardSet.Arsenal => TransformListOfCardsIntoStringFormat(_cardsInArsenal!),
-            CardSet.RingsidePile => TransformListOfCardsIntoStringFormat(_cardsInRingside),
-            CardSet.RingArea => TransformListOfCardsIntoStringFormat(_cardsInRingArea),
-            _ => new List<string>()
-        };
+            case CardSet.Arsenal:
+                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInArsenal!);
+                break;
+            case CardSet.Hand:
+                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInHand);
+                break;
+            case CardSet.RingArea or CardSet.OpponentsRingArea:
+                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingArea);
+                break;
+            case CardSet.RingsidePile or CardSet.OpponentsRingsidePile:
+                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingside);
+                break;
+        }
+        return cardsInStringFormat;
     }
 
     private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
@@ -234,6 +243,7 @@ public class Player
     
     private void IsInvalidFaceAndHeelCombination(Card card)
     {
+        // TODO: REVISAR COMENTARIO AYUDANTE
         if ((_hasFace && card.Subtypes!.Contains("Heel")) || (_hasHeel && card.Subtypes!.Contains("Face")))
             throw new InvalidDeckException();
         if (card.Subtypes!.Contains("Heel"))  _hasHeel = true; 
