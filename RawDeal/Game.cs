@@ -13,18 +13,12 @@ public class Game
     private Player _playerWaiting = null!;
     private Player? _winnerPlayer;
     
-    private const int OptionUseAbility = 0;
-    private const int OptionSeeCards = 1;
-    private const int OptionPlayCard = 2;
-    private const int OptionEndTurn = 3;
-    private const int OptionGiveUp = 4;
-    
     private const int OptionComeBack = -1;
     
     private const int MaindKindDamageReduction = 1;
     private const int EmptyDeck = 0;
 
-    private int _optionChoosed;
+    private NextPlay _optionChoosed;
     private CardSet _optionWhichCardsToSee;
     private bool _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     private bool _playerCanUseHisAbility;
@@ -75,7 +69,9 @@ public class Game
     
     private void ChooseWhoStarts()
     {
-        int index = _playersList[0].SuperStarCardInfo!.SuperstarValue >= _playersList[1].SuperStarCardInfo!.SuperstarValue ? 0 : 1;
+        var player1SuperStarCard = _playersList[0].SuperStar;
+        var player2SuperStarCard = _playersList[1].SuperStar;
+        int index = player1SuperStarCard.SuperstarValue >= player2SuperStarCard.SuperstarValue ? 0 : 1;
         _playerOnTurn = _playersList[index];
         _playerWaiting = _playersList[(index + 1) % 2];
     }
@@ -98,7 +94,8 @@ public class Game
 
     private void BeforeDrawSegment()
     {
-        _view.SayThatATurnBegins(_playerOnTurn.SuperStarCardInfo!.Name);
+        SuperStar superStarInfo = _playerOnTurn.SuperStar;
+        _view.SayThatATurnBegins(superStarInfo.Name!);
         UseSuperCardAbilityBeforeDrawCard();
         CheckIfPlayerHasTheConditionsToUseHisAbility();
     }
@@ -106,13 +103,14 @@ public class Game
     private void DrawSegment()
     {
         _playerOnTurn.DrawCard();
-        if (_playerOnTurn.SuperStar.CanSteelMoreThanOneCard()) 
+        var superStar = _playerOnTurn.SuperStar;
+        if (superStar.CanSteelMoreThanOneCard()) 
         { _playerOnTurn.DrawCard(); }
     }
 
     private void PlayerPlayHisTurn()
     {
-        while (_optionChoosed != OptionEndTurn && _optionChoosed != OptionGiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack)
+        while (_optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack)
         {
             CheckIfPlayerHasTheConditionsToUseHisAbility();
             _view.ShowGameInfo(_playerOnTurn.GetPlayerInfo(), _playerWaiting.GetPlayerInfo());  
@@ -122,7 +120,7 @@ public class Game
 
     private void ChooseAnOption()
     {
-        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) ? (int)_view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : (int)_view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) ? _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         WhatToDoWithTheOptionChoosed();
     }
     
@@ -130,18 +128,18 @@ public class Game
     {
         switch (_optionChoosed)
         {
-            case OptionSeeCards:
+            case NextPlay.ShowCards:
                 ChooseWhichCardsYouWantToSee();
                 break;
-            case OptionPlayCard:
+            case NextPlay.PlayCard:
                 ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.TransformPlayableCardsIntoHandInStringFormat()));
                 break;
-            case OptionEndTurn:
+            case NextPlay.EndTurn:
                 break;
-            case OptionGiveUp:
+            case NextPlay.GiveUp:
                 PlayerOnTurnGiveUp();
                 break;
-            case OptionUseAbility:
+            case NextPlay.UseAbility:
                 UseSuperCardAbilityOncePerTurn();
                 break;
         }
@@ -150,15 +148,10 @@ public class Game
     private void ChooseWhichCardsYouWantToSee()
     {
         _optionWhichCardsToSee = _view.AskUserWhatSetOfCardsHeWantsToSee();
-        if (_optionWhichCardsToSee is CardSet.OpponentsRingArea or CardSet.OpponentsRingsidePile)
-        {
-            _view.ShowCards(_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
-        }
-        else
-        {
-            _view.ShowCards(_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
-        }
-        
+        _view.ShowCards(_optionWhichCardsToSee is CardSet.OpponentsRingArea or CardSet.OpponentsRingsidePile
+            ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee)
+            : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
+
         // ELIMINAR
         // if (_optionWhichCardsToSee == CardSet.Hand) { _view.ShowCards(_playerOnTurn.TransformCardsInHandIntoStringFormat()); }
         // else if (_optionWhichCardsToSee == CardSet.RingArea) {_view.ShowCards(_playerOnTurn.TransformCardsInRingAreaIntoStringFormat());}
@@ -181,8 +174,9 @@ public class Game
 
     private void PlayerWaitingTakeDamage(int damage)
     {
-        damage = IsDamageReducedForManKind(_playerWaiting.SuperStar) ? damage - MaindKindDamageReduction : damage;
-        _view.SayThatSuperstarWillTakeSomeDamage(_playerWaiting.SuperStarCardInfo!.Name, damage);
+        SuperStar superStarOpponent = _playerWaiting.SuperStar;
+        damage = IsDamageReducedForManKind(superStarOpponent) ? damage - MaindKindDamageReduction : damage;
+        _view.SayThatSuperstarWillTakeSomeDamage(superStarOpponent.Name!, damage);
         _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack = _playerWaiting.TakeDamage(damage);
     }
     
@@ -199,7 +193,8 @@ public class Game
     
     private void SayWhoWins()
     {
-        _view.CongratulateWinner(_winnerPlayer!.SuperStarCardInfo!.Name);
+        SuperStar superStarWinnerPlayer = _winnerPlayer!.SuperStar;
+        _view.CongratulateWinner(superStarWinnerPlayer.Name!);
     }
     
     private void PlayerOnTurnGiveUp()
@@ -239,7 +234,8 @@ public class Game
     
     private void UseSuperCardAbilityOncePerTurn()
     {
-        _view.SayThatPlayerIsGoingToUseHisAbility(_playerOnTurn.SuperStarCardInfo!.Name, _playerOnTurn.SuperStarCardInfo!.SuperstarAbility!);
+        SuperStar superStar = _playerOnTurn.SuperStar;
+        _view.SayThatPlayerIsGoingToUseHisAbility(superStar.Name!, superStar.SuperstarAbility!);
         _playerOnTurn.SuperStar.UseAbility(_playerWaiting);
         _playerUseHisAbilityInTheTurn = true;
     }

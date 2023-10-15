@@ -8,7 +8,7 @@ public class Chrisjericho: SuperStar
 {
     private const int TotalCardsToDiscard = 1;
     private const int OneCard = 1;
-    public Chrisjericho(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Chrisjericho(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
@@ -35,10 +35,11 @@ public class Chrisjericho: SuperStar
         //     Player.SuperStarCardInfo!.Name, 
         //     Player.SuperStarCardInfo!.Name, 
         //     totalCardsToDiscard);
+        
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
             Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
-            Player.SuperStarCardInfo!.Name, 
-            Player.SuperStarCardInfo!.Name, 
+            SuperCard.Name, 
+            SuperCard.Name, 
             totalCardsToDiscard);
         Player.DiscardCardFromHandToRingside(indexCardToDiscard);
     }
@@ -50,10 +51,11 @@ public class Chrisjericho: SuperStar
         //     playerOnWait.SuperStarCardInfo!.Name, 
         //     playerOnWait.SuperStarCardInfo!.Name, 
         //     totalCardsToDiscard);
+        SuperStar superStarOpponent = playerOnWait.SuperStar;
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
             playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
-            playerOnWait.SuperStarCardInfo!.Name, 
-            playerOnWait.SuperStarCardInfo!.Name, 
+            superStarOpponent.Name!, 
+            superStarOpponent.Name!, 
             totalCardsToDiscard);
         playerOnWait.DiscardCardFromHandToRingside(indexCardToDiscard);
     }

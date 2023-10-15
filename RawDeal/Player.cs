@@ -9,7 +9,6 @@ namespace RawDeal;
 public class Player
 {
     private readonly View _view;
-    public SuperCard? SuperStarCardInfo;
     public SuperStar SuperStar;
     private readonly List<Card>? _cardsInArsenal;
     private List<Card> _cardsInHand;
@@ -22,7 +21,7 @@ public class Player
     private bool _hasHeel;
     private bool _hasFace;
 
-    private const int _maxDeckSize = 60;
+    private const int MaxDeckSize = 60;
 
     public Player(string pathDeck, View view)
     {
@@ -47,20 +46,23 @@ public class Player
     private void SetSuperCard(IReadOnlyList<string> deckLines)
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
-        SuperStarCardInfo = new SuperCard(superName);
-        SetSuperStar();
+        SetSuperStar(superName);
     }
 
-    private void SetSuperStar()
+    private void SetSuperStar(string superName)
     {
-        if (SuperStarCardInfo!.Name == "THE UNDERTAKER") { SuperStar = new Theundertaker(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "STONE COLD STEVE AUSTIN") { SuperStar = new Stonecold(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "CHRIS JERICHO") { SuperStar = new Chrisjericho(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "HHH") { SuperStar = new Hhh(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "THE ROCK") { SuperStar = new Therock(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "KANE") { SuperStar = new Kane(SuperStarCardInfo, this, _view); }
-        else if (SuperStarCardInfo.Name == "MANKIND") { SuperStar = new Mankind(SuperStarCardInfo, this, _view); }
-        
+        var superStarCardInfo = new SuperCardInfo(superName);
+        SuperStar = superStarCardInfo.Name switch
+        {
+            "THE UNDERTAKER" => new Theundertaker(superStarCardInfo, this, _view),
+            "STONE COLD STEVE AUSTIN" => new Stonecold(superStarCardInfo, this, _view),
+            "CHRIS JERICHO" => new Chrisjericho(superStarCardInfo, this, _view),
+            "HHH" => new Hhh(superStarCardInfo, this, _view),
+            "THE ROCK" => new Therock(superStarCardInfo, this, _view),
+            "KANE" => new Kane(superStarCardInfo, this, _view),
+            "MANKIND" => new Mankind(superStarCardInfo, this, _view),
+            _ => SuperStar
+        };
     }
     
     private void AddCardsFromTxtToDeck(IReadOnlyList<string> deckLines)
@@ -73,7 +75,7 @@ public class Player
     
     private void AddCardToDeck(Card card)
     {
-        card.CheckIfHaveAnotherLogo(SuperStarCardInfo!);
+        card.CheckIfHaveAnotherLogo(SuperStar.SuperCard);
         CheckIfHaveValidDeckWhenYouAddCard(card);
         _cardsInArsenal!.Add(card);
     }
@@ -97,7 +99,8 @@ public class Player
 
     public void DrawFirstHand()
     {
-        var cardsToDraw = SuperStarCardInfo!.HandSize;
+        SuperCardInfo superCard = SuperStar.SuperCard;
+        int cardsToDraw = superCard.HandSize;
         for (var i = 0; i < cardsToDraw; i++)
         {
             DrawCard();
@@ -128,9 +131,10 @@ public class Player
     
     public Card DiscardCardPlayableFromHandToRingside(int indexCardToDiscard)
     {
+        SuperCardInfo superCard = SuperStar.SuperCard;
         List<string> playableCardsInHand = TransformPlayableCardsIntoHandInStringFormat();
         Card cardToDiscard = FindCardsInHandFromPlayableCardInfo(playableCardsInHand, indexCardToDiscard);
-        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStarCardInfo!.Name, playableCardsInHand[indexCardToDiscard]);
+        _view.SayThatPlayerIsTryingToPlayThisCard(superCard.Name, playableCardsInHand[indexCardToDiscard]);
         MoveCardFromHandToRingArea(cardToDiscard);
         return cardToDiscard;
     }
@@ -238,7 +242,7 @@ public class Player
     
     private void IsDeckSizeExceeded()
     {
-        if (_cardsInArsenal!.Count >= _maxDeckSize)
+        if (_cardsInArsenal!.Count >= MaxDeckSize)
             throw new InvalidDeckException();
     }
     
@@ -249,7 +253,7 @@ public class Player
     
     private void IsDeckSizeCorrect()
     {
-        if (_cardsInArsenal!.Count != _maxDeckSize) throw new InvalidDeckException();
+        if (_cardsInArsenal!.Count != MaxDeckSize) throw new InvalidDeckException();
     }
 
     private bool IsPlayableCard(Card card)
@@ -259,6 +263,7 @@ public class Player
     }
     public PlayerInfo GetPlayerInfo()
     {
-        return new PlayerInfo(SuperStarCardInfo!.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
+        SuperCardInfo superCardInfo = SuperStar.SuperCard;
+        return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
     }
 }

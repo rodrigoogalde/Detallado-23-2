@@ -2,11 +2,11 @@ using System.Text.Json;
 
 namespace RawDeal.Cards;
 
-public class SuperCardInfo
+public class SuperCardFormatter
 {
     public readonly List<Root>? CardsJson;
     
-    public SuperCardInfo()
+    public SuperCardFormatter()
     {
         var infoCards = File.ReadAllText(Path.Combine("data", "superstar.json"));
         CardsJson = JsonSerializer.Deserialize<List<Root>>(infoCards, 
@@ -21,7 +21,7 @@ public class SuperCardInfo
         public int SuperstarValue { get; set; }
         public string? SuperstarAbility { get; set;}
     }
-    public void LoadCardData(SuperCard superCard)
+    public void LoadCardData(SuperCardInfo superCard)
     {
         foreach (var cardJson in CardsJson!.Where(cardJson => cardJson.Name == superCard.Name))
         {

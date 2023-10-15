@@ -9,7 +9,7 @@ public class Stonecold: SuperStar
     
     private const int NoCards = 0;
     private const int NumberOfCardsToDraw = 1;
-    public Stonecold(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Stonecold(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;

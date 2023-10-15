@@ -9,7 +9,7 @@ public class Therock: SuperStar
     
     private const int NoCards = 0;
     
-    public Therock(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Therock(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
@@ -33,7 +33,7 @@ public class Therock: SuperStar
 
     private void AskPlayerIfHeWantsToUseTheRockAbility()
     {
-        if (GameView.DoesPlayerWantToUseHisAbility(Player.SuperStarCardInfo!.Name)) TheRockAbility();
+        if (GameView.DoesPlayerWantToUseHisAbility(SuperCard.Name)) TheRockAbility();
     }
     
     private void TheRockAbility()

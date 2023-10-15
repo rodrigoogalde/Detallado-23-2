@@ -6,7 +6,7 @@ namespace RawDeal.SuperStarsCards;
 public class Kane: SuperStar
 {
     private const int DamageToTake = 1;
-    public Kane(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Kane(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
@@ -24,8 +24,9 @@ public class Kane: SuperStar
     
     public override void UseAbilityBeforeDrawing(Player playerOnWait)
     {
+        SuperStar superStarOpponent = playerOnWait.SuperStar;
         GameView.SayThatPlayerIsGoingToUseHisAbility(SuperCard.Name, SuperCard.SuperstarAbility!);
-        GameView.SayThatSuperstarWillTakeSomeDamage(playerOnWait.SuperStarCardInfo!.Name, DamageToTake);
+        GameView.SayThatSuperstarWillTakeSomeDamage(superStarOpponent.Name!, DamageToTake);
         playerOnWait.TakeDamage(DamageToTake);
     }
 }

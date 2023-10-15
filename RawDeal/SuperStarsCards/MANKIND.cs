@@ -8,7 +8,7 @@ public class Mankind: SuperStar
 {   
     
     private const int OneCard = 1;
-    public Mankind(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Mankind(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;

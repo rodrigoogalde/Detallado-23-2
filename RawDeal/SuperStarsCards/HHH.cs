@@ -5,7 +5,7 @@ namespace RawDeal.SuperStarsCards;
 
 public class Hhh: SuperStar
 {
-    public Hhh(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Hhh(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;

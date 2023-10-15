@@ -6,7 +6,7 @@ namespace RawDeal.SuperStarsCards;
 
 public class Theundertaker: SuperStar
 {    
-    public Theundertaker(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    public Theundertaker(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
