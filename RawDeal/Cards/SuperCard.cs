@@ -1,18 +1,18 @@
 namespace RawDeal.Cards;
 
-public class SuperCard
+public class SuperCardInfo
 {
     public int HandSize;
     public int SuperstarValue;
     public string? SuperstarAbility;
     public readonly string Name;
     public string? Logo;
-    
-    public readonly SuperCardInfo SuperCardInfo = new();
 
-    public SuperCard(string name)
+    private readonly SuperCardFormatter _superCardInfo = new();
+
+    public SuperCardInfo(string name)
     {
         Name = name;
-        SuperCardInfo.LoadCardData(this);
+        _superCardInfo.LoadCardData(this);
     }
 }

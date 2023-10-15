@@ -1,11 +1,14 @@
 using RawDeal.Cards;
 using RawDealView;
+using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 
 public class Chrisjericho: SuperStar
 {
-    public Chrisjericho(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    private const int TotalCardsToDiscard = 1;
+    private const int OneCard = 1;
+    public Chrisjericho(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
@@ -14,29 +17,32 @@ public class Chrisjericho: SuperStar
     
     public override bool HasTheConditionsToUseAbility()
     {
-        return Player.CardsInHandInStringFormat().Count >= 1;
+        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand).Count >= OneCard;
     }
 
     public override void UseAbility(Player playerOnWait)
     {
-        TheJerichoAbilityFirstPart(1);
-        TheJerichoAbilitySecondPart(1, playerOnWait);
+        TheJerichoAbilityFirstPart(TotalCardsToDiscard);
+        TheJerichoAbilitySecondPart(TotalCardsToDiscard, playerOnWait);
     }
     
     private void TheJerichoAbilityFirstPart(int totalCardsToDiscard)
     {
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(Player.CardsInHandInStringFormat(),
-            Player.SuperCard!.Name, 
-            Player.SuperCard!.Name, 
+        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
+            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
+            SuperCard.Name, 
+            SuperCard.Name, 
             totalCardsToDiscard);
         Player.DiscardCardFromHandToRingside(indexCardToDiscard);
     }
     
     private void TheJerichoAbilitySecondPart(int totalCardsToDiscard, Player playerOnWait)
     {
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(playerOnWait.CardsInHandInStringFormat(),
-            playerOnWait.SuperCard!.Name, 
-            playerOnWait.SuperCard!.Name, 
+        SuperStar superStarOpponent = playerOnWait.SuperStar;
+        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
+            playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
+            superStarOpponent.Name!, 
+            superStarOpponent.Name!, 
             totalCardsToDiscard);
         playerOnWait.DiscardCardFromHandToRingside(indexCardToDiscard);
     }

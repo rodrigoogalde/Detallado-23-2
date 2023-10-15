@@ -19,9 +19,9 @@ public class Card
         _cardInfo.LoadCardData(this);
     }
     
-    public void CheckIfHaveAnotherLogo(SuperCard superCard)
+    public void CheckIfHaveAnotherLogo(SuperCardInfo superCard)
     {
-        SuperCardInfo superCardsInfo = new();
+        SuperCardFormatter superCardsInfo = new();
         foreach (var unused in superCardsInfo.CardsJson!.Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) && superCard.Logo != superCardInfo.Logo))
         {
             HasAnotherLogo = true;

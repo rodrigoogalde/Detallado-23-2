@@ -1,11 +1,15 @@
 using RawDeal.Cards;
 using RawDealView;
+using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 
 public class Stonecold: SuperStar
 {    
-    public Stonecold(SuperCard superCard, Player player, View view) : base(superCard, player, view)
+    
+    private const int NoCards = 0;
+    private const int NumberOfCardsToDraw = 1;
+    public Stonecold(SuperCardInfo superCard, Player player, View view) : base(superCard, player, view)
     {
         SuperCard = superCard;
         Player = player;
@@ -14,7 +18,7 @@ public class Stonecold: SuperStar
 
     public override bool HasTheConditionsToUseAbility()
     {
-        return Player.CardsInArsenalInStringFormat().Count > 0;
+        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count > NoCards;
     }
 
     public override void UseAbilityOncePerTurn()
@@ -25,9 +29,9 @@ public class Stonecold: SuperStar
     public override void UseAbility(Player playerOnWait)
     {
         Player.MoveTopeCardFromArsenalToHand();
-        GameView.SayThatPlayerDrawCards(SuperCard.Name, 1);
+        GameView.SayThatPlayerDrawCards(SuperCard.Name, NumberOfCardsToDraw);
         Player.MoveCardFromHandToArsenalBottom(
-            GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name, Player.CardsInHandInStringFormat()
+            GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand)
             ));
     }
 }
