@@ -1,5 +1,6 @@
 using RawDeal.Cards;
 using RawDeal.SuperStarsCards;
+using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
 using RawDealView.Options;
@@ -14,6 +15,9 @@ public class Player
     private List<Card> _cardsInHand;
     private List<Card> _cardsInRingside;
     private List<Card> _cardsInRingArea;
+    private List<PlayeableCardInfo> _playeablesCardsInHand;
+    private List<string> _playeablesCardsInHandInStringFormat;
+    private int _indexCardToDiscard;
     
     private readonly string? _pathDeck;
     private int _fortitude;
@@ -22,6 +26,8 @@ public class Player
     private bool _hasFace;
 
     private const int MaxDeckSize = 60;
+    private const string ActionCardType = "Action";
+    private const string ManeuverCardType = "Maneuver";
 
     public Player(string pathDeck, View view)
     {
@@ -132,40 +138,50 @@ public class Player
         (cards.Count > 0)
             ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
             : new List<string>();
-
-    public List<string> TransformPlayableCardsIntoHandInStringFormat()
-    {
-        return _cardsInHand.Where(IsPlayableCard).Select(card => Formatter.PlayToString(new FormaterPlayableCardInfo(card, card.Types![0].ToUpper()))).ToList();
-    }
     
-    public Card DiscardCardPlayableFromHandToRingside(int indexCardToDiscard)
+    public List<string> TransformPlayableCardsInHandIntoStringFormat()
     {
-        SuperCardInfo superCard = SuperStar.SuperCard;
-        List<string> playableCardsInHand = TransformPlayableCardsIntoHandInStringFormat();
-        Card cardToDiscard = FindCardsInHandFromPlayableCardInfo(playableCardsInHand, indexCardToDiscard);
-        _view.SayThatPlayerIsTryingToPlayThisCard(superCard.Name, playableCardsInHand[indexCardToDiscard]);
-        MoveCardFromHandToRingArea(cardToDiscard);
-        return cardToDiscard;
-    }
-    
-    private Card FindCardsInHandFromPlayableCardInfo(List<string> playableCardsInHand, int indexCardToDiscard) 
-    {
-        Card cardToDiscard = _cardsInHand.Find(card => Formatter.PlayToString(new FormaterPlayableCardInfo(card, card.Types![0].ToUpper())) == playableCardsInHand[indexCardToDiscard])!;
-        return CheckIfTheCardYouAreLookingForIsInTheFirstPositionOrAnother(cardToDiscard, indexCardToDiscard);
+        CheckWhichCardsArePlayeable();
+        return _playeablesCardsInHandInStringFormat;
     }
 
-    private Card CheckIfTheCardYouAreLookingForIsInTheFirstPositionOrAnother(Card cardToDiscard, int indexCardToDiscard)
+    private void CheckWhichCardsArePlayeable()
     {
-        var index = 0;
-        foreach (var card in _cardsInHand)
+        _playeablesCardsInHand = new List<PlayeableCardInfo>();
+        _playeablesCardsInHandInStringFormat = new List<string>();
+        foreach (var card in _cardsInHand.Where(IsPlayableCard))
         {
-            if (IsPlayableCard(card) && cardToDiscard.Title == card.Title && index == indexCardToDiscard) cardToDiscard = card;
-            if (IsPlayableCard(card)) index++; 
+            AddAllTypesToPlayeableCardsList(card);
         }
-        return cardToDiscard;
+    }
+
+    private void AddAllTypesToPlayeableCardsList(Card card)
+    {
+        foreach (var type in card.Types!)
+        {
+            var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
+            _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
+            _playeablesCardsInHand.Add( new PlayeableCardInfo { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
+        }
     }
     
-    private void MoveCardFromHandToRingArea(Card cardToDiscard)
+    public void PlayCardAsAction(Card cardToPlay)
+    {   
+        _view.SayThatPlayerMustDiscardThisCard(SuperStar.Name!, cardToPlay.Title);
+        DrawCard();
+        _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
+        MoveCardFromHandToRingSide(cardToPlay);
+    }
+    public PlayeableCardInfo CheckWhichCardWillBePlayed(int indexCardToDiscard)
+    {
+        _indexCardToDiscard = indexCardToDiscard;
+        TransformPlayableCardsInHandIntoStringFormat();
+        var cardToDiscardInBothFormats = _playeablesCardsInHand[_indexCardToDiscard];
+        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!, cardToDiscardInBothFormats.CardInStringFormat!);
+        return cardToDiscardInBothFormats;
+    }
+    
+    public void MoveCardFromHandToRingArea(Card cardToDiscard)
     {
         _cardsInHand.Remove(cardToDiscard);
         _cardsInRingArea.Add(cardToDiscard);
@@ -223,6 +239,12 @@ public class Player
         Card card = _cardsInHand[index];
         _cardsInHand.Remove(card);
         _cardsInArsenal!.Insert(0, card);
+    }
+    
+    private void MoveCardFromHandToRingSide(Card cardToDiscard)
+    {
+        _cardsInHand.Remove(cardToDiscard);
+        _cardsInRingside.Add(cardToDiscard);
     }
     
     private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
