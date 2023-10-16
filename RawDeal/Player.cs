@@ -22,6 +22,8 @@ public class Player
     private bool _hasFace;
 
     private const int MaxDeckSize = 60;
+    private const string ActionCardType = "Action";
+    private const string ManeuverCardType = "Maneuver";
 
     public Player(string pathDeck, View view)
     {
@@ -132,10 +134,24 @@ public class Player
         (cards.Count > 0)
             ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
             : new List<string>();
-
+    
     public List<string> TransformPlayableCardsIntoHandInStringFormat()
     {
-        return _cardsInHand.Where(IsPlayableCard).Select(card => Formatter.PlayToString(new FormaterPlayableCardInfo(card, card.Types![0].ToUpper()))).ToList();
+        var playableCardsInHand = new List<string>();
+        foreach (var card in _cardsInHand.Where(IsPlayableCard))
+        {
+            var formaterPlayableCardInfo = new FormatterPlayableCardInfo(card, card.Types![0].ToUpper());
+            playableCardsInHand.Add(Formatter.PlayToString(formaterPlayableCardInfo));
+            AddHybridsCards(card, playableCardsInHand);
+        }
+        return playableCardsInHand;
+    }
+    
+    private void AddHybridsCards(Card card, List<string> playableCardsInHand)
+    {
+        if (!card.Types!.Contains(ActionCardType) || !card.Types.Contains(ManeuverCardType)) return;
+        var formaterPlayableCardInfo = new FormatterPlayableCardInfo(card, card.Types![1].ToUpper());
+        playableCardsInHand.Add(Formatter.PlayToString(formaterPlayableCardInfo));
     }
     
     public Card DiscardCardPlayableFromHandToRingside(int indexCardToDiscard)
@@ -150,7 +166,7 @@ public class Player
     
     private Card FindCardsInHandFromPlayableCardInfo(List<string> playableCardsInHand, int indexCardToDiscard) 
     {
-        Card cardToDiscard = _cardsInHand.Find(card => Formatter.PlayToString(new FormaterPlayableCardInfo(card, card.Types![0].ToUpper())) == playableCardsInHand[indexCardToDiscard])!;
+        Card cardToDiscard = _cardsInHand.Find(card => Formatter.PlayToString(new FormatterPlayableCardInfo(card, card.Types![0].ToUpper())) == playableCardsInHand[indexCardToDiscard])!;
         return CheckIfTheCardYouAreLookingForIsInTheFirstPositionOrAnother(cardToDiscard, indexCardToDiscard);
     }
 
