@@ -1,5 +1,8 @@
+using RawDeal.Cards;
 using RawDeal.SuperStarsCards;
+using RawDeal.Utils;
 using RawDealView;
+using RawDealView.Formatters;
 using RawDealView.Options;
 
 namespace RawDeal;
@@ -23,6 +26,9 @@ public class Game
     private bool _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     private bool _playerCanUseHisAbility;
     private bool _playerUseHisAbilityInTheTurn;
+    
+    private const string ActionCardType = "Action";
+    private const string ManeuverCardType = "Maneuver";
 
 
     public Game(View view, string deckFolder)
@@ -132,7 +138,7 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.TransformPlayableCardsIntoHandInStringFormat()));
+                ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.TransformPlayableCardsInHandIntoStringFormat()));
                 break;
             case NextPlay.EndTurn:
                 break;
@@ -160,15 +166,28 @@ public class Game
     
     private void PlayerChooseToPlayACard(int optionCardChoosed)
     {
-        var cardChoseen = _playerOnTurn.DiscardCardPlayableFromHandToRingside(optionCardChoosed);
+        PlayeableCardInfo cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
         _view.SayThatPlayerSuccessfullyPlayedACard();
-        PlayerWaitingTakeDamage(Convert.ToInt32(cardChoseen.Damage));
+        CheckPlayModeOfTheCardPlayed(cardChoseenInBothFormats);
+    }
+    
+    private void CheckPlayModeOfTheCardPlayed(PlayeableCardInfo cardChoseen)
+    {
+        Card card = cardChoseen.CardInObjectFormat!;
+        if (cardChoseen.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
+            _playerOnTurn.PlayCardAsAction(card);
+        }
+        else {
+            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); 
+            _playerOnTurn.MoveCardFromHandToRingArea(card);
+        }
     }
 
     private void PlayerWaitingTakeDamage(int damage)
     {
         SuperStar superStarOpponent = _playerWaiting.SuperStar;
         damage = IsDamageReducedForManKind(superStarOpponent) ? damage - MaindKindDamageReduction : damage;
+        if (damage == 0) { return; }
         _view.SayThatSuperstarWillTakeSomeDamage(superStarOpponent.Name!, damage);
         _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack = _playerWaiting.TakeDamage(damage);
     }
