@@ -15,7 +15,8 @@ public class Player
     private List<Card> _cardsInHand;
     private List<Card> _cardsInRingside;
     private List<Card> _cardsInRingArea;
-    private List<PlayeableCardInfo> _playeablesCardsInHand;
+    private List<FormatterCardInfo> _playeablesCardsInHand;
+    private List<FormatterCardInfo> _reversalCardsInHand;
     private List<string> _playeablesCardsInHandInStringFormat;
     private int _indexCardToDiscard;
     
@@ -26,8 +27,7 @@ public class Player
     private bool _hasFace;
 
     private const int MaxDeckSize = 60;
-    private const string ActionCardType = "Action";
-    private const string ManeuverCardType = "Maneuver";
+    private const int EmptyDeck = 0;
 
     public Player(string pathDeck, View view)
     {
@@ -135,7 +135,7 @@ public class Player
     }
 
     private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
-        (cards.Count > 0)
+        (cards.Count > EmptyDeck)
             ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
             : new List<string>();
     
@@ -147,7 +147,7 @@ public class Player
 
     private void CheckWhichCardsArePlayeable()
     {
-        _playeablesCardsInHand = new List<PlayeableCardInfo>();
+        _playeablesCardsInHand = new List<FormatterCardInfo>();
         _playeablesCardsInHandInStringFormat = new List<string>();
         foreach (var card in _cardsInHand.Where(IsPlayableCard))
         {
@@ -161,7 +161,7 @@ public class Player
         {
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
-            _playeablesCardsInHand.Add( new PlayeableCardInfo { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
+            _playeablesCardsInHand.Add( new FormatterCardInfo { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
         }
     }
     
@@ -172,7 +172,7 @@ public class Player
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
         MoveCardFromHandToRingSide(cardToPlay);
     }
-    public PlayeableCardInfo CheckWhichCardWillBePlayed(int indexCardToDiscard)
+    public FormatterCardInfo CheckWhichCardWillBePlayed(int indexCardToDiscard)
     {
         _indexCardToDiscard = indexCardToDiscard;
         TransformPlayableCardsInHandIntoStringFormat();
@@ -191,11 +191,11 @@ public class Player
     public bool TakeDamage(int damage)
     {
         int i;
-        for (i = 0; i < damage && _cardsInArsenal!.Count > 0; i++)
+        for (i = 0; i < damage && _cardsInArsenal!.Count > EmptyDeck; i++)
         {
             MoveCardFromArsenalToRingSide(i + 1, damage);
         }
-        return _cardsInArsenal!.Count == 0 && i != damage;
+        return _cardsInArsenal!.Count == EmptyDeck && i != damage;
     }
     
     private void MoveCardFromArsenalToRingSide(int currentDamage, int totalDamage)
@@ -298,4 +298,33 @@ public class Player
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
         return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
     }
+
+
+
+
+
+    public bool CheckIfCanReverseFromHand()
+    {
+        // CONDICIONES
+        // Revisar que haya un reversal en la mano
+        // La carta debe ser capaz de revertir el ataque (revisar la descripción de la carta)
+        // Revisar si el fortitude es mayor o igual al fortitude de la carta
+        
+        // ACCIONES
+        // Preguntar si quiere jugar el reversal
+        // Poner la carta en el RingSide (No aumenta el fortitude)
+        
+        // Ejecutar el efecto del texto y efectuar daño
+        // Colocar el reversal en el RingArea (Aumenta el fortitude)
+        return false;
+    }
+
+    private void CheckIfHasPlayeableReversalInHand()
+    {
+        foreach (Card card in _cardsInHand)
+        {
+            
+        }   
+    }
+    
 }

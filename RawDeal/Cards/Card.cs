@@ -27,4 +27,9 @@ public class Card
             HasAnotherLogo = true;
         }
     }
+    
+    public bool CanBeUsedAsReversal(int fortitude, List<string> subTypes)
+    {
+        return Types!.Contains("Reversal") && int.Parse(Fortitude) >= fortitude && Subtypes!.Intersect(subTypes).Any();
+    }
 }
