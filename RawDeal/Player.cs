@@ -1,9 +1,9 @@
 using RawDeal.Cards;
+using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
-using RawDealView.Options;
 
 namespace RawDeal;
 
@@ -113,21 +113,21 @@ public class Player
         }
     }
 
-    public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSet cardSet)
+    public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
     {
         var cardsInStringFormat = new List<string>();
         switch (cardSet)
         {
-            case CardSet.Arsenal:
+            case CardSetFull.Arsenal:
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInArsenal!);
                 break;
-            case CardSet.Hand:
+            case CardSetFull.Hand:
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInHand);
                 break;
-            case CardSet.RingArea or CardSet.OpponentsRingArea:
+            case CardSetFull.RingArea or CardSetFull.OpponentsRingArea:
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingArea);
                 break;
-            case CardSet.RingsidePile or CardSet.OpponentsRingsidePile:
+            case CardSetFull.RingsidePile or CardSetFull.OpponentsRingsidePile:
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingside);
                 break;
         }

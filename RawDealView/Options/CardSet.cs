@@ -2,5 +2,5 @@ namespace RawDealView.Options;
 
 public enum CardSet
 {
-    Hand, RingArea, RingsidePile, OpponentsRingArea, OpponentsRingsidePile, Arsenal
+    Hand, RingArea, RingsidePile, OpponentsRingArea, OpponentsRingsidePile
 }
