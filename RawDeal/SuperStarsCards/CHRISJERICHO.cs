@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Options;
 using RawDealView;
 using RawDealView.Options;
 
@@ -17,7 +18,7 @@ public class Chrisjericho: SuperStar
     
     public override bool HasTheConditionsToUseAbility()
     {
-        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand).Count >= OneCard;
+        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand).Count >= OneCard;
     }
 
     public override void UseAbility(Player playerOnWait)
@@ -29,7 +30,7 @@ public class Chrisjericho: SuperStar
     private void TheJerichoAbilityFirstPart(int totalCardsToDiscard)
     {
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
+            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand),
             SuperCard.Name, 
             SuperCard.Name, 
             totalCardsToDiscard);
@@ -40,7 +41,7 @@ public class Chrisjericho: SuperStar
     {
         SuperStar superStarOpponent = playerOnWait.SuperStar;
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Hand),
+            playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand),
             superStarOpponent.Name!, 
             superStarOpponent.Name!, 
             totalCardsToDiscard);

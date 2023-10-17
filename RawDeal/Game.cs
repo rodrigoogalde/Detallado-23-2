@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
@@ -22,7 +23,7 @@ public class Game
     private const int EmptyDeck = 0;
 
     private NextPlay _optionChoosed;
-    private CardSet _optionWhichCardsToSee;
+    private CardSetFull _optionWhichCardsToSee;
     private bool _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     private bool _playerCanUseHisAbility;
     private bool _playerUseHisAbilityInTheTurn;
@@ -153,10 +154,32 @@ public class Game
 
     private void ChooseWhichCardsYouWantToSee()
     {
-        _optionWhichCardsToSee = _view.AskUserWhatSetOfCardsHeWantsToSee();
-        _view.ShowCards(_optionWhichCardsToSee is CardSet.OpponentsRingArea or CardSet.OpponentsRingsidePile
+        ChangeFormatterCardSet(_view.AskUserWhatSetOfCardsHeWantsToSee());
+        _view.ShowCards(_optionWhichCardsToSee is CardSetFull.OpponentsRingArea or CardSetFull.OpponentsRingsidePile
             ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee)
             : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
+    }
+
+    private void ChangeFormatterCardSet(CardSet cardSet)
+    {
+        switch (cardSet)
+        {
+            case CardSet.Hand:
+                _optionWhichCardsToSee = CardSetFull.Hand;
+                break;
+            case CardSet.RingArea:
+                _optionWhichCardsToSee = CardSetFull.RingArea;
+                break;
+            case CardSet.RingsidePile:
+                _optionWhichCardsToSee = CardSetFull.RingsidePile;
+                break;
+            case CardSet.OpponentsRingArea:
+                _optionWhichCardsToSee = CardSetFull.OpponentsRingArea;
+                break;
+            case CardSet.OpponentsRingsidePile:
+                _optionWhichCardsToSee = CardSetFull.OpponentsRingsidePile;
+                break;
+        }
     }
     
     private void ChooseWhichCardDoYouWantToPlayOrPass(int optionCardChoosed)
@@ -216,9 +239,9 @@ public class Game
     
     private void CheckIfSomePlayerRunOutOfArsenalCards()
     {
-        if (_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count == EmptyDeck) 
+        if (_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerWaiting; }
-        else if (_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count == EmptyDeck) 
+        else if (_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerOnTurn; }
     }
 
