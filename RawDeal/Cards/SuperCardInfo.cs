@@ -1,26 +1,19 @@
 using System.Text.Json;
+using RawDeal.DeserializeFormatter;
 
 namespace RawDeal.Cards;
 
 public class SuperCardFormatter
 {
-    public readonly List<Root>? CardsJson;
+    public readonly List<SuperCardModel>? CardsJson;
     
     public SuperCardFormatter()
     {
         var infoCards = File.ReadAllText(Path.Combine("data", "superstar.json"));
-        CardsJson = JsonSerializer.Deserialize<List<Root>>(infoCards, 
+        CardsJson = JsonSerializer.Deserialize<List<SuperCardModel>>(infoCards, 
             new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
     }
-
-    public class Root
-    {
-        public string? Name { get; set; }
-        public string? Logo { get; set; }
-        public int HandSize { get; set; }
-        public int SuperstarValue { get; set; }
-        public string? SuperstarAbility { get; set;}
-    }
+    
     public void LoadCardData(SuperCardInfo superCard)
     {
         foreach (var cardJson in CardsJson!.Where(cardJson => cardJson.Name == superCard.Name))
