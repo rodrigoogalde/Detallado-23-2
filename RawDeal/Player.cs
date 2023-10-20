@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -201,9 +202,15 @@ public class Player
     private void MoveCardFromArsenalToRingSide(int currentDamage, int totalDamage)
     {
         Card card = _cardsInArsenal!.Last();
+        
         _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormaterCardInfo(card)), currentDamage, totalDamage);
         _cardsInArsenal!.Remove(card);
         _cardsInRingside.Add(card);
+    }
+
+    private void CheckReversalFromArsenal(Card card)
+    {
+        // card.CanBeUsedAsReversal()
     }
 
     public void MoveCardFromRingsideToArsenal(int index)
@@ -319,12 +326,21 @@ public class Player
         return false;
     }
 
-    private void CheckIfHasPlayeableReversalInHand()
+    private List<Card> CheckIfHasPlayeableReversalInHand(Card cardPlayedForTheOpponent)
     {
+        List<Card> playeableReversalCardsInHand = new List<Card>(); // Revisar si entregar Card o FormatterCardInfo
         foreach (Card card in _cardsInHand)
         {
+            if (card.CanBeUsedAsReversal(Convert.ToInt32(cardPlayedForTheOpponent.Fortitude),
+                    cardPlayedForTheOpponent.Subtypes!))
+            {
+                playeableReversalCardsInHand.Add(card);
+                
+            }
             
-        }   
+        }
+
+        return playeableReversalCardsInHand;
     }
     
 }

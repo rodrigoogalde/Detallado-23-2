@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -117,13 +118,27 @@ public class Game
 
     private void PlayerPlayHisTurn()
     {
-        while (_optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack)
+        while (!CheckIfTheTurnsEnds())
+        {
+            TryPlayerActions();
+        }
+    }
+    
+    private void TryPlayerActions()
+    {
+        try
         {
             CheckIfPlayerHasTheConditionsToUseHisAbility();
             _view.ShowGameInfo(_playerOnTurn.GetPlayerInfo(), _playerWaiting.GetPlayerInfo());  
             ChooseAnOption();
-        }
+        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerOnTurn); }
     }
+
+    private bool CheckIfTheTurnsEnds()
+    {
+        return _optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
+    }
+        
 
     private void ChooseAnOption()
     {
@@ -201,7 +216,7 @@ public class Game
             _playerOnTurn.PlayCardAsAction(card);
         }
         else {
-            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); 
+            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); // Checkar aqui para 1.txt
             _playerOnTurn.MoveCardFromHandToRingArea(card);
         }
     }
