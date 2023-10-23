@@ -8,11 +8,11 @@ public class SuperCardInfo
     public readonly string Name;
     public string? Logo;
 
-    private readonly SuperCardFormatter _superCardInfo = new();
+    private readonly SuperCardFormatter _loaderSuperCardInfo = new();
 
     public SuperCardInfo(string name)
     {
         Name = name;
-        _superCardInfo.LoadCardData(this);
+        _loaderSuperCardInfo.LoadCardData(this);
     }
 }

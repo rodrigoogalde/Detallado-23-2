@@ -1,7 +1,7 @@
 using RawDealView.Formatters;
 namespace RawDeal.Cards;
 
-public class FormaterCardInfo: IViewableCardInfo
+public class FormatterCardInfo: IViewableCardInfo
 {
     public string Title { get; }
     public string Fortitude { get; }
@@ -11,7 +11,7 @@ public class FormaterCardInfo: IViewableCardInfo
     public List<string> Subtypes { get; }
     public string? CardEffect { get; }
 
-    public FormaterCardInfo(Card card)
+    public FormatterCardInfo(Card card)
     {
         Title = card.Title;
         Fortitude = card.Fortitude;

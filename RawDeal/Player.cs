@@ -1,10 +1,12 @@
 using RawDeal.Cards;
+using RawDeal.Decks;
 using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
+using FormatterCardInfo = RawDeal.Cards.FormatterCardInfo;
 
 namespace RawDeal;
 
@@ -16,8 +18,9 @@ public class Player
     private List<Card> _cardsInHand;
     private List<Card> _cardsInRingside;
     private List<Card> _cardsInRingArea;
-    private List<FormatterCardInfo> _playeablesCardsInHand;
-    private List<FormatterCardInfo> _reversalCardsInHand;
+    private HandDeck _cardsInHand2;
+    private List<FormatterCardRepresentation> _playeablesCardsInHand;
+    private List<FormatterCardRepresentation> _reversalCardsInHand;
     private List<string> _playeablesCardsInHandInStringFormat;
     private int _indexCardToDiscard;
     
@@ -35,6 +38,7 @@ public class Player
         _pathDeck = pathDeck;
         _cardsInArsenal = new List<Card>();
         _cardsInHand = new List<Card>();
+        _cardsInHand2 = new HandDeck();
         _cardsInRingside = new List<Card>();
         _cardsInRingArea = new List<Card>();
         _view = view;
@@ -101,6 +105,7 @@ public class Player
     {
         Card card = _cardsInArsenal!.Last();
         _cardsInHand.Add(card);
+        _cardsInHand2.Add(card);
         _cardsInArsenal!.Remove(card);
     }
 
@@ -123,6 +128,7 @@ public class Player
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInArsenal!);
                 break;
             case CardSetFull.Hand:
+                // cardsInStringFormat = _cardsInHand2.TransformListOfCardsIntoStringFormat();
                 cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInHand);
                 break;
             case CardSetFull.RingArea or CardSetFull.OpponentsRingArea:
@@ -137,7 +143,7 @@ public class Player
 
     private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
         (cards.Count > EmptyDeck)
-            ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
+            ? cards.Select(card => Formatter.CardToString(new FormatterCardInfo(card))).ToList()
             : new List<string>();
     
     public List<string> TransformPlayableCardsInHandIntoStringFormat()
@@ -148,9 +154,9 @@ public class Player
 
     private void CheckWhichCardsArePlayeable()
     {
-        _playeablesCardsInHand = new List<FormatterCardInfo>();
+        _playeablesCardsInHand = new List<Utils.FormatterCardRepresentation>();
         _playeablesCardsInHandInStringFormat = new List<string>();
-        foreach (var card in _cardsInHand.Where(IsPlayableCard))
+        foreach (var card in _cardsInHand.Where(card => card.IsPlayeableCard(_fortitude)))
         {
             AddAllTypesToPlayeableCardsList(card);
         }
@@ -162,7 +168,7 @@ public class Player
         {
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
-            _playeablesCardsInHand.Add( new FormatterCardInfo { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
+            _playeablesCardsInHand.Add( new Utils.FormatterCardRepresentation { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
         }
     }
     
@@ -173,7 +179,7 @@ public class Player
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
         MoveCardFromHandToRingSide(cardToPlay);
     }
-    public FormatterCardInfo CheckWhichCardWillBePlayed(int indexCardToDiscard)
+    public Utils.FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
     {
         _indexCardToDiscard = indexCardToDiscard;
         TransformPlayableCardsInHandIntoStringFormat();
@@ -203,7 +209,7 @@ public class Player
     {
         Card card = _cardsInArsenal!.Last();
         
-        _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormaterCardInfo(card)), currentDamage, totalDamage);
+        _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), currentDamage, totalDamage);
         _cardsInArsenal!.Remove(card);
         _cardsInRingside.Add(card);
     }

@@ -11,12 +11,12 @@ public class Card
     public string? Damage;
 
     public bool HasAnotherLogo;
-    private readonly CardInfo _cardInfo = new();
+    private readonly LoaderCardInfo _loaderCardInfo = new();
     
     public Card(string title)
     {
         Title = title;
-        _cardInfo.LoadCardData(this);
+        _loaderCardInfo.LoadCardData(this);
     }
     
     public void CheckIfHaveAnotherLogo(SuperCardInfo superCard)
@@ -26,6 +26,12 @@ public class Card
         {
             HasAnotherLogo = true;
         }
+    }
+
+    public bool IsPlayeableCard(int fortitude)
+    {
+        return (Types!.Contains("Maneuver") || Types.Contains("Action")) 
+               && fortitude >= long.Parse(Fortitude) ;
     }
     
     public bool CanBeUsedAsReversal(int fortitude, List<string> subTypes)

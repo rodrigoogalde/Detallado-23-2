@@ -204,12 +204,12 @@ public class Game
     
     private void PlayerChooseToPlayACard(int optionCardChoosed)
     {
-        FormatterCardInfo cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
+        FormatterCardRepresentation cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed(cardChoseenInBothFormats);
     }
     
-    private void CheckPlayModeOfTheCardPlayed(FormatterCardInfo cardChoseen)
+    private void CheckPlayModeOfTheCardPlayed(FormatterCardRepresentation cardChoseen)
     {
         Card card = cardChoseen.CardInObjectFormat!;
         if (cardChoseen.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
