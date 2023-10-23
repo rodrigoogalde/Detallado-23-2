@@ -54,4 +54,30 @@ public abstract class Collection<T>: ICollection<T>
     public int Count => _collectionImplementation.Count;
 
     public bool IsReadOnly => _collectionImplementation.IsReadOnly;
+    
+    public T this[int index]
+    {
+        get
+        {
+            CheckIfIndexIsValid(index);
+            CheckIfIndexIsSupported();
+            return ((List<T>)_collectionImplementation)[index];
+        }
+    }
+    
+    private void CheckIfIndexIsValid(int index)
+    {
+        if (index < 0 || index >= Count)
+        {
+            throw new IndexOutOfRangeException("Index is out of range.");
+        }
+    }
+    
+    private void CheckIfIndexIsSupported()
+    {
+        if (_collectionImplementation is not List<T> list)
+        {
+            throw new IndexOutOfRangeException("Index is out of range.");
+        }
+    }
 }
