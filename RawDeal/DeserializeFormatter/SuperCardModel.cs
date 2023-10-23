@@ -1,6 +1,6 @@
 namespace RawDeal.DeserializeFormatter;
 
-public abstract class SuperCardModel
+public class SuperCardModel
 {
         public string? Name { get; set; }
         public string? Logo { get; set; }

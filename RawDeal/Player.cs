@@ -14,11 +14,10 @@ public class Player
 {
     private readonly View _view;
     public SuperStar SuperStar;
-    private readonly List<Card>? _cardsInArsenal;
-    private List<Card> _cardsInHand;
-    private List<Card> _cardsInRingside;
-    private List<Card> _cardsInRingArea;
-    private HandDeck _cardsInHand2;
+    private readonly Deck _cardsInArsenal;
+    private Deck _cardsInRingside;
+    private Deck _cardsInRingArea;
+    private Deck _cardsInHand;
     private List<FormatterCardRepresentation> _playeablesCardsInHand;
     private List<FormatterCardRepresentation> _reversalCardsInHand;
     private List<string> _playeablesCardsInHandInStringFormat;
@@ -36,11 +35,10 @@ public class Player
     public Player(string pathDeck, View view)
     {
         _pathDeck = pathDeck;
-        _cardsInArsenal = new List<Card>();
-        _cardsInHand = new List<Card>();
-        _cardsInHand2 = new HandDeck();
-        _cardsInRingside = new List<Card>();
-        _cardsInRingArea = new List<Card>();
+        _cardsInArsenal = new Deck(new List<Card>());
+        _cardsInHand = new Deck(new List<Card>());
+        _cardsInRingside = new Deck(new List<Card>());
+        _cardsInRingArea = new Deck(new List<Card>());
         _view = view;
         
         ReadDeck();
@@ -105,7 +103,6 @@ public class Player
     {
         Card card = _cardsInArsenal!.Last();
         _cardsInHand.Add(card);
-        _cardsInHand2.Add(card);
         _cardsInArsenal!.Remove(card);
     }
 
@@ -125,25 +122,20 @@ public class Player
         switch (cardSet)
         {
             case CardSetFull.Arsenal:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInArsenal!);
+                cardsInStringFormat = _cardsInArsenal.TransformListOfCardsIntoStringFormat();
                 break;
             case CardSetFull.Hand:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInHand2);
+                cardsInStringFormat = _cardsInHand.TransformListOfCardsIntoStringFormat();
                 break;
             case CardSetFull.RingArea or CardSetFull.OpponentsRingArea:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingArea);
+                cardsInStringFormat = _cardsInRingArea.TransformListOfCardsIntoStringFormat();
                 break;
             case CardSetFull.RingsidePile or CardSetFull.OpponentsRingsidePile:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingside);
+                cardsInStringFormat = _cardsInRingside.TransformListOfCardsIntoStringFormat();
                 break;
         }
         return cardsInStringFormat;
     }
-
-    private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
-        (cards.Count > EmptyDeck)
-            ? cards.Select(card => Formatter.CardToString(new FormatterCardInfo(card))).ToList()
-            : new List<string>();
     
     public List<string> TransformPlayableCardsInHandIntoStringFormat()
     {
@@ -178,7 +170,7 @@ public class Player
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
         MoveCardFromHandToRingSide(cardToPlay);
     }
-    public Utils.FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
+    public FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
     {
         _indexCardToDiscard = indexCardToDiscard;
         TransformPlayableCardsInHandIntoStringFormat();
@@ -189,8 +181,7 @@ public class Player
     
     public void MoveCardFromHandToRingArea(Card cardToDiscard)
     {
-        // _cardsInHand.Remove(cardToDiscard);
-        _cardsInHand2.Remove(cardToDiscard);
+        _cardsInHand.Remove(cardToDiscard);
         _cardsInRingArea.Add(cardToDiscard);
         _fortitude += int.Parse(cardToDiscard.Damage!);
     }
@@ -228,10 +219,8 @@ public class Player
     
     public void DiscardCardFromHandToRingside(int index)
     {
-        // Card cardToDiscard = _cardsInHand[index];
-        Card cardToDiscard = _cardsInHand2[index];
-        // _cardsInHand.Remove(cardToDiscard);
-        _cardsInHand2.Remove(cardToDiscard);
+        Card cardToDiscard = _cardsInHand[index];
+        _cardsInHand.Remove(cardToDiscard);
         _cardsInRingside.Add(cardToDiscard);
     }
     
@@ -239,8 +228,7 @@ public class Player
     {
         Card cardToRecover = _cardsInRingside[index];
         _cardsInRingside.Remove(cardToRecover);
-        // _cardsInHand.Add(cardToRecover);
-        _cardsInHand2.Add(cardToRecover);
+        _cardsInHand.Add(cardToRecover);
     }
     
 
@@ -248,23 +236,19 @@ public class Player
     {
         Card card = _cardsInArsenal!.Last();
         _cardsInArsenal!.Remove(card);
-        // _cardsInHand.Add(card);
-        _cardsInHand2.Add(card);
+        _cardsInHand.Add(card);
     }
     
     public void MoveCardFromHandToArsenalBottom(int index)
     {
-        // Card card = _cardsInHand[index];
-        Card card = _cardsInHand2[index];
-        // _cardsInHand.Remove(card);
-        _cardsInHand2.Remove(card);
+        Card card = _cardsInHand[index];
+        _cardsInHand.Remove(card);
         _cardsInArsenal!.Insert(0, card);
     }
     
     private void MoveCardFromHandToRingSide(Card cardToDiscard)
     {
-        // _cardsInHand.Remove(cardToDiscard);
-        _cardsInHand2.Remove(cardToDiscard);
+        _cardsInHand.Remove(cardToDiscard);
         _cardsInRingside.Add(cardToDiscard);
     }
     
@@ -317,8 +301,7 @@ public class Player
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
-        // return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
-        return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand2.Count, _cardsInArsenal!.Count);
+        return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
     }
 
 
