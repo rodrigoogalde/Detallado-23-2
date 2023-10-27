@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -16,6 +17,7 @@ public class Game
     private Player _playerOnTurn = null!;
     private Player _playerWaiting = null!;
     private Player? _winnerPlayer;
+    private FormatterCardRepresentation _cardChoseenInBothFormats;
     
     private const int OptionComeBack = -1;
     
@@ -117,13 +119,33 @@ public class Game
 
     private void PlayerPlayHisTurn()
     {
-        while (_optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack)
+        try
         {
-            CheckIfPlayerHasTheConditionsToUseHisAbility();
-            _view.ShowGameInfo(_playerOnTurn.GetPlayerInfo(), _playerWaiting.GetPlayerInfo());  
-            ChooseAnOption();
+            LoopUntilPlayerEndsHisTurn();
+        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
+        
+    }
+
+    private void LoopUntilPlayerEndsHisTurn()
+    {
+        while (CheckIfTheTurnsEnds())
+        {
+            TryPlayerActions();
         }
     }
+    
+    private void TryPlayerActions()
+    {
+        CheckIfPlayerHasTheConditionsToUseHisAbility();
+        _view.ShowGameInfo(_playerOnTurn.GetPlayerInfo(), _playerWaiting.GetPlayerInfo());  
+        ChooseAnOption();
+    }
+
+    private bool CheckIfTheTurnsEnds()
+    {
+        return _optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
+    }
+        
 
     private void ChooseAnOption()
     {
@@ -139,7 +161,7 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.TransformPlayableCardsInHandIntoStringFormat()));
+                ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards()));
                 break;
             case NextPlay.EndTurn:
                 break;
@@ -189,20 +211,21 @@ public class Game
     
     private void PlayerChooseToPlayACard(int optionCardChoosed)
     {
-        FormatterCardInfo cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
+        _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
+        _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
         _view.SayThatPlayerSuccessfullyPlayedACard();
-        CheckPlayModeOfTheCardPlayed(cardChoseenInBothFormats);
+        CheckPlayModeOfTheCardPlayed();
     }
     
-    private void CheckPlayModeOfTheCardPlayed(FormatterCardInfo cardChoseen)
+    private void CheckPlayModeOfTheCardPlayed()
     {
-        Card card = cardChoseen.CardInObjectFormat!;
-        if (cardChoseen.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
+        Card card = _cardChoseenInBothFormats.CardInObjectFormat!;
+        if (_cardChoseenInBothFormats.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
             _playerOnTurn.PlayCardAsAction(card);
         }
         else {
-            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); 
             _playerOnTurn.MoveCardFromHandToRingArea(card);
+            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); // Checkar aqui para 1.txt
         }
     }
 

@@ -9,7 +9,7 @@ public class FormatterPlayableCardInfo: IViewablePlayInfo
     
     public FormatterPlayableCardInfo(Card card, string playedAs)
     {
-        CardInfo = new FormaterCardInfo(card);
+        CardInfo = new FormatterCardInfo(card);
         PlayedAs = playedAs;
     }
 }
