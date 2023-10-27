@@ -173,10 +173,16 @@ public class Player
         }
     }
 
-    public List<string> MakeAListOfReversalCards()
+    public List<string> MakeAListOfReversalCardsInStringFormat()
     {
         CheckWhichCardsAreReversal();
         return _reversalCardsInHandInStringFormat.ToList();
+    }
+
+    public CardRepresentationCollection MakeAListOfReversalCards()
+    {
+        CheckWhichCardsAreReversal();
+        return _reversalCardsInHand;
     }
     
     // TODO: refactorizar esto
@@ -190,7 +196,6 @@ public class Player
             {
                 AddAllTypesToReversalCardsList(card);
             }
-        
         }
     }
     

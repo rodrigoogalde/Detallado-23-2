@@ -124,7 +124,7 @@ public class Game
         {
             LoopUntilPlayerEndsHisTurn();
         } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
-        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting, 0); }
+        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting, _optionCardChoosed); }
         
     }
 
@@ -226,7 +226,7 @@ public class Game
     {
         if (!_playerWaiting.CanReverseTheCardPlayed()) return;
         SuperStar superStarOpponent = _playerWaiting.SuperStar;
-        _optionCardChoosed = _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCards());
+        _optionCardChoosed = _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCardsInStringFormat());
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
     
@@ -234,7 +234,8 @@ public class Game
     {
         if (_optionCardChoosed != OptionComeBack)
         {
-            throw new ReversalFromDeckException();
+            _playerWaiting.MoveCardFromHandToRingArea(_playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed]);
+            throw new ReversalFromHandException();
         }
     }
     
