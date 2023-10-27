@@ -14,13 +14,14 @@ public class Player
 {
     private readonly View _view;
     public SuperStar SuperStar;
-    private readonly Deck _cardsInArsenal;
-    private Deck _cardsInRingside;
-    private Deck _cardsInRingArea;
-    private Deck _cardsInHand;
-    private PlayeableCardsInHand _playeablesCardsInHand;
-    private ReversalCardsInHand _reversalCardsInHand;
-    private List<string> _playeablesCardsInHandInStringFormat;
+    private readonly DeckCollection _cardsInArsenal;
+    private DeckCollection _cardsInRingside;
+    private DeckCollection _cardsInRingArea;
+    private DeckCollection _cardsInHand;
+    private CardRepresentationCollection _playeablesCardsInHand;
+    private CardRepresentationCollection _reversalCardsInHand;
+    private StringCollection _playeablesCardsInHandInStringFormat;
+    private StringCollection _reversalCardsInHandInStringFormat;
     private int _indexCardToDiscard;
     private FormatterCardRepresentation _cardPlayedByOpponent;
     
@@ -36,11 +37,12 @@ public class Player
     public Player(string pathDeck, View view)
     {
         _pathDeck = pathDeck;
-        _cardsInArsenal = new Deck(new List<Card>());
-        _cardsInHand = new Deck(new List<Card>());
-        _cardsInRingside = new Deck(new List<Card>());
-        _cardsInRingArea = new Deck(new List<Card>());
+        _cardsInArsenal = new DeckCollection(new List<Card>());
+        _cardsInHand = new DeckCollection(new List<Card>());
+        _cardsInRingside = new DeckCollection(new List<Card>());
+        _cardsInRingArea = new DeckCollection(new List<Card>());
         _cardPlayedByOpponent = new FormatterCardRepresentation();
+        _reversalCardsInHandInStringFormat = new StringCollection(new List<string>());
         _view = view;
         
         ReadDeck();
@@ -142,13 +144,13 @@ public class Player
     public List<string> MakeAListOfPlayeableCards()
     {
         CheckWhichCardsArePlayeable();
-        return _playeablesCardsInHandInStringFormat;
+        return _playeablesCardsInHandInStringFormat.ToList();
     }
 
     private void CheckWhichCardsArePlayeable()
     {
-        _playeablesCardsInHand = new PlayeableCardsInHand(new List<FormatterCardRepresentation>());
-        _playeablesCardsInHandInStringFormat = new List<string>();
+        _playeablesCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
+        _playeablesCardsInHandInStringFormat = new StringCollection(new List<string>());
         foreach (var card in _cardsInHand.Where(card => card.IsPlayeableCard(_fortitude)))
         {
             AddAllTypesToPlayeableCardsList(card);
@@ -162,6 +164,34 @@ public class Player
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
             _playeablesCardsInHand.Add( new FormatterCardRepresentation
+            {
+                CardInObjectFormat = card,
+                CardInStringFormat = formaterPlayableCardInfo,
+                Type = type.ToUpper()
+            });
+        }
+    }
+
+    public List<string> MakeAListOfReversalCards()
+    {
+        CheckWhichCardsAreReversal();
+        return _reversalCardsInHandInStringFormat.ToList();
+    }
+    private void CheckWhichCardsAreReversal()
+    {
+        _reversalCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
+        foreach (var card in _cardsInHand.Where(card => card.Subtypes!.Contains("Reversal")))
+        {
+            AddAllTypesToReversalCardsList(card);
+        }
+    }
+    
+    private void AddAllTypesToReversalCardsList(Card card)
+    {
+        foreach (var type in card.Types!)
+        {
+            var formaterPlayableCardInfo = Formatter.CardToString(new FormatterCardInfo(card));
+            _reversalCardsInHand.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
                 CardInStringFormat = formaterPlayableCardInfo,
@@ -212,20 +242,12 @@ public class Player
     {
         Card card = _cardsInArsenal.Last();
         _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), currentDamage, totalDamage);
-        bool opponentReversedTheAttack = _cardPlayedByOpponent.Type != "" && CheckReversalFromArsenal(card);
+        bool opponentReversedTheAttack = _cardPlayedByOpponent.Type != "" && CheckReversalOfTheCardPlayedByTheOpponent(card);
         _cardsInArsenal.Remove(card);
         _cardsInRingside.Add(card);
         if (opponentReversedTheAttack) {throw new ReversalFromDeckException();}
     }
-
-    private bool CheckReversalFromArsenal(Card card)
-    {
-        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        return (from subtype in card.Subtypes! 
-                where subtype.Contains("Reversal") 
-                select subtype.Split("Reversal")[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
-    }
-
+    
     public void MoveCardFromRingsideToArsenal(int index)
     {
         Card cardToRecover = _cardsInRingside[index];
@@ -247,7 +269,6 @@ public class Player
         _cardsInHand.Add(cardToRecover);
     }
     
-
     public void MoveTopeCardFromArsenalToHand()
     {
         Card card = _cardsInArsenal.Last();
@@ -266,6 +287,30 @@ public class Player
     {
         _cardsInHand.Remove(cardToDiscard);
         _cardsInRingside.Add(cardToDiscard);
+    }
+    
+    private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
+    {
+        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
+        return (from subtype in card.Subtypes! 
+            where subtype.Contains("Reversal") 
+            select subtype.Split("Reversal")[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+    }
+
+    public bool CanReverseTheCardPlayed()
+    {
+        CheckWhichCardsAreReversal();
+        return PlayerHasAllConditionsToPlayReversal();
+    }
+    
+    private bool PlayerHasAllConditionsToPlayReversal()
+    {
+        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
+        bool hasConditions = _fortitude >= int.Parse(cardPlayedByOpponent.Fortitude)
+                            && _reversalCardsInHand.Count != EmptyDeck
+                            && _reversalCardsInHand.Any(card =>
+                            CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); 
+        return hasConditions;
     }
     
     private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)

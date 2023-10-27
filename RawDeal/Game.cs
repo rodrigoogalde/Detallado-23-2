@@ -213,8 +213,20 @@ public class Game
     {
         _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
         _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
+        // TODO: Agregar reversal from hand
+        
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
+    }
+    
+    private void CheckIfPlayerCanReverseTheCardPlayed()
+    {
+        if (_playerWaiting.CanReverseTheCardPlayed())
+        {
+            SuperStar superStarOpponent = _playerWaiting.SuperStar;
+            _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCards());
+            // ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerWaiting.MakeAListOfReversalCards()));
+        }
     }
     
     private void CheckPlayModeOfTheCardPlayed()
