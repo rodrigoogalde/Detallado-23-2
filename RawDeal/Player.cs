@@ -275,6 +275,12 @@ public class Player
         _cardsInHand.Remove(cardToDiscard);
         _cardsInRingside.Add(cardToDiscard);
     }
+
+    public void CardFromHandToRingside(Card card)
+    {
+        _cardsInHand.Remove(card);
+        _cardsInRingside.Add(card);
+    }
     
     public void MoveCardFromRingsideToHand(int index)
     {
@@ -311,14 +317,15 @@ public class Player
     private bool CheckReversalForAction(Card card)
     {
         return _cardPlayedByOpponent.Type == "ACTION" &&
-               card.Subtypes!.Any(subtype => subtype.Contains("ReversalAction"));
+               card.Subtypes!.Any(subtype =>
+                   subtype.Contains("ReversalAction") && _fortitude >= int.Parse(card.Fortitude));
     }
 
     private bool CheckReversalForCardType(Card card)
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
         return (from subtype in card.Subtypes! 
-            where subtype.Contains(ReversalCardType) && _cardPlayedByOpponent.Type != "ACTION"
+            where subtype.Contains(ReversalCardType) && _cardPlayedByOpponent.Type != "ACTION" && _fortitude >= int.Parse(card.Fortitude)
             select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
 
@@ -331,9 +338,7 @@ public class Player
     
     private bool PlayerHasAllConditionsToPlayReversal()
     {
-        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        bool hasConditions = _fortitude >= int.Parse(cardPlayedByOpponent.Fortitude)
-                            && _reversalCardsInHand.Count != EmptyDeck
+        bool hasConditions = _reversalCardsInHand.Count != EmptyDeck
                             && _reversalCardsInHand.Any(card =>
                             CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); 
         return hasConditions;

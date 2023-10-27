@@ -125,7 +125,6 @@ public class Game
             LoopUntilPlayerEndsHisTurn();
         } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
         catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
-        
     }
 
     private void LoopUntilPlayerEndsHisTurn()
@@ -216,7 +215,6 @@ public class Game
     {
         _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(_optionCardChoosed);
         _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
-        // TODO: Agregar reversal from hand
         CheckIfPlayerCanReverseTheCardPlayed();
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
@@ -235,6 +233,7 @@ public class Game
         if (_optionCardChoosed != OptionComeBack)
         {
             var card = _playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed];
+            _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats.CardInObjectFormat!);
             _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
             throw new ReversalFromHandException(card);
         }
