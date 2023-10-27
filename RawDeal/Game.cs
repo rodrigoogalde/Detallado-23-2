@@ -32,7 +32,6 @@ public class Game
     private bool _playerUseHisAbilityInTheTurn;
     
     private const string ActionCardType = "Action";
-    private const string ManeuverCardType = "Maneuver";
 
 
     public Game(View view, string deckFolder)
@@ -55,7 +54,6 @@ public class Game
         try
         {
             ValidatePlayersDeck();
-            
             InitializeGame();
         } catch (InvalidDeckException e) { e.InvalidDeckMessage(_view); }
     }
@@ -163,7 +161,7 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards());
+                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards().ToList());
                 ChooseWhichCardDoYouWantToPlayOrPass();
                 break;
             case NextPlay.EndTurn:
@@ -295,6 +293,8 @@ public class Game
     {
         (_playerOnTurn, _playerWaiting) = (_playerWaiting, _playerOnTurn);
         (_optionChoosed, _optionWhichCardsToSee, _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
+        _playerOnTurn.CleanDataFromPastTurn();
+        _playerWaiting.CleanDataFromPastTurn();
     }
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()

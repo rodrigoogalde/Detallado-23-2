@@ -142,10 +142,10 @@ public class Player
         return cardsInStringFormat;
     }
     
-    public List<string> MakeAListOfPlayeableCards()
+    public StringCollection MakeAListOfPlayeableCards()
     {
         CheckWhichCardsArePlayeable();
-        return _playeablesCardsInHandInStringFormat.ToList();
+        return _playeablesCardsInHandInStringFormat;
     }
 
     private void CheckWhichCardsArePlayeable()
@@ -250,11 +250,10 @@ public class Player
 
     private void TryReversalFromMaze(Card card, int remainingDamage)
     {
-        if (CheckReversalOfTheCardPlayedByTheOpponent(card))
-        {
-            int stunValue = CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(remainingDamage);
-            throw new ReversalFromDeckException(stunValue);
-        }
+        if (!CheckReversalOfTheCardPlayedByTheOpponent(card)) return;
+        int stunValue = CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(remainingDamage);
+        _cardPlayedByOpponent = new FormatterCardRepresentation();
+        throw new ReversalFromDeckException(stunValue);
     }
     
     private int CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(int remainingDamage)
@@ -330,7 +329,12 @@ public class Player
     
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
-        return CheckReversalForAction(card) || CheckReversalForCardType(card);
+        bool isReversal = _cardPlayedByOpponent.Type != null;
+        if (isReversal)
+        {
+            isReversal = CheckReversalForAction(card) || CheckReversalForCardType(card);
+        }
+        return isReversal;
     }
 
     private bool CheckReversalForAction(Card card)
@@ -352,10 +356,10 @@ public class Player
     public bool CanReverseTheCardPlayed()
     {
         CheckWhichCardsAreReversal();
-        return PlayerHasAllConditionsToPlayReversal();
+        return PlayerHasAllConditionsToPlayReversalFromHand();
     }
     
-    private bool PlayerHasAllConditionsToPlayReversal()
+    private bool PlayerHasAllConditionsToPlayReversalFromHand()
     {
         bool hasConditions = _reversalCardsInHand.Count != EmptyDeck
                             && _reversalCardsInHand.Any(card =>
@@ -411,6 +415,11 @@ public class Player
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
         return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal.Count);
+    }
+    
+    public void CleanDataFromPastTurn()
+    {
+        _cardPlayedByOpponent = new FormatterCardRepresentation();
     }
     
 }
