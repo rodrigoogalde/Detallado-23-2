@@ -3,11 +3,11 @@ using RawDeal.DeserializeFormatter;
 
 namespace RawDeal.Cards;
 
-public class SuperCardFormatter
+public class LoaderSuperCardInfo
 {
     public readonly List<SuperCardModel>? CardsJson;
     
-    public SuperCardFormatter()
+    public LoaderSuperCardInfo()
     {
         var infoCards = File.ReadAllText(Path.Combine("data", "superstar.json"));
         CardsJson = JsonSerializer.Deserialize<List<SuperCardModel>>(infoCards, 

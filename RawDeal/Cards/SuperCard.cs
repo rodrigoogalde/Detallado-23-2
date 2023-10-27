@@ -8,7 +8,7 @@ public class SuperCardInfo
     public readonly string Name;
     public string? Logo;
 
-    private readonly SuperCardFormatter _loaderSuperCardInfo = new();
+    private readonly LoaderSuperCardInfo _loaderSuperCardInfo = new();
 
     public SuperCardInfo(string name)
     {
