@@ -2,11 +2,11 @@ using RawDeal.SuperStarsCards;
 using RawDealView;
 namespace RawDeal.Exceptions;
 
-public class ReversalFromDeckException: Exception
+public class ReversalFromHandException: Exception
 {
-    public void ReversalFromDeckMessage(View view, Player player)
+    public void ReversalFromHandMessage(View view, Player player, int optionCardChoosed)
     {
-        SuperStar superStar = player.SuperStar;
-        view.SayThatCardWasReversedByDeck(superStar.Name!);
+        SuperStar superStarOpponent = player.SuperStar;
+        view.SayThatPlayerReversedTheCard(superStarOpponent.Name!, player.MakeAListOfReversalCards()[optionCardChoosed]);
     }
 }

@@ -25,6 +25,7 @@ public class Game
     private const int EmptyDeck = 0;
 
     private NextPlay _optionChoosed;
+    private int _optionCardChoosed;
     private CardSetFull _optionWhichCardsToSee;
     private bool _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     private bool _playerCanUseHisAbility;
@@ -123,6 +124,7 @@ public class Game
         {
             LoopUntilPlayerEndsHisTurn();
         } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
+        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting, 0); }
         
     }
 
@@ -161,7 +163,8 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards()));
+                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards());
+                ChooseWhichCardDoYouWantToPlayOrPass();
                 break;
             case NextPlay.EndTurn:
                 break;
@@ -204,28 +207,34 @@ public class Game
         }
     }
     
-    private void ChooseWhichCardDoYouWantToPlayOrPass(int optionCardChoosed)
+    private void ChooseWhichCardDoYouWantToPlayOrPass()
     {
-        if (optionCardChoosed != OptionComeBack) { PlayerChooseToPlayACard(optionCardChoosed); } 
+        if (_optionCardChoosed != OptionComeBack) { PlayerChooseToPlayACard(); } 
     }
     
-    private void PlayerChooseToPlayACard(int optionCardChoosed)
+    private void PlayerChooseToPlayACard()
     {
-        _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(optionCardChoosed);
+        _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(_optionCardChoosed);
         _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
         // TODO: Agregar reversal from hand
-        
+        CheckIfPlayerCanReverseTheCardPlayed();
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
     }
     
     private void CheckIfPlayerCanReverseTheCardPlayed()
     {
-        if (_playerWaiting.CanReverseTheCardPlayed())
+        if (!_playerWaiting.CanReverseTheCardPlayed()) return;
+        SuperStar superStarOpponent = _playerWaiting.SuperStar;
+        _optionCardChoosed = _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCards());
+        CheckIfPlayerReversedTheCardPlayedByOpponent();
+    }
+    
+    private void CheckIfPlayerReversedTheCardPlayedByOpponent()
+    {
+        if (_optionCardChoosed != OptionComeBack)
         {
-            SuperStar superStarOpponent = _playerWaiting.SuperStar;
-            _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCards());
-            // ChooseWhichCardDoYouWantToPlayOrPass(_view.AskUserToSelectAPlay(_playerWaiting.MakeAListOfReversalCards()));
+            throw new ReversalFromDeckException();
         }
     }
     
@@ -237,7 +246,7 @@ public class Game
         }
         else {
             _playerOnTurn.MoveCardFromHandToRingArea(card);
-            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage)); // Checkar aqui para 1.txt
+            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage));
         }
     }
 

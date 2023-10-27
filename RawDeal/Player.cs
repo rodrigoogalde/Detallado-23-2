@@ -33,6 +33,7 @@ public class Player
 
     private const int MaxDeckSize = 60;
     private const int EmptyDeck = 0;
+    private const string ReversalCardType = "Reversal";
 
     public Player(string pathDeck, View view)
     {
@@ -177,12 +178,19 @@ public class Player
         CheckWhichCardsAreReversal();
         return _reversalCardsInHandInStringFormat.ToList();
     }
+    
+    // TODO: refactorizar esto
     private void CheckWhichCardsAreReversal()
     {
         _reversalCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
-        foreach (var card in _cardsInHand.Where(card => card.Subtypes!.Contains("Reversal")))
+        _reversalCardsInHandInStringFormat = new StringCollection(new List<string>());
+        foreach (Card card in _cardsInHand)
         {
-            AddAllTypesToReversalCardsList(card);
+            if (CheckReversalOfTheCardPlayedByTheOpponent(card))
+            {
+                AddAllTypesToReversalCardsList(card);
+            }
+        
         }
     }
     
@@ -190,7 +198,8 @@ public class Player
     {
         foreach (var type in card.Types!)
         {
-            var formaterPlayableCardInfo = Formatter.CardToString(new FormatterCardInfo(card));
+            var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
+            _reversalCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
             _reversalCardsInHand.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
@@ -291,12 +300,24 @@ public class Player
     
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
-        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        return (from subtype in card.Subtypes! 
-            where subtype.Contains("Reversal") 
-            select subtype.Split("Reversal")[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+        return CheckReversalForAction(card) || CheckReversalForCardType(card);
     }
 
+    private bool CheckReversalForAction(Card card)
+    {
+        return _cardPlayedByOpponent.Type == "ACTION" &&
+               card.Subtypes!.Any(subtype => subtype.Contains("ReversalAction"));
+    }
+
+    private bool CheckReversalForCardType(Card card)
+    {
+        Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
+        return (from subtype in card.Subtypes! 
+            where subtype.Contains(ReversalCardType) && _cardPlayedByOpponent.Type != "ACTION"
+            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+    }
+
+    
     public bool CanReverseTheCardPlayed()
     {
         CheckWhichCardsAreReversal();
