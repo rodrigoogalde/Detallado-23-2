@@ -124,7 +124,7 @@ public class Game
         {
             LoopUntilPlayerEndsHisTurn();
         } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
-        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting, _optionCardChoosed); }
+        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
         
     }
 
@@ -234,8 +234,9 @@ public class Game
     {
         if (_optionCardChoosed != OptionComeBack)
         {
-            _playerWaiting.MoveCardFromHandToRingArea(_playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed]);
-            throw new ReversalFromHandException();
+            var card = _playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed];
+            _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
+            throw new ReversalFromHandException(card);
         }
     }
     

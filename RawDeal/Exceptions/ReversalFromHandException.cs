@@ -1,12 +1,20 @@
+using RawDeal.Decks;
+using RawDeal.Options;
 using RawDeal.SuperStarsCards;
+using RawDeal.Utils;
 using RawDealView;
 namespace RawDeal.Exceptions;
 
 public class ReversalFromHandException: Exception
 {
-    public void ReversalFromHandMessage(View view, Player player, int optionCardChoosed)
+    private readonly FormatterCardRepresentation _cardChoosed;
+    public ReversalFromHandException(FormatterCardRepresentation cardChoosed)
+    {
+        _cardChoosed = cardChoosed;
+    }
+    public void ReversalFromHandMessage(View view, Player player)
     {
         SuperStar superStarOpponent = player.SuperStar;
-        view.SayThatPlayerReversedTheCard(superStarOpponent.Name!, player.MakeAListOfReversalCardsInStringFormat()[optionCardChoosed]);
+        view.SayThatPlayerReversedTheCard(superStarOpponent.Name!, _cardChoosed.CardInStringFormat!);
     }
 }
