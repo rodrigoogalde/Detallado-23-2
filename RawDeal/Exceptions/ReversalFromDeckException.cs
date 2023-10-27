@@ -4,9 +4,36 @@ namespace RawDeal.Exceptions;
 
 public class ReversalFromDeckException: Exception
 {
-    public void ReversalFromDeckMessage(View view, Player player)
+    private int _stunValue;
+    private View _view;
+    private Player _playerOnTurn;
+    
+    public ReversalFromDeckException(int stunValue)
     {
-        SuperStar superStar = player.SuperStar;
-        view.SayThatCardWasReversedByDeck(superStar.Name!);
+        _stunValue = stunValue;
+    }
+    public void ReversalFromDeckMessage(View view, Player playerOnTurn, SuperStar superStar)
+    {
+        _view = view;
+        _playerOnTurn = playerOnTurn;
+        _view.SayThatCardWasReversedByDeck(superStar.Name!);
+        CheckIfThePlayerCanDrawCardsForHisStunValue();
+    }
+
+    private void CheckIfThePlayerCanDrawCardsForHisStunValue()
+    {
+        if (_stunValue == 0) { return;}
+        PlayerDrawAsManyCardsAsStunValue();
+    }
+    
+    private void PlayerDrawAsManyCardsAsStunValue()
+    {
+        SuperStar superStar = _playerOnTurn.SuperStar;
+        int cardToDraw = _view.AskHowManyCardsToDrawBecauseOfStunValue(superStar.Name!, _stunValue);
+        for (int i = 0; i < cardToDraw; i++)
+        {
+            _playerOnTurn.DrawCard();
+        }
+        _view.SayThatPlayerDrawCards(superStar.Name!, cardToDraw);
     }
 }

@@ -185,7 +185,6 @@ public class Player
         return _reversalCardsInHand;
     }
     
-    // TODO: refactorizar esto
     private void CheckWhichCardsAreReversal()
     {
         _reversalCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
@@ -240,26 +239,46 @@ public class Player
     public bool TakeDamage(int damage)
     {
         int i;
-        for (i = 0; i < damage && _cardsInArsenal.Count > EmptyDeck; i++)
+        for (i = 1; (i - 1) < damage && _cardsInArsenal.Count > EmptyDeck; i++)
         {
-            MoveCardFromArsenalToRingSide(i + 1, damage);
+            Card card = MoveCardFromArsenalToRingSide();
+            _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), i, damage);
+            TryReversalFromMaze(card, damage - i);
         }
-        return _cardsInArsenal.Count == EmptyDeck && i != damage;
+        return _cardsInArsenal.Count == EmptyDeck && (i - 1) != damage;
     }
 
+    private void TryReversalFromMaze(Card card, int remainingDamage)
+    {
+        if (CheckReversalOfTheCardPlayedByTheOpponent(card))
+        {
+            int stunValue = CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(remainingDamage);
+            throw new ReversalFromDeckException(stunValue);
+        }
+    }
+    
+    private int CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(int remainingDamage)
+    {
+        Card card = _cardPlayedByOpponent.CardInObjectFormat!;
+        int stunValue = 0;
+        if (int.Parse(card.StunValue) > 0 && remainingDamage != 0)
+        {
+            stunValue = int.Parse(card.StunValue);
+        }
+        return stunValue;
+    }
+    
     public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
     {
         _cardPlayedByOpponent = card;
     }
     
-    private void MoveCardFromArsenalToRingSide(int currentDamage, int totalDamage)
+    private Card MoveCardFromArsenalToRingSide()
     {
         Card card = _cardsInArsenal.Last();
-        _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), currentDamage, totalDamage);
-        bool opponentReversedTheAttack = _cardPlayedByOpponent.Type != "" && CheckReversalOfTheCardPlayedByTheOpponent(card);
         _cardsInArsenal.Remove(card);
         _cardsInRingside.Add(card);
-        if (opponentReversedTheAttack) {throw new ReversalFromDeckException();}
+        return card;
     }
     
     public void MoveCardFromRingsideToArsenal(int index)
@@ -392,43 +411,6 @@ public class Player
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
         return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal.Count);
-    }
-
-
-
-
-
-    public bool CheckIfCanReverseFromHand()
-    {
-        // CONDICIONES
-        // Revisar que haya un reversal en la mano
-        // La carta debe ser capaz de revertir el ataque (revisar la descripción de la carta)
-        // Revisar si el fortitude es mayor o igual al fortitude de la carta
-        
-        // ACCIONES
-        // Preguntar si quiere jugar el reversal
-        // Poner la carta en el RingSide (No aumenta el fortitude)
-        
-        // Ejecutar el efecto del texto y efectuar daño
-        // Colocar el reversal en el RingArea (Aumenta el fortitude)
-        return false;
-    }
-
-    private List<Card> CheckIfHasPlayeableReversalInHand(Card cardPlayedForTheOpponent)
-    {
-        List<Card> playeableReversalCardsInHand = new List<Card>(); // Revisar si entregar Card o FormatterCardInfo
-        foreach (Card card in _cardsInHand)
-        {
-            if (card.CanBeUsedAsReversal(Convert.ToInt32(cardPlayedForTheOpponent.Fortitude),
-                    cardPlayedForTheOpponent.Subtypes!))
-            {
-                playeableReversalCardsInHand.Add(card);
-                
-            }
-            
-        }
-
-        return playeableReversalCardsInHand;
     }
     
 }

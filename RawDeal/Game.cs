@@ -55,6 +55,7 @@ public class Game
         try
         {
             ValidatePlayersDeck();
+            
             InitializeGame();
         } catch (InvalidDeckException e) { e.InvalidDeckMessage(_view); }
     }
@@ -123,7 +124,7 @@ public class Game
         try
         {
             LoopUntilPlayerEndsHisTurn();
-        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerWaiting); }
+        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar); }
         catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
     }
 
