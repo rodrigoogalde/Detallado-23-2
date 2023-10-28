@@ -4,7 +4,6 @@ using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
-using RawDealView.Formatters;
 using RawDealView.Options;
 
 namespace RawDeal;
@@ -16,8 +15,10 @@ public class Game
     private readonly List<Player> _playersList;
     private Player _playerOnTurn = null!;
     private Player _playerWaiting = null!;
+    private SuperStar _superStarOnTurn = null!;
+    private SuperStar _superStarWaiting = null!;
     private Player? _winnerPlayer;
-    private FormatterCardRepresentation _cardChoseenInBothFormats;
+    private FormatterCardRepresentation? _cardChoseenInBothFormats;
     
     private const int OptionComeBack = -1;
     
@@ -80,9 +81,15 @@ public class Game
     {
         var player1SuperStarCard = _playersList[0].SuperStar;
         var player2SuperStarCard = _playersList[1].SuperStar;
-        int index = player1SuperStarCard.SuperstarValue >= player2SuperStarCard.SuperstarValue ? 0 : 1;
+        SetTurns(player1SuperStarCard.SuperstarValue >= player2SuperStarCard.SuperstarValue ? 0 : 1);
+    }
+
+    private void SetTurns(int index)
+    {
         _playerOnTurn = _playersList[index];
         _playerWaiting = _playersList[(index + 1) % 2];
+        _superStarOnTurn = _playerOnTurn.SuperStar;
+        _superStarWaiting = _playerWaiting.SuperStar;
     }
     
     private void PlayersDrawFirstCards()
@@ -143,13 +150,16 @@ public class Game
 
     private bool CheckIfTheTurnsEnds()
     {
-        return _optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
+        return _optionChoosed != NextPlay.EndTurn 
+               && _optionChoosed != NextPlay.GiveUp 
+               && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     }
         
 
     private void ChooseAnOption()
     {
-        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) ? _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) 
+            ? _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         WhatToDoWithTheOptionChoosed();
     }
     
@@ -161,7 +171,7 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards().ToList());
+                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.GimeMePlayeableCardsFromHandInStringFormat().ToList());
                 ChooseWhichCardDoYouWantToPlayOrPass();
                 break;
             case NextPlay.EndTurn:
@@ -179,8 +189,8 @@ public class Game
     {
         ChangeFormatterCardSet(_view.AskUserWhatSetOfCardsHeWantsToSee());
         _view.ShowCards(_optionWhichCardsToSee is CardSetFull.OpponentsRingArea or CardSetFull.OpponentsRingsidePile
-            ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee)
-            : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
+            ? _playerWaiting.TransformMazeToStringFormat(_optionWhichCardsToSee).ToList()
+            : _playerOnTurn.TransformMazeToStringFormat(_optionWhichCardsToSee).ToList());
     }
 
     private void ChangeFormatterCardSet(CardSet cardSet)
@@ -222,25 +232,22 @@ public class Game
     private void CheckIfPlayerCanReverseTheCardPlayed()
     {
         if (!_playerWaiting.CanReverseTheCardPlayed()) return;
-        SuperStar superStarOpponent = _playerWaiting.SuperStar;
-        _optionCardChoosed = _view.AskUserToSelectAReversal(superStarOpponent.Name!,  _playerWaiting.MakeAListOfReversalCardsInStringFormat());
+        _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,  _playerWaiting.GimeMeReversalCardsInStringFormat().ToList());
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
     
     private void CheckIfPlayerReversedTheCardPlayedByOpponent()
     {
-        if (_optionCardChoosed != OptionComeBack)
-        {
-            var card = _playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed];
-            _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats.CardInObjectFormat!);
-            _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
-            throw new ReversalFromHandException(card);
-        }
+        if (_optionCardChoosed == OptionComeBack) return;
+        var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
+        _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
+        throw new ReversalFromHandException(card);
     }
     
     private void CheckPlayModeOfTheCardPlayed()
     {
-        Card card = _cardChoseenInBothFormats.CardInObjectFormat!;
+        Card card = _cardChoseenInBothFormats!.CardInObjectFormat!;
         if (_cardChoseenInBothFormats.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
             _playerOnTurn.PlayCardAsAction(card);
         }
@@ -252,10 +259,9 @@ public class Game
 
     private void PlayerWaitingTakeDamage(int damage)
     {
-        SuperStar superStarOpponent = _playerWaiting.SuperStar;
-        damage = IsDamageReducedForManKind(superStarOpponent) ? damage - MaindKindDamageReduction : damage;
+        damage = IsDamageReducedForManKind(_superStarWaiting) ? damage - MaindKindDamageReduction : damage;
         if (damage == 0) { return; }
-        _view.SayThatSuperstarWillTakeSomeDamage(superStarOpponent.Name!, damage);
+        _view.SayThatSuperstarWillTakeSomeDamage(_superStarWaiting.Name!, damage);
         _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack = _playerWaiting.TakeDamage(damage);
     }
     
@@ -283,15 +289,16 @@ public class Game
     
     private void CheckIfSomePlayerRunOutOfArsenalCards()
     {
-        if (_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
+        if (_playerOnTurn.TransformMazeToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerWaiting; }
-        else if (_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
+        else if (_playerWaiting.TransformMazeToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerOnTurn; }
     }
 
     private void PlayerPassTurn()
     {
         (_playerOnTurn, _playerWaiting) = (_playerWaiting, _playerOnTurn);
+        (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
         (_optionChoosed, _optionWhichCardsToSee, _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
         _playerOnTurn.CleanDataFromPastTurn();
         _playerWaiting.CleanDataFromPastTurn();
@@ -299,21 +306,18 @@ public class Game
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()
     {
-        SuperStar superStar = _playerOnTurn.SuperStar;
-        _playerCanUseHisAbility = superStar.HasTheConditionsToUseAbility();
+        _playerCanUseHisAbility = _superStarOnTurn.HasTheConditionsToUseAbility();
     }
     
     private void UseSuperCardAbilityBeforeDrawCard()
     {
-        SuperStar superStar = _playerOnTurn.SuperStar;
-        superStar.UseAbilityBeforeDrawing(_playerWaiting);
+        _superStarOnTurn.UseAbilityBeforeDrawing(_playerWaiting);
     }
     
     private void UseSuperCardAbilityOncePerTurn()
     {
-        SuperStar superStar = _playerOnTurn.SuperStar;
-        _view.SayThatPlayerIsGoingToUseHisAbility(superStar.Name!, superStar.SuperstarAbility!);
-        _playerOnTurn.SuperStar.UseAbility(_playerWaiting);
+        _view.SayThatPlayerIsGoingToUseHisAbility(_superStarOnTurn.Name!, _superStarOnTurn.SuperstarAbility!);
+        _superStarOnTurn.UseAbility(_playerWaiting);
         _playerUseHisAbilityInTheTurn = true;
     }
 }
