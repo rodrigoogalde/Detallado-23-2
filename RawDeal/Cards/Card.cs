@@ -1,3 +1,5 @@
+using RawDeal.Decks;
+
 namespace RawDeal.Cards;
 
 public class Card
@@ -22,7 +24,9 @@ public class Card
     public void CheckIfHaveAnotherLogo(SuperCardInfo superCard)
     {
         LoaderSuperCardInfo superCardsInfo = new();
-        foreach (var unused in superCardsInfo.CardsJson!.Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) && superCard.Logo != superCardInfo.Logo))
+        foreach (var unused in superCardsInfo.CardsJson!.
+                     Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) 
+                                            && superCard.Logo != superCardInfo.Logo))
         {
             HasAnotherLogo = true;
         }
@@ -34,8 +38,8 @@ public class Card
                && fortitude >= long.Parse(Fortitude) ;
     }
     
-    public bool CanBeUsedAsReversal(int fortitude, List<string> subTypes)
+    public bool CanBeUsedAsReversal(int fortitude)
     {
-        return Types!.Contains("Reversal") && int.Parse(Fortitude) >= fortitude && Subtypes!.Intersect(subTypes).Any();
+        return Subtypes!.Any(subtype => subtype.Contains("Reversal")) && fortitude >= int.Parse(Fortitude);
     }
 }

@@ -30,7 +30,7 @@ public class Chrisjericho: SuperStar
     private void TheJerichoAbilityFirstPart(int totalCardsToDiscard)
     {
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand),
+            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand).ToList(),
             SuperCard.Name, 
             SuperCard.Name, 
             totalCardsToDiscard);
@@ -41,7 +41,7 @@ public class Chrisjericho: SuperStar
     {
         SuperStar superStarOpponent = playerOnWait.SuperStar;
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand),
+            playerOnWait.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand).ToList(),
             superStarOpponent.Name!, 
             superStarOpponent.Name!, 
             totalCardsToDiscard);

@@ -39,7 +39,8 @@ public class Therock: SuperStar
     {
         const int cardsToRecover = 1;
         GameView.SayThatPlayerIsGoingToUseHisAbility(SuperCard.Name, SuperCard.SuperstarAbility!);
-        int indexCardsToRecover = GameView.AskPlayerToSelectCardsToRecover(SuperCard.Name, cardsToRecover, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.RingsidePile));
+        int indexCardsToRecover = GameView.AskPlayerToSelectCardsToRecover(SuperCard.Name, cardsToRecover,
+            Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.RingsidePile).ToList());
         Player.MoveCardFromRingsideToArsenal(indexCardsToRecover);
     }
 }

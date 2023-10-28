@@ -121,22 +121,22 @@ public class Player
         }
     }
 
-    public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
+    public StringCollection ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
     {
-        var cardsInStringFormat = new List<string>();
+        var cardsInStringFormat = new StringCollection( new List<string>());
         switch (cardSet)
         {
             case CardSetFull.Arsenal:
-                cardsInStringFormat = _cardsInArsenal.TransformListOfCardsIntoStringFormat();
+                cardsInStringFormat = new StringCollection(_cardsInArsenal.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.Hand:
-                cardsInStringFormat = _cardsInHand.TransformListOfCardsIntoStringFormat();
+                cardsInStringFormat = new StringCollection(_cardsInHand.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.RingArea or CardSetFull.OpponentsRingArea:
-                cardsInStringFormat = _cardsInRingArea.TransformListOfCardsIntoStringFormat();
+                cardsInStringFormat = new StringCollection(_cardsInRingArea.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.RingsidePile or CardSetFull.OpponentsRingsidePile:
-                cardsInStringFormat = _cardsInRingside.TransformListOfCardsIntoStringFormat();
+                cardsInStringFormat = new StringCollection(_cardsInRingside.TransformListOfCardsIntoStringFormat());
                 break;
         }
         return cardsInStringFormat;
@@ -348,7 +348,7 @@ public class Player
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
         return (from subtype in card.Subtypes! 
-            where subtype.Contains(ReversalCardType) && _cardPlayedByOpponent.Type != "ACTION" && _fortitude >= int.Parse(card.Fortitude)
+            where card.CanBeUsedAsReversal(_fortitude) && _cardPlayedByOpponent.Type != "ACTION"
             select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
 

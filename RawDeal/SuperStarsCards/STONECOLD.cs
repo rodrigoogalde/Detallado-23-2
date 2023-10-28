@@ -32,7 +32,8 @@ public class Stonecold: SuperStar
         Player.MoveTopeCardFromArsenalToHand();
         GameView.SayThatPlayerDrawCards(SuperCard.Name, NumberOfCardsToDraw);
         Player.MoveCardFromHandToArsenalBottom(
-            GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name, Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand)
+            GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name,
+                Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Hand).ToList()
             ));
     }
 }

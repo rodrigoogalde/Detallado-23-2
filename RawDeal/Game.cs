@@ -179,8 +179,8 @@ public class Game
     {
         ChangeFormatterCardSet(_view.AskUserWhatSetOfCardsHeWantsToSee());
         _view.ShowCards(_optionWhichCardsToSee is CardSetFull.OpponentsRingArea or CardSetFull.OpponentsRingsidePile
-            ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee)
-            : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee));
+            ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee).ToList()
+            : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee).ToList());
     }
 
     private void ChangeFormatterCardSet(CardSet cardSet)
