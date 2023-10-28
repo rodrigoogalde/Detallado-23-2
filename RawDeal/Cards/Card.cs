@@ -41,22 +41,9 @@ public class Card
                && fortitude >= long.Parse(Fortitude) ;
     }
     
-    public bool CanBeUsedAsReversal(int fortitude, Tuple<Card, string> cardPlayedByOpponent)
+    public bool CanBeUsedAsReversal(int fortitude, string usedAs)
     {
-        // return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
-        return cardPlayedByOpponent.Item2 == CardPlayAsAction.ToUpper() ?
-            ReversalAsAction(cardPlayedByOpponent.Item1, fortitude) : ReversalForCardType(fortitude, cardPlayedByOpponent.Item2);
+        return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
     }
 
-    private bool ReversalAsAction(Card opponentCard, int fortitude)
-    {
-        return (from subtype in Subtypes
-            where ReversalForCardType(fortitude, ReversalCardType)
-            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => opponentCard.Subtypes!.Contains(typeOfReversal));
-    }
-    
-    private bool ReversalForCardType(int fortitude, string usedAs)
-    {
-        return Subtypes!.Any(subtype => subtype.Contains(usedAs) && fortitude >= int.Parse(Fortitude));
-    }
 }

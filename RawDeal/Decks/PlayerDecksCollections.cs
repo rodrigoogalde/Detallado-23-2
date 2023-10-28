@@ -210,27 +210,19 @@ public class PlayerDecksCollections
         return isReversal;
     }
     
-    // TODO: Enviar a la carta
     private bool CheckReversalForAction(Card card)
     {
         return _cardPlayedByOpponent.Type == CardPlayAsAction.ToUpper() &&
-            card.CanBeUsedAsReversal(GetFortitude(), new Tuple<Card, string>(new Card(""), CardPlayAsAction.ToUpper()));
-        
-        // return _cardPlayedByOpponent.Type == CardPlayAsAction.ToUpper() &&
-        //        card.Subtypes!.Any(subtype =>
-        //            subtype.Contains(ReversalActionCardSubType) && GetFortitude() >= int.Parse(card.Fortitude));
+               card.Subtypes!.Any(subtype =>
+                   subtype.Contains(ReversalActionCardSubType) && GetFortitude() >= int.Parse(card.Fortitude));
     }
 
-    // TODO: Enviar a la carta
     private bool CheckReversalForCardType(Card card)
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        return _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() &&
-            card.CanBeUsedAsReversal(GetFortitude(), new Tuple<Card, string>(cardPlayedByOpponent, ReversalCardType));
-            
-        // return (from subtype in card.Subtypes! 
-        //     where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper()
-        //     select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+        return (from subtype in card.Subtypes! 
+            where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper()
+            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
     
     private void AddAllTypesToReversalCardsList(Card card)
