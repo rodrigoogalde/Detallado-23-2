@@ -1,4 +1,4 @@
-namespace RawDeal.Decks;
+namespace RawDeal.Collections;
 
 public class StringListCollection : ListCollection<string>
 {
@@ -7,6 +7,6 @@ public class StringListCollection : ListCollection<string>
     
     public StringListCollection(ICollection<string> collectionImplementation) : base(collectionImplementation)
     {
-        _deck = _collectionImplementation;
+        _deck = CollectionImplementation;
     }
 }

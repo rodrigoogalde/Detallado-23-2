@@ -1,6 +1,6 @@
 using RawDeal.Utils;
 
-namespace RawDeal.Decks;
+namespace RawDeal.Collections;
 
 public class CardRepresentationListCollection: ListCollection<FormatterCardRepresentation>
 {
@@ -9,6 +9,6 @@ public class CardRepresentationListCollection: ListCollection<FormatterCardRepre
     
     public CardRepresentationListCollection(ICollection<FormatterCardRepresentation> collectionImplementation) : base(collectionImplementation)
     {
-        _deck = _collectionImplementation;
+        _deck = CollectionImplementation;
     }
 }

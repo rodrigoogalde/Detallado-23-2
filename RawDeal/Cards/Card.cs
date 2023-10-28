@@ -11,8 +11,9 @@ public class Card
     public string StunValue = null!;
     public string? CardEffect;
     public string? Damage;
-
-    public bool HasAnotherLogo;
+    
+    private const string CardPlayAsAction = "Action";
+    private const string ReversalCardType = "Reversal";
     private readonly LoaderCardInfo _loaderCardInfo = new();
     
     public Card(string title)
@@ -24,14 +25,14 @@ public class Card
     public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)
     {
         LoaderSuperCardInfo superCardsInfo = new();
-        HasAnotherLogo = false;
+        bool hasAnotherLogo = false;
         foreach (var unused in superCardsInfo.CardsJson!.
                      Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) 
                                             && superCard.Logo != superCardInfo.Logo))
         {
-            HasAnotherLogo = true;
+            hasAnotherLogo = true;
         }
-        return HasAnotherLogo;
+        return hasAnotherLogo;
     }
 
     public bool IsPlayeableCard(int fortitude)
@@ -40,8 +41,22 @@ public class Card
                && fortitude >= long.Parse(Fortitude) ;
     }
     
-    public bool CanBeUsedAsReversal(int fortitude)
+    public bool CanBeUsedAsReversal(int fortitude, Tuple<Card, string> cardPlayedByOpponent)
     {
-        return Subtypes!.Any(subtype => subtype.Contains("Reversal")) && fortitude >= int.Parse(Fortitude);
+        // return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
+        return cardPlayedByOpponent.Item2 == CardPlayAsAction.ToUpper() ?
+            ReversalAsAction(cardPlayedByOpponent.Item1, fortitude) : ReversalForCardType(fortitude, cardPlayedByOpponent.Item2);
+    }
+
+    private bool ReversalAsAction(Card opponentCard, int fortitude)
+    {
+        return (from subtype in Subtypes
+            where ReversalForCardType(fortitude, ReversalCardType)
+            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => opponentCard.Subtypes!.Contains(typeOfReversal));
+    }
+    
+    private bool ReversalForCardType(int fortitude, string usedAs)
+    {
+        return Subtypes!.Any(subtype => subtype.Contains(usedAs) && fortitude >= int.Parse(Fortitude));
     }
 }

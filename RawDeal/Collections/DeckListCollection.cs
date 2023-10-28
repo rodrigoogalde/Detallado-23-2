@@ -10,7 +10,7 @@ public class DeckListCollection : ListCollection<Card>
     
     public DeckListCollection(ICollection<Card> collectionImplementation) : base(collectionImplementation)
     {
-        _deck = _collectionImplementation;
+        _deck = CollectionImplementation;
     }
     
     public List<string> TransformListOfCardsIntoStringFormat() =>

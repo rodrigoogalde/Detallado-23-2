@@ -299,7 +299,8 @@ public class Game
     {
         (_playerOnTurn, _playerWaiting) = (_playerWaiting, _playerOnTurn);
         (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
-        (_optionChoosed, _optionWhichCardsToSee, _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
+        (_optionChoosed, _optionWhichCardsToSee,
+            _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
         _playerOnTurn.CleanDataFromPastTurn();
         _playerWaiting.CleanDataFromPastTurn();
     }

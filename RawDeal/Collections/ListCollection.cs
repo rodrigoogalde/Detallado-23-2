@@ -1,63 +1,63 @@
 using System.Collections;
 
-namespace RawDeal.Decks;
+namespace RawDeal.Collections;
 
 public abstract class ListCollection<T> : ICollection<T>
 {
-    protected ICollection<T> _collectionImplementation;
+    protected readonly ICollection<T> CollectionImplementation;
     protected const int EmptyDeck = 0;
 
     protected ListCollection(ICollection<T> collectionImplementation)
     {
-        _collectionImplementation = collectionImplementation;
+        CollectionImplementation = collectionImplementation;
     }
 
 
     public IEnumerator<T> GetEnumerator()
     {
-        return _collectionImplementation.GetEnumerator();
+        return CollectionImplementation.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return ((IEnumerable)_collectionImplementation).GetEnumerator();
+        return ((IEnumerable)CollectionImplementation).GetEnumerator();
     }
 
     public void Add(T item)
     {
-        _collectionImplementation.Add(item);
+        CollectionImplementation.Add(item);
     }
 
     public void Clear()
     {
-        _collectionImplementation.Clear();
+        CollectionImplementation.Clear();
     }
 
     public bool Contains(T item)
     {
-        return _collectionImplementation.Contains(item);
+        return CollectionImplementation.Contains(item);
     }
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        _collectionImplementation.CopyTo(array, arrayIndex);
+        CollectionImplementation.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(T item)
     {
-        return _collectionImplementation.Remove(item);
+        return CollectionImplementation.Remove(item);
     }
     
     public void Insert(int index, T item)
     {
         CheckIfIndexIsValid(index);
         CheckIfIndexIsSupported();
-        ((List<T>)_collectionImplementation).Insert(index, item);
+        ((List<T>)CollectionImplementation).Insert(index, item);
     }
 
-    public int Count => _collectionImplementation.Count;
+    public int Count => CollectionImplementation.Count;
 
-    public bool IsReadOnly => _collectionImplementation.IsReadOnly;
+    public bool IsReadOnly => CollectionImplementation.IsReadOnly;
 
     public T this[int index]
     {
@@ -65,7 +65,7 @@ public abstract class ListCollection<T> : ICollection<T>
         {
             CheckIfIndexIsValid(index);
             CheckIfIndexIsSupported();
-            return ((List<T>)_collectionImplementation)[index];
+            return ((List<T>)CollectionImplementation)[index];
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class ListCollection<T> : ICollection<T>
 
     private void CheckIfIndexIsSupported()
     {
-        if (_collectionImplementation is not List<T> list)
+        if (CollectionImplementation is not List<T>)
         {
             throw new IndexOutOfRangeException("Index is out of range.");
         }

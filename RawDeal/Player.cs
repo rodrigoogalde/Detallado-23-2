@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Collections;
 using RawDeal.Decks;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
@@ -109,18 +110,25 @@ public class Player
         _view.SayThatPlayerMustDiscardThisCard(SuperStar.Name!, cardToPlay.Title);
         DrawCard();
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
-        _decksCollections.MoveCardFromHandToRingside(cardToPlay);
+        _decksCollections.MoveCardBetweenDecks(cardToPlay,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
+        // _decksCollections.MoveCardFromHandToRingside(cardToPlay);
     }
     
     public void MoveCardFromHandToRingArea(Card cardToDiscard)
     {
-        _fortitude += _decksCollections.MoveCardFromHandToRingArea(cardToDiscard);
+        _fortitude += int.Parse(cardToDiscard.Damage!);
+        _decksCollections.MoveCardBetweenDecks(cardToDiscard,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
+        // _decksCollections.MoveCardFromHandToRingArea(cardToDiscard);
     }
     
     private Card MoveLastCardFromArsenalToRingSide()
     {
         Card card = _decksCollections.GetArsenalDeck().Last();
-        _decksCollections.MoveCardFromArsenalToRingSide(card);
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.RingsidePile));
+        // _decksCollections.MoveCardFromArsenalToRingSide(card);
         return card;
     }
     
@@ -152,7 +160,9 @@ public class Player
     
     public void MoveCardFromRingsideToArsenalWithIndex(int index)
     {
-        _decksCollections.MoveCardFromRingsideToArsenal(_decksCollections.GetRingsideDeck()[index]);
+        // _decksCollections.MoveCardFromRingsideToArsenal(_decksCollections.GetRingsideDeck()[index]);
+        _decksCollections.MoveCardBetweenDecks(_decksCollections.GetRingsideDeck()[index],
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Arsenal));
     }
     
     public bool CanReverseTheCardPlayed()
@@ -163,37 +173,47 @@ public class Player
     public void DiscardCardFromHandToRingsideWithIndex(int index)
     {
         Card cardToDiscard = _decksCollections.GetHandCards()[index];
-        _decksCollections.MoveCardFromHandToRingside(cardToDiscard);
+        _decksCollections.MoveCardBetweenDecks(cardToDiscard,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
+        // _decksCollections.MoveCardFromHandToRingside(cardToDiscard);
     }
 
     public void CardFromHandToRingside(Card card)
     {
-        _decksCollections.MoveCardFromHandToRingside(card);
+        // _decksCollections.MoveCardFromHandToRingside(card);
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
     
     public void MoveCardFromRingsideToHandWithIndex(int index)
     {
-        _decksCollections.MoveCardFromRingsideToHand(_decksCollections.GetRingsideDeck()[index]);
+        // _decksCollections.MoveCardFromRingsideToHand(_decksCollections.GetRingsideDeck()[index]);
+        _decksCollections.MoveCardBetweenDecks(_decksCollections.GetRingsideDeck()[index],
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Hand));
     }
     
     public void MoveTopeCardFromArsenalToHand()
     {
         Card card = _decksCollections.GetArsenalDeck().Last();
-        _decksCollections.MoveCardFromArsenalToHand(card);
+        // _decksCollections.MoveCardFromArsenalToHand(card);
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.Hand));
     }
     
     public void MoveCardFromHandToArsenalBottomWithIndex(int index)
     {
         Card card = _decksCollections.GetHandCards()[index];
-        _decksCollections.MoveCardFromHandToArsenal(card);
+        // _decksCollections.MoveCardFromHandToArsenal(card);
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.Arsenal));
     }
     
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
-        // return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal.Count);
         return new PlayerInfo(superCardInfo.Name, _fortitude,
-            _decksCollections.GetHandCards().Count, _decksCollections.GetArsenalDeck().Count);
+            _decksCollections.GetHandCards().Count,
+            _decksCollections.GetArsenalDeck().Count);
     }
     
     public void CleanDataFromPastTurn()

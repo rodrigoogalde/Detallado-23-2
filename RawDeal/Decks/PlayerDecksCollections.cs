@@ -27,8 +27,14 @@ public class PlayerDecksCollections
     private const int MaxDeckSize = 60;
     private const int EmptyDeck = 0;
     private const string ReversalCardType = "Reversal";
+    private const string UniqueCardType = "Unique";
+    private const string SetUpCardType = "SetUp";
+    
+    private const string HeelCardSubType = "Heel";
+    private const string FaceCardSubType = "Face";
+    private const string ReversalActionCardSubType = "ReversalAction";
+    
     private const string CardPlayAsAction = "Action";
-    private const string CardPlayAsManeuver = "Maneuver";
     
     public PlayerDecksCollections(SuperStar superStar)
     {
@@ -52,27 +58,28 @@ public class PlayerDecksCollections
     private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
     {
         const int numberOfRepeatedCardsAllowed = 0;
-        if (card.Subtypes!.Contains("Unique") && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
+        if (card.Subtypes!.Contains(UniqueCardType) && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
             throw new InvalidDeckException();
     }
     
     private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
     {
         const int numberOfRepeatedCardsAllowed = 3;
-        if (!card.Subtypes!.Contains("SetUp") && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
+        if (!card.Subtypes!.Contains(SetUpCardType) && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
             throw new InvalidDeckException();
     }
 
     private void IsInvalidFaceAndHeelCombination(Card card)
     {
         if (PlayerAlreadyHasFaceOrHeel(card)) throw new InvalidDeckException();
-        if (card.Subtypes!.Contains("Heel")) _hasHeel = true; 
-        if (card.Subtypes.Contains("Face")) _hasFace = true; 
+        if (card.Subtypes!.Contains(HeelCardSubType)) _hasHeel = true; 
+        if (card.Subtypes.Contains(FaceCardSubType)) _hasFace = true; 
     }
     
     private bool PlayerAlreadyHasFaceOrHeel(Card card)
     {
-        return (_hasFace && card.Subtypes!.Contains("Heel")) || (_hasHeel && card.Subtypes!.Contains("Face"));
+        return (_hasFace && card.Subtypes!.Contains(HeelCardSubType)) 
+               || (_hasHeel && card.Subtypes!.Contains(FaceCardSubType));
     }
     
     private void IsDeckSizeExceeded()
@@ -207,17 +214,23 @@ public class PlayerDecksCollections
     private bool CheckReversalForAction(Card card)
     {
         return _cardPlayedByOpponent.Type == CardPlayAsAction.ToUpper() &&
-               card.Subtypes!.Any(subtype =>
-                   subtype.Contains("ReversalAction") && GetFortitude() >= int.Parse(card.Fortitude));
+            card.CanBeUsedAsReversal(GetFortitude(), new Tuple<Card, string>(new Card(""), CardPlayAsAction.ToUpper()));
+        
+        // return _cardPlayedByOpponent.Type == CardPlayAsAction.ToUpper() &&
+        //        card.Subtypes!.Any(subtype =>
+        //            subtype.Contains(ReversalActionCardSubType) && GetFortitude() >= int.Parse(card.Fortitude));
     }
 
     // TODO: Enviar a la carta
     private bool CheckReversalForCardType(Card card)
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        return (from subtype in card.Subtypes! 
-            where card.CanBeUsedAsReversal(GetFortitude()) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper()
-            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+        return _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() &&
+            card.CanBeUsedAsReversal(GetFortitude(), new Tuple<Card, string>(cardPlayedByOpponent, ReversalCardType));
+            
+        // return (from subtype in card.Subtypes! 
+        //     where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper()
+        //     select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
     
     private void AddAllTypesToReversalCardsList(Card card)
@@ -255,52 +268,49 @@ public class PlayerDecksCollections
         return hasConditions;
     }
     
-    
-    
-    
-    
-    
-    public int MoveCardFromHandToRingArea(Card card)
+    public void MoveCardBetweenDecks(Card card, Tuple<CardSetFull, CardSetFull> cardsFromTo)
     {
-        _cardsInHand.Remove(card);
-        _cardsInRingArea.Add(card);
-        return int.Parse(card.Damage!);
-    } 
-    
-    public void MoveCardFromHandToRingside(Card card)
-    {
-        _cardsInHand.Remove(card);
-        _cardsInRingside.Add(card);
+        DeckListCollection deckFrom = ChooseDeck(cardsFromTo.Item1);
+        DeckListCollection deckTo = ChooseDeck(cardsFromTo.Item2);
+        RemoveCardFromDeck(card, deckFrom);
+        if (cardsFromTo.Item2 == CardSetFull.Arsenal) { InsertCardIntoDeck(card, deckTo); }
+        else { AddCardToDeck(card, deckTo); }
     }
     
-    public void MoveCardFromHandToArsenal(Card card)
+    private DeckListCollection ChooseDeck(CardSetFull cardsFrom)
     {
-        _cardsInHand.Remove(card);
-        _cardsInArsenal.Insert(0, card);
-    }
-    
-    public void MoveCardFromArsenalToRingSide(Card card)
-    {
-        _cardsInArsenal.Remove(card);
-        _cardsInRingside.Add(card);
+        DeckListCollection deckFrom = new DeckListCollection(new List<Card>());
+        switch (cardsFrom)
+        {
+            case CardSetFull.Hand:
+                deckFrom = _cardsInHand;
+                break;
+            case CardSetFull.RingsidePile:
+                deckFrom = _cardsInRingside;
+                break;
+            case CardSetFull.Arsenal:
+                deckFrom = _cardsInArsenal;
+                break;
+            case CardSetFull.RingArea:
+                deckFrom = _cardsInRingArea;
+                break;
+        }
+        return deckFrom;
     }
 
-    public void MoveCardFromArsenalToHand(Card card)
+    private void RemoveCardFromDeck(Card card, DeckListCollection deckFrom)
     {
-        _cardsInArsenal.Remove(card);
-        _cardsInHand.Add(card);
+        deckFrom.Remove(card);
     }
     
-    public void MoveCardFromRingsideToArsenal(Card card)
+    private void InsertCardIntoDeck(Card card, DeckListCollection deckTo)
     {
-        _cardsInRingside.Remove(card);
-        _cardsInArsenal.Insert(0, card);
+        deckTo.Insert(0, card);
     }
     
-    public void MoveCardFromRingsideToHand(Card card)
+    private void AddCardToDeck(Card card, DeckListCollection deckTo)
     {
-        _cardsInRingside.Remove(card);
-        _cardsInHand.Add(card);
+        deckTo.Add(card);
     }
     
     public bool IsArsenalDeckEmpty()
