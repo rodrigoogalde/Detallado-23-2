@@ -171,7 +171,7 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.MakeAListOfPlayeableCards().ToList());
+                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.GimeMePlayeableCardsFromHandInStringFormat().ToList());
                 ChooseWhichCardDoYouWantToPlayOrPass();
                 break;
             case NextPlay.EndTurn:
@@ -189,8 +189,8 @@ public class Game
     {
         ChangeFormatterCardSet(_view.AskUserWhatSetOfCardsHeWantsToSee());
         _view.ShowCards(_optionWhichCardsToSee is CardSetFull.OpponentsRingArea or CardSetFull.OpponentsRingsidePile
-            ? _playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee).ToList()
-            : _playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(_optionWhichCardsToSee).ToList());
+            ? _playerWaiting.TransformMazeToStringFormat(_optionWhichCardsToSee).ToList()
+            : _playerOnTurn.TransformMazeToStringFormat(_optionWhichCardsToSee).ToList());
     }
 
     private void ChangeFormatterCardSet(CardSet cardSet)
@@ -232,14 +232,14 @@ public class Game
     private void CheckIfPlayerCanReverseTheCardPlayed()
     {
         if (!_playerWaiting.CanReverseTheCardPlayed()) return;
-        _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,  _playerWaiting.MakeAListOfReversalCardsInStringFormat());
+        _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,  _playerWaiting.GimeMeReversalCardsInStringFormat().ToList());
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
     
     private void CheckIfPlayerReversedTheCardPlayedByOpponent()
     {
         if (_optionCardChoosed == OptionComeBack) return;
-        var card = _playerWaiting.MakeAListOfReversalCards()[_optionCardChoosed];
+        var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
         _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
         _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
         throw new ReversalFromHandException(card);
@@ -289,9 +289,9 @@ public class Game
     
     private void CheckIfSomePlayerRunOutOfArsenalCards()
     {
-        if (_playerOnTurn.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
+        if (_playerOnTurn.TransformMazeToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerWaiting; }
-        else if (_playerWaiting.ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
+        else if (_playerWaiting.TransformMazeToStringFormat(CardSetFull.Arsenal).Count == EmptyDeck) 
         { _winnerPlayer = _playerOnTurn; }
     }
 
