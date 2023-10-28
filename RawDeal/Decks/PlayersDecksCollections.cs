@@ -1,4 +1,6 @@
 using RawDeal.Cards;
+using RawDeal.Exceptions;
+using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView.Formatters;
 
@@ -6,6 +8,7 @@ namespace RawDeal.Decks;
 
 public class PlayersDecksCollections
 {
+    private SuperStar _superStar;
     private DeckCollection _cardsInRingside;
     private DeckCollection _cardsInRingArea;
     private DeckCollection _cardsInHand;
@@ -16,18 +19,81 @@ public class PlayersDecksCollections
     private CardRepresentationCollection _reversalCardsInHand;
     private FormatterCardRepresentation _cardPlayedByOpponent;
     
+    private bool _hasHeel;
+    private bool _hasFace;
+    
     private const int MaxDeckSize = 60;
     private const int EmptyDeck = 0;
     private const string ReversalCardType = "Reversal";
     private const string CardPlayAsAction = "Action";
     
-    
-    public PlayersDecksCollections()
+    public PlayersDecksCollections(SuperStar superStar)
     {
+        _superStar = superStar;
         _cardsInArsenal = new DeckCollection(new List<Card>());
         _cardsInHand = new DeckCollection(new List<Card>());
         _cardsInRingside = new DeckCollection(new List<Card>());
         _cardsInRingArea = new DeckCollection(new List<Card>());
+    }
+    
+    public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
+    {
+        var numberOfRepeatedCards = _cardsInArsenal.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
+        IsInvalidUniqueCard(cardToAdd, numberOfRepeatedCards);
+        IsInvalidNumberOfRepeatedCards(numberOfRepeatedCards, cardToAdd);
+        IsInvalidFaceAndHeelCombination(cardToAdd);
+        IsDeckSizeExceeded();
+        IsInvalidLogo(cardToAdd);
+    }
+    
+    private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
+    {
+        const int numberOfRepeatedCardsAllowed = 0;
+        if (card.Subtypes!.Contains("Unique") && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
+            throw new InvalidDeckException();
+    }
+    
+    private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
+    {
+        const int numberOfRepeatedCardsAllowed = 3;
+        if (!card.Subtypes!.Contains("SetUp") && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
+            throw new InvalidDeckException();
+    }
+
+    private void IsInvalidFaceAndHeelCombination(Card card)
+    {
+        if (PlayerAlreadyHasFaceOrHeel(card)) throw new InvalidDeckException();
+        if (card.Subtypes!.Contains("Heel")) _hasHeel = true; 
+        if (card.Subtypes.Contains("Face")) _hasFace = true; 
+    }
+    
+    private bool PlayerAlreadyHasFaceOrHeel(Card card)
+    {
+        return (_hasFace && card.Subtypes!.Contains("Heel")) || (_hasHeel && card.Subtypes!.Contains("Face"));
+    }
+    
+    private void IsDeckSizeExceeded()
+    {
+        if (_cardsInArsenal.Count >= MaxDeckSize)
+            throw new InvalidDeckException();
+    }
+    
+    private void IsInvalidLogo(Card card)
+    {
+        if (card.CheckIfHaveAnotherLogo(_superStar.SuperCard)) throw new InvalidDeckException();
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    private void AddCardToArsenal(Card card)
+    {
+        _cardsInArsenal.Add(card);
     }
 
     private int GetFortitude()

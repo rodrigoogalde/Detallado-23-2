@@ -14,16 +14,20 @@ public class Player
 {
     private readonly View _view;
     public SuperStar SuperStar;
-    private readonly DeckCollection _cardsInArsenal;
+    private DeckCollection _cardsInArsenal;
     private DeckCollection _cardsInRingside;
     private DeckCollection _cardsInRingArea;
     private DeckCollection _cardsInHand;
+    
     private CardRepresentationCollection _playeablesCardsInHand;
     private CardRepresentationCollection _reversalCardsInHand;
     private StringCollection _playeablesCardsInHandInStringFormat;
     private StringCollection _reversalCardsInHandInStringFormat;
+    
     private int _indexCardToDiscard;
     private FormatterCardRepresentation _cardPlayedByOpponent;
+    
+    private PlayersDecksCollections _decksCollections;
     
     private readonly string? _pathDeck;
     private int _fortitude;
@@ -38,32 +42,36 @@ public class Player
     public Player(string pathDeck, View view)
     {
         _pathDeck = pathDeck;
+        
+        // TODO: Eliminar
         _cardsInArsenal = new DeckCollection(new List<Card>());
         _cardsInHand = new DeckCollection(new List<Card>());
         _cardsInRingside = new DeckCollection(new List<Card>());
         _cardsInRingArea = new DeckCollection(new List<Card>());
-        _cardPlayedByOpponent = new FormatterCardRepresentation();
         _reversalCardsInHandInStringFormat = new StringCollection(new List<string>());
+        
+        _cardPlayedByOpponent = new FormatterCardRepresentation();
         _view = view;
         
-        ReadDeck();
+        SetUpDeck();
+        IsDeckSizeCorrect(); 
     }
 
-    private void ReadDeck()
+    private void SetUpDeck()
     {
         var deckLines  = File.ReadAllLines(_pathDeck!);
         SetSuperCard(deckLines);
         AddCardsFromTxtToDeck(deckLines.Skip(1).ToArray());
-        IsDeckSizeCorrect(); 
     }
     
     private void SetSuperCard(IReadOnlyList<string> deckLines)
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
-        SetSuperStar(superName);
+        SelectWhichSuperStar(superName);
+        _decksCollections = new PlayersDecksCollections(SuperStar);
     }
 
-    private void SetSuperStar(string superName)
+    private void SelectWhichSuperStar(string superName)
     {
         var superStarCardInfo = new SuperCardInfo(superName);
         SuperStar = superStarCardInfo.Name switch
@@ -81,16 +89,23 @@ public class Player
     
     private void AddCardsFromTxtToDeck(IReadOnlyList<string> deckLines)
     {
+        
         foreach (var line in deckLines)
         {
-            AddCardToDeck(new Card(line));
+            Card card = new Card(line);
+            _decksCollections.CheckIfHaveValidDeckWhenYouAddCard(card);
+            ValidateCardWhenAddingToDeck(card);
+            AddCardToDeck(card);
         }
+    }
+
+    private void ValidateCardWhenAddingToDeck(Card card)
+    {
+        CheckIfHaveValidDeckWhenYouAddCard(card);
     }
     
     private void AddCardToDeck(Card card)
     {
-        card.CheckIfHaveAnotherLogo(SuperStar.SuperCard);
-        CheckIfHaveValidDeckWhenYouAddCard(card);
         _cardsInArsenal.Add(card);
     }
     
@@ -401,9 +416,9 @@ public class Player
             throw new InvalidDeckException();
     }
     
-    private static void IsInvalidLogo(Card card)
+    private void IsInvalidLogo(Card card)
     {
-        if (card.HasAnotherLogo) throw new InvalidDeckException();
+        if (card.CheckIfHaveAnotherLogo(SuperStar.SuperCard)) throw new InvalidDeckException();
     }
     
     private void IsDeckSizeCorrect()

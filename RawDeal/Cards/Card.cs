@@ -21,15 +21,17 @@ public class Card
         _loaderCardInfo.LoadCardData(this);
     }
     
-    public void CheckIfHaveAnotherLogo(SuperCardInfo superCard)
+    public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)
     {
         LoaderSuperCardInfo superCardsInfo = new();
+        HasAnotherLogo = false;
         foreach (var unused in superCardsInfo.CardsJson!.
                      Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) 
                                             && superCard.Logo != superCardInfo.Logo))
         {
             HasAnotherLogo = true;
         }
+        return HasAnotherLogo;
     }
 
     public bool IsPlayeableCard(int fortitude)
