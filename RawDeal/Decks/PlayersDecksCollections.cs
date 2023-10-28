@@ -36,6 +36,10 @@ public class PlayersDecksCollections
         _cardsInRingArea = new DeckCollection(new List<Card>());
     }
     
+    
+    
+    
+    
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
     {
         var numberOfRepeatedCards = _cardsInArsenal.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
@@ -83,6 +87,10 @@ public class PlayersDecksCollections
         if (card.CheckIfHaveAnotherLogo(_superStar.SuperCard)) throw new InvalidDeckException();
     }
     
+    public void IsDeckSizeCorrect()
+    {
+        if (_cardsInArsenal.Count != MaxDeckSize) throw new InvalidDeckException();
+    }
     
     
     
@@ -91,7 +99,8 @@ public class PlayersDecksCollections
     
     
     
-    private void AddCardToArsenal(Card card)
+    
+    public void AddCardToArsenal(Card card)
     {
         _cardsInArsenal.Add(card);
     }

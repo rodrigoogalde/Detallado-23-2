@@ -54,7 +54,6 @@ public class Player
         _view = view;
         
         SetUpDeck();
-        IsDeckSizeCorrect(); 
     }
 
     private void SetUpDeck()
@@ -89,34 +88,13 @@ public class Player
     
     private void AddCardsFromTxtToDeck(IReadOnlyList<string> deckLines)
     {
-        
         foreach (var line in deckLines)
         {
             Card card = new Card(line);
             _decksCollections.CheckIfHaveValidDeckWhenYouAddCard(card);
-            ValidateCardWhenAddingToDeck(card);
-            AddCardToDeck(card);
+            _decksCollections.AddCardToArsenal(card);
         }
-    }
-
-    private void ValidateCardWhenAddingToDeck(Card card)
-    {
-        CheckIfHaveValidDeckWhenYouAddCard(card);
-    }
-    
-    private void AddCardToDeck(Card card)
-    {
-        _cardsInArsenal.Add(card);
-    }
-    
-    private void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
-    {
-        var numberOfRepeatedCards = _cardsInArsenal.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
-        IsInvalidUniqueCard(cardToAdd, numberOfRepeatedCards);
-        IsInvalidNumberOfRepeatedCards(numberOfRepeatedCards, cardToAdd);
-        IsInvalidFaceAndHeelCombination(cardToAdd);
-        IsDeckSizeExceeded();
-        IsInvalidLogo(cardToAdd);
+        _decksCollections.IsDeckSizeCorrect();
     }
 
     public void DrawCard()
@@ -366,7 +344,6 @@ public class Player
             where card.CanBeUsedAsReversal(_fortitude) && _cardPlayedByOpponent.Type != "ACTION"
             select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
-
     
     public bool CanReverseTheCardPlayed()
     {
@@ -380,50 +357,6 @@ public class Player
                             && _reversalCardsInHand.Any(card =>
                             CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); 
         return hasConditions;
-    }
-    
-    private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
-    {
-        int numberOfRepeatedCardsAllowed = 0;
-        if (card.Subtypes!.Contains("Unique") && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
-            throw new InvalidDeckException();
-    }
-    
-    private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
-    {
-        int numberOfRepeatedCardsAllowed = 3;
-        if (!card.Subtypes!.Contains("SetUp") && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
-        {
-            throw new InvalidDeckException();
-        }
-    }
-    
-    private void IsInvalidFaceAndHeelCombination(Card card)
-    {
-        if (PlayerAlreadyHasFaceOrHeel(card)) throw new InvalidDeckException();
-        if (card.Subtypes!.Contains("Heel"))  _hasHeel = true; 
-        if (card.Subtypes.Contains("Face"))  _hasFace = true; 
-    }
-    
-    private bool PlayerAlreadyHasFaceOrHeel(Card card)
-    {
-        return (_hasFace && card.Subtypes!.Contains("Heel")) || (_hasHeel && card.Subtypes!.Contains("Face"));
-    }
-    
-    private void IsDeckSizeExceeded()
-    {
-        if (_cardsInArsenal.Count >= MaxDeckSize)
-            throw new InvalidDeckException();
-    }
-    
-    private void IsInvalidLogo(Card card)
-    {
-        if (card.CheckIfHaveAnotherLogo(SuperStar.SuperCard)) throw new InvalidDeckException();
-    }
-    
-    private void IsDeckSizeCorrect()
-    {
-        if (_cardsInArsenal.Count != MaxDeckSize) throw new InvalidDeckException();
     }
     
     public PlayerInfo GetPlayerInfo()
