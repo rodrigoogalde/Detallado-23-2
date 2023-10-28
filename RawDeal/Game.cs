@@ -16,6 +16,8 @@ public class Game
     private readonly List<Player> _playersList;
     private Player _playerOnTurn = null!;
     private Player _playerWaiting = null!;
+    private SuperStar _superStarOnTurn = null!;
+    private SuperStar _superStarWaiting = null!;
     private Player? _winnerPlayer;
     private FormatterCardRepresentation _cardChoseenInBothFormats;
     
@@ -80,9 +82,15 @@ public class Game
     {
         var player1SuperStarCard = _playersList[0].SuperStar;
         var player2SuperStarCard = _playersList[1].SuperStar;
-        int index = player1SuperStarCard.SuperstarValue >= player2SuperStarCard.SuperstarValue ? 0 : 1;
+        SetTurns(player1SuperStarCard.SuperstarValue >= player2SuperStarCard.SuperstarValue ? 0 : 1);
+    }
+
+    private void SetTurns(int index)
+    {
         _playerOnTurn = _playersList[index];
         _playerWaiting = _playersList[(index + 1) % 2];
+        _superStarOnTurn = _playerOnTurn.SuperStar;
+        _superStarWaiting = _playerWaiting.SuperStar;
     }
     
     private void PlayersDrawFirstCards()
@@ -143,13 +151,16 @@ public class Game
 
     private bool CheckIfTheTurnsEnds()
     {
-        return _optionChoosed != NextPlay.EndTurn && _optionChoosed != NextPlay.GiveUp && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
+        return _optionChoosed != NextPlay.EndTurn 
+               && _optionChoosed != NextPlay.GiveUp 
+               && !_thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     }
         
 
     private void ChooseAnOption()
     {
-        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) ? _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+        _optionChoosed = (_playerCanUseHisAbility && !_playerUseHisAbilityInTheTurn) 
+            ? _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() : _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         WhatToDoWithTheOptionChoosed();
     }
     
@@ -292,6 +303,7 @@ public class Game
     private void PlayerPassTurn()
     {
         (_playerOnTurn, _playerWaiting) = (_playerWaiting, _playerOnTurn);
+        (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
         (_optionChoosed, _optionWhichCardsToSee, _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
         _playerOnTurn.CleanDataFromPastTurn();
         _playerWaiting.CleanDataFromPastTurn();
@@ -313,7 +325,7 @@ public class Game
     {
         SuperStar superStar = _playerOnTurn.SuperStar;
         _view.SayThatPlayerIsGoingToUseHisAbility(superStar.Name!, superStar.SuperstarAbility!);
-        _playerOnTurn.SuperStar.UseAbility(_playerWaiting);
+        superStar.UseAbility(_playerWaiting);
         _playerUseHisAbilityInTheTurn = true;
     }
 }
