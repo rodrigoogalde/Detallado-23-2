@@ -2,7 +2,7 @@ using RawDeal.Cards;
 
 namespace RawDeal.Utils;
 
-public class PlayeableCardInfo
+public class FormatterCardRepresentation
 {
     public Card? CardInObjectFormat { get; set; }
     public string? CardInStringFormat { get; set; }

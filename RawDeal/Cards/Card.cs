@@ -1,3 +1,5 @@
+using RawDeal.Decks;
+
 namespace RawDeal.Cards;
 
 public class Card
@@ -9,22 +11,41 @@ public class Card
     public string StunValue = null!;
     public string? CardEffect;
     public string? Damage;
-
-    public bool HasAnotherLogo;
-    private readonly CardInfo _cardInfo = new();
+    
+    private const string CardPlayAsAction = "Action";
+    private const string CardPlayAsManeuver = "Maneuver";
+    
+    private const string ReversalCardType = "Reversal";
+    private readonly LoaderCardInfo _loaderCardInfo = new();
     
     public Card(string title)
     {
         Title = title;
-        _cardInfo.LoadCardData(this);
+        _loaderCardInfo.LoadCardData(this);
     }
     
-    public void CheckIfHaveAnotherLogo(SuperCardInfo superCard)
+    public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)
     {
-        SuperCardFormatter superCardsInfo = new();
-        foreach (var unused in superCardsInfo.CardsJson!.Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) && superCard.Logo != superCardInfo.Logo))
+        LoaderSuperCardInfo superCardsInfo = new();
+        bool hasAnotherLogo = false;
+        foreach (var unused in superCardsInfo.CardsJson!.
+                     Where(superCardInfo => Subtypes!.Contains(superCardInfo.Logo!) 
+                                            && superCard.Logo != superCardInfo.Logo))
         {
-            HasAnotherLogo = true;
+            hasAnotherLogo = true;
         }
+        return hasAnotherLogo;
     }
+
+    public bool IsPlayeableCard(int fortitude)
+    {
+        return (Types!.Contains(CardPlayAsManeuver) || Types.Contains(CardPlayAsAction)) 
+               && fortitude >= long.Parse(Fortitude) ;
+    }
+    
+    public bool CanBeUsedAsReversal(int fortitude, string usedAs)
+    {
+        return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
+    }
+
 }

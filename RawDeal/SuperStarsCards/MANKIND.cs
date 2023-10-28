@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Options;
 using RawDealView;
 using RawDealView.Options;
 
@@ -26,7 +27,7 @@ public class Mankind: SuperStar
 
     public override bool CanSteelMoreThanOneCard()
     {
-        return Player.ChooseWhichMazeOfCardsTransformToStringFormat(CardSet.Arsenal).Count >= OneCard;
+        return Player.TransformMazeToStringFormat(CardSetFull.Arsenal).Count >= OneCard;
     }
     
     public override bool IsManKind()

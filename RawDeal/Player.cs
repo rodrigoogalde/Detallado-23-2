@@ -1,9 +1,12 @@
 using RawDeal.Cards;
+using RawDeal.Collections;
+using RawDeal.Decks;
+using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
-using RawDealView.Options;
+using FormatterCardInfo = RawDeal.Cards.FormatterCardInfo;
 
 namespace RawDeal;
 
@@ -11,51 +14,36 @@ public class Player
 {
     private readonly View _view;
     public SuperStar SuperStar;
-    private readonly List<Card>? _cardsInArsenal;
-    private List<Card> _cardsInHand;
-    private List<Card> _cardsInRingside;
-    private List<Card> _cardsInRingArea;
-    private List<PlayeableCardInfo> _playeablesCardsInHand;
-    private List<string> _playeablesCardsInHandInStringFormat;
+    
     private int _indexCardToDiscard;
     
+    private PlayerDecksCollections _decksCollections;
     private readonly string? _pathDeck;
     private int _fortitude;
-    
-    private bool _hasHeel;
-    private bool _hasFace;
-
-    private const int MaxDeckSize = 60;
-    private const string ActionCardType = "Action";
-    private const string ManeuverCardType = "Maneuver";
 
     public Player(string pathDeck, View view)
     {
         _pathDeck = pathDeck;
-        _cardsInArsenal = new List<Card>();
-        _cardsInHand = new List<Card>();
-        _cardsInRingside = new List<Card>();
-        _cardsInRingArea = new List<Card>();
         _view = view;
         
-        ReadDeck();
+        SetUpDeck();
     }
 
-    private void ReadDeck()
+    private void SetUpDeck()
     {
         var deckLines  = File.ReadAllLines(_pathDeck!);
         SetSuperCard(deckLines);
         AddCardsFromTxtToDeck(deckLines.Skip(1).ToArray());
-        IsDeckSizeCorrect(); 
     }
     
     private void SetSuperCard(IReadOnlyList<string> deckLines)
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
-        SetSuperStar(superName);
+        SelectWhichSuperStar(superName);
+        _decksCollections = new PlayerDecksCollections(SuperStar);
     }
 
-    private void SetSuperStar(string superName)
+    private void SelectWhichSuperStar(string superName)
     {
         var superStarCardInfo = new SuperCardInfo(superName);
         SuperStar = superStarCardInfo.Name switch
@@ -75,94 +63,46 @@ public class Player
     {
         foreach (var line in deckLines)
         {
-            AddCardToDeck(new Card(line));
+            Card card = new Card(line);
+            _decksCollections.CheckIfHaveValidDeckWhenYouAddCard(card);
+            _decksCollections.AddCardToArsenal(card);
         }
-    }
-    
-    private void AddCardToDeck(Card card)
-    {
-        card.CheckIfHaveAnotherLogo(SuperStar.SuperCard);
-        CheckIfHaveValidDeckWhenYouAddCard(card);
-        _cardsInArsenal!.Add(card);
-    }
-    
-    private void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
-    {
-        var numberOfRepeatedCards = _cardsInArsenal!.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
-        IsInvalidUniqueCard(cardToAdd, numberOfRepeatedCards);
-        IsInvalidNumberOfRepeatedCards(numberOfRepeatedCards, cardToAdd);
-        IsInvalidFaceAndHeelCombination(cardToAdd);
-        IsDeckSizeExceeded();
-        IsInvalidLogo(cardToAdd);
+        _decksCollections.IsDeckSizeCorrect();
     }
 
     public void DrawCard()
     {
-        Card card = _cardsInArsenal!.Last();
-        _cardsInHand.Add(card);
-        _cardsInArsenal!.Remove(card);
+        _decksCollections.AddCardToHandFromArsenal();
     }
 
     public void DrawFirstHand()
     {
         SuperCardInfo superCard = SuperStar.SuperCard;
         int cardsToDraw = superCard.HandSize;
-        for (var i = 0; i < cardsToDraw; i++)
+        for (int i = 0; i < cardsToDraw; i++)
         {
             DrawCard();
         }
     }
 
-    public List<string> ChooseWhichMazeOfCardsTransformToStringFormat(CardSet cardSet)
+    public StringListCollection TransformMazeToStringFormat(CardSetFull cardSet)
     {
-        var cardsInStringFormat = new List<string>();
-        switch (cardSet)
-        {
-            case CardSet.Arsenal:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInArsenal!);
-                break;
-            case CardSet.Hand:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInHand);
-                break;
-            case CardSet.RingArea or CardSet.OpponentsRingArea:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingArea);
-                break;
-            case CardSet.RingsidePile or CardSet.OpponentsRingsidePile:
-                cardsInStringFormat = TransformListOfCardsIntoStringFormat(_cardsInRingside);
-                break;
-        }
-        return cardsInStringFormat;
+        return _decksCollections.ChooseWhichMazeOfCardsTransformToStringFormat(cardSet);
     }
-
-    private List<string> TransformListOfCardsIntoStringFormat(List<Card> cards) =>
-        (cards.Count > 0)
-            ? cards.Select(card => Formatter.CardToString(new FormaterCardInfo(card))).ToList()
-            : new List<string>();
     
-    public List<string> TransformPlayableCardsInHandIntoStringFormat()
+    public StringListCollection GimeMePlayeableCardsFromHandInStringFormat()
     {
-        CheckWhichCardsArePlayeable();
-        return _playeablesCardsInHandInStringFormat;
+        return _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item2;
+    }
+    
+    public StringListCollection GimeMeReversalCardsInStringFormat()
+    {
+        return _decksCollections.MakeAListOfReversalCardsInStringFormat();
     }
 
-    private void CheckWhichCardsArePlayeable()
+    public CardRepresentationListCollection GimeMeReversalCardsInCardFormat()
     {
-        _playeablesCardsInHand = new List<PlayeableCardInfo>();
-        _playeablesCardsInHandInStringFormat = new List<string>();
-        foreach (var card in _cardsInHand.Where(IsPlayableCard))
-        {
-            AddAllTypesToPlayeableCardsList(card);
-        }
-    }
-
-    private void AddAllTypesToPlayeableCardsList(Card card)
-    {
-        foreach (var type in card.Types!)
-        {
-            var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
-            _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
-            _playeablesCardsInHand.Add( new PlayeableCardInfo { CardInObjectFormat = card, CardInStringFormat = formaterPlayableCardInfo, Type = type.ToUpper() });
-        }
+        return _decksCollections.MakeAListOfReversalCardsOnCardFormat();
     }
     
     public void PlayCardAsAction(Card cardToPlay)
@@ -170,132 +110,106 @@ public class Player
         _view.SayThatPlayerMustDiscardThisCard(SuperStar.Name!, cardToPlay.Title);
         DrawCard();
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
-        MoveCardFromHandToRingSide(cardToPlay);
-    }
-    public PlayeableCardInfo CheckWhichCardWillBePlayed(int indexCardToDiscard)
-    {
-        _indexCardToDiscard = indexCardToDiscard;
-        TransformPlayableCardsInHandIntoStringFormat();
-        var cardToDiscardInBothFormats = _playeablesCardsInHand[_indexCardToDiscard];
-        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!, cardToDiscardInBothFormats.CardInStringFormat!);
-        return cardToDiscardInBothFormats;
+        _decksCollections.MoveCardBetweenDecks(cardToPlay,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
     
     public void MoveCardFromHandToRingArea(Card cardToDiscard)
     {
-        _cardsInHand.Remove(cardToDiscard);
-        _cardsInRingArea.Add(cardToDiscard);
         _fortitude += int.Parse(cardToDiscard.Damage!);
+        _decksCollections.MoveCardBetweenDecks(cardToDiscard,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
     }
-
+    
+    private Card MoveLastCardFromArsenalToRingSide()
+    {
+        Card card = _decksCollections.GetArsenalDeck().Last();
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.RingsidePile));
+        return card;
+    }
+    
+    public FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
+    {
+        _indexCardToDiscard = indexCardToDiscard;
+        CardRepresentationListCollection playeablesCardsInHand = _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item1;
+        var cardToDiscardInBothFormats = playeablesCardsInHand[_indexCardToDiscard];
+        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!, cardToDiscardInBothFormats.CardInStringFormat!);
+        return cardToDiscardInBothFormats;
+    }
+    
     public bool TakeDamage(int damage)
     {
         int i;
-        for (i = 0; i < damage && _cardsInArsenal!.Count > 0; i++)
+        for (i = 1; (i - 1) < damage && !_decksCollections.IsArsenalDeckEmpty(); i++)
         {
-            MoveCardFromArsenalToRingSide(i + 1, damage);
+            Card card = MoveLastCardFromArsenalToRingSide();
+            _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), i, damage);
+            _decksCollections.TryReversalFromMaze(card, damage - i);
         }
-        return _cardsInArsenal!.Count == 0 && i != damage;
+        return _decksCollections.IsArsenalDeckEmpty() && (i - 1) != damage;
     }
     
-    private void MoveCardFromArsenalToRingSide(int currentDamage, int totalDamage)
+    public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
     {
-        Card card = _cardsInArsenal!.Last();
-        _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormaterCardInfo(card)), currentDamage, totalDamage);
-        _cardsInArsenal!.Remove(card);
-        _cardsInRingside.Add(card);
+        _decksCollections.SetTheCardPlayedByOpponent(card);
+    }
+    
+    public void MoveCardFromRingsideToArsenalWithIndex(int index)
+    {
+        _decksCollections.MoveCardBetweenDecks(_decksCollections.GetRingsideDeck()[index],
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Arsenal));
+    }
+    
+    public bool CanReverseTheCardPlayed()
+    {
+        return _decksCollections.PlayerHasAllConditionsToPlayReversalFromHand();
+    }
+    
+    public void DiscardCardFromHandToRingsideWithIndex(int index)
+    {
+        Card cardToDiscard = _decksCollections.GetHandCards()[index];
+        _decksCollections.MoveCardBetweenDecks(cardToDiscard,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
 
-    public void MoveCardFromRingsideToArsenal(int index)
+    public void CardFromHandToRingside(Card card)
     {
-        Card cardToRecover = _cardsInRingside[index];
-        _cardsInRingside.Remove(cardToRecover);
-        _cardsInArsenal!.Insert(0, cardToRecover);
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
     
-    public void DiscardCardFromHandToRingside(int index)
+    public void MoveCardFromRingsideToHandWithIndex(int index)
     {
-        Card cardToDiscard = _cardsInHand[index];
-        _cardsInHand.Remove(cardToDiscard);
-        _cardsInRingside.Add(cardToDiscard);
+        _decksCollections.MoveCardBetweenDecks(_decksCollections.GetRingsideDeck()[index],
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Hand));
     }
     
-    public void MoveCardFromRingsideToHand(int index)
-    {
-        Card cardToRecover = _cardsInRingside[index];
-        _cardsInRingside.Remove(cardToRecover);
-        _cardsInHand.Add(cardToRecover);
-    }
-
     public void MoveTopeCardFromArsenalToHand()
     {
-        Card card = _cardsInArsenal!.Last();
-        _cardsInArsenal!.Remove(card);
-        _cardsInHand.Add(card);
+        Card card = _decksCollections.GetArsenalDeck().Last();
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.Hand));
     }
     
-    public void MoveCardFromHandToArsenalBottom(int index)
+    public void MoveCardFromHandToArsenalBottomWithIndex(int index)
     {
-        Card card = _cardsInHand[index];
-        _cardsInHand.Remove(card);
-        _cardsInArsenal!.Insert(0, card);
+        Card card = _decksCollections.GetHandCards()[index];
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.Arsenal));
     }
     
-    private void MoveCardFromHandToRingSide(Card cardToDiscard)
-    {
-        _cardsInHand.Remove(cardToDiscard);
-        _cardsInRingside.Add(cardToDiscard);
-    }
-    
-    private static void IsInvalidUniqueCard(Card card, int numberOfRepeatedCards)
-    {
-        int numberOfRepeatedCardsAllowed = 0;
-        if (card.Subtypes!.Contains("Unique") && numberOfRepeatedCards > numberOfRepeatedCardsAllowed)
-            throw new InvalidDeckException();
-    }
-    
-    private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
-    {
-        int numberOfRepeatedCardsAllowed = 3;
-        if (!card.Subtypes!.Contains("SetUp") && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
-        {
-            throw new InvalidDeckException();
-        }
-    }
-    
-    private void IsInvalidFaceAndHeelCombination(Card card)
-    {
-        // TODO: REVISAR COMENTARIO AYUDANTE
-        if ((_hasFace && card.Subtypes!.Contains("Heel")) || (_hasHeel && card.Subtypes!.Contains("Face")))
-            throw new InvalidDeckException();
-        if (card.Subtypes!.Contains("Heel"))  _hasHeel = true; 
-        if (card.Subtypes.Contains("Face"))  _hasFace = true; 
-    }
-    
-    private void IsDeckSizeExceeded()
-    {
-        if (_cardsInArsenal!.Count >= MaxDeckSize)
-            throw new InvalidDeckException();
-    }
-    
-    private static void IsInvalidLogo(Card card)
-    {
-        if (card.HasAnotherLogo) throw new InvalidDeckException();
-    }
-    
-    private void IsDeckSizeCorrect()
-    {
-        if (_cardsInArsenal!.Count != MaxDeckSize) throw new InvalidDeckException();
-    }
-
-    private bool IsPlayableCard(Card card)
-    {
-        return (card.Types!.Contains("Maneuver") || card.Types.Contains("Action")) 
-               && _fortitude >= long.Parse(card.Fortitude) ;
-    }
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
-        return new PlayerInfo(superCardInfo.Name, _fortitude, _cardsInHand.Count, _cardsInArsenal!.Count);
+        return new PlayerInfo(superCardInfo.Name, _fortitude,
+            _decksCollections.GetHandCards().Count,
+            _decksCollections.GetArsenalDeck().Count);
     }
+    
+    public void CleanDataFromPastTurn()
+    {
+        SetTheCardPlayedByOpponent(new FormatterCardRepresentation());
+    }
+    
 }
