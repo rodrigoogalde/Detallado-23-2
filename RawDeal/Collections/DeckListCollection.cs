@@ -4,11 +4,11 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Collections;
 
-public class DeckCollection : Collection<Card>
+public class DeckListCollection : ListCollection<Card>
 {
     private readonly ICollection<Card> _deck;
     
-    public DeckCollection(ICollection<Card> collectionImplementation) : base(collectionImplementation)
+    public DeckListCollection(ICollection<Card> collectionImplementation) : base(collectionImplementation)
     {
         _deck = _collectionImplementation;
     }

@@ -16,7 +16,7 @@ public class Player
     
     private int _indexCardToDiscard;
     
-    private PlayersDecksCollections _decksCollections;
+    private PlayerDecksCollections _decksCollections;
     private readonly string? _pathDeck;
     private int _fortitude;
 
@@ -39,7 +39,7 @@ public class Player
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
         SelectWhichSuperStar(superName);
-        _decksCollections = new PlayersDecksCollections(SuperStar);
+        _decksCollections = new PlayerDecksCollections(SuperStar);
     }
 
     private void SelectWhichSuperStar(string superName)
@@ -84,22 +84,22 @@ public class Player
         }
     }
 
-    public StringCollection TransformMazeToStringFormat(CardSetFull cardSet)
+    public StringListCollection TransformMazeToStringFormat(CardSetFull cardSet)
     {
         return _decksCollections.ChooseWhichMazeOfCardsTransformToStringFormat(cardSet);
     }
     
-    public StringCollection GimeMePlayeableCardsFromHandInStringFormat()
+    public StringListCollection GimeMePlayeableCardsFromHandInStringFormat()
     {
         return _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item2;
     }
     
-    public StringCollection GimeMeReversalCardsInStringFormat()
+    public StringListCollection GimeMeReversalCardsInStringFormat()
     {
         return _decksCollections.MakeAListOfReversalCardsInStringFormat();
     }
 
-    public CardRepresentationCollection GimeMeReversalCardsInCardFormat()
+    public CardRepresentationListCollection GimeMeReversalCardsInCardFormat()
     {
         return _decksCollections.MakeAListOfReversalCardsOnCardFormat();
     }
@@ -127,7 +127,7 @@ public class Player
     public FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
     {
         _indexCardToDiscard = indexCardToDiscard;
-        CardRepresentationCollection playeablesCardsInHand = _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item1;
+        CardRepresentationListCollection playeablesCardsInHand = _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item1;
         var cardToDiscardInBothFormats = playeablesCardsInHand[_indexCardToDiscard];
         _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!, cardToDiscardInBothFormats.CardInStringFormat!);
         return cardToDiscardInBothFormats;

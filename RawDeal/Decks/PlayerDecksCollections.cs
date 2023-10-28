@@ -8,17 +8,17 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Decks;
 
-public class PlayersDecksCollections
+public class PlayerDecksCollections
 {
     private SuperStar _superStar;
-    private DeckCollection _cardsInRingside;
-    private DeckCollection _cardsInRingArea;
-    private DeckCollection _cardsInHand;
-    private DeckCollection _cardsInArsenal;
-    private StringCollection _playeablesCardsInHandInStringFormat;
-    private StringCollection _reversalCardsInHandInStringFormat;
-    private CardRepresentationCollection _playeablesCardsInHand;
-    private CardRepresentationCollection _reversalCardsInHand;
+    private DeckListCollection _cardsInRingside;
+    private DeckListCollection _cardsInRingArea;
+    private DeckListCollection _cardsInHand;
+    private DeckListCollection _cardsInArsenal;
+    private StringListCollection _playeablesCardsInHandInStringListFormat;
+    private StringListCollection _reversalCardsInHandInStringListFormat;
+    private CardRepresentationListCollection _playeablesCardsInHand;
+    private CardRepresentationListCollection _reversalCardsInHand;
     private FormatterCardRepresentation _cardPlayedByOpponent;
     
     private bool _hasHeel;
@@ -28,14 +28,15 @@ public class PlayersDecksCollections
     private const int EmptyDeck = 0;
     private const string ReversalCardType = "Reversal";
     private const string CardPlayAsAction = "Action";
+    private const string CardPlayAsManeuver = "Maneuver";
     
-    public PlayersDecksCollections(SuperStar superStar)
+    public PlayerDecksCollections(SuperStar superStar)
     {
         _superStar = superStar;
-        _cardsInArsenal = new DeckCollection(new List<Card>());
-        _cardsInHand = new DeckCollection(new List<Card>());
-        _cardsInRingside = new DeckCollection(new List<Card>());
-        _cardsInRingArea = new DeckCollection(new List<Card>());
+        _cardsInArsenal = new DeckListCollection(new List<Card>());
+        _cardsInHand = new DeckListCollection(new List<Card>());
+        _cardsInRingside = new DeckListCollection(new List<Card>());
+        _cardsInRingArea = new DeckListCollection(new List<Card>());
     }
     
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
@@ -97,22 +98,22 @@ public class PlayersDecksCollections
         _cardsInArsenal.Remove(card);
     }
     
-    public StringCollection ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
+    public StringListCollection ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
     {
-        var cardsInStringFormat = new StringCollection( new List<string>());
+        var cardsInStringFormat = new StringListCollection( new List<string>());
         switch (cardSet)
         {
             case CardSetFull.Arsenal:
-                cardsInStringFormat = new StringCollection(_cardsInArsenal.TransformListOfCardsIntoStringFormat());
+                cardsInStringFormat = new StringListCollection(_cardsInArsenal.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.Hand:
-                cardsInStringFormat = new StringCollection(_cardsInHand.TransformListOfCardsIntoStringFormat());
+                cardsInStringFormat = new StringListCollection(_cardsInHand.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.RingArea or CardSetFull.OpponentsRingArea:
-                cardsInStringFormat = new StringCollection(_cardsInRingArea.TransformListOfCardsIntoStringFormat());
+                cardsInStringFormat = new StringListCollection(_cardsInRingArea.TransformListOfCardsIntoStringFormat());
                 break;
             case CardSetFull.RingsidePile or CardSetFull.OpponentsRingsidePile:
-                cardsInStringFormat = new StringCollection(_cardsInRingside.TransformListOfCardsIntoStringFormat());
+                cardsInStringFormat = new StringListCollection(_cardsInRingside.TransformListOfCardsIntoStringFormat());
                 break;
         }
         return cardsInStringFormat;
@@ -128,15 +129,15 @@ public class PlayersDecksCollections
         return _cardsInRingArea.Sum(card => int.Parse(card.Damage!));
     } 
     
-    public Tuple<CardRepresentationCollection, StringCollection> MakeAListOfCardsThatArePlayeableFromHand()
+    public Tuple<CardRepresentationListCollection, StringListCollection> MakeAListOfCardsThatArePlayeableFromHand()
     {
-        _playeablesCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
-        _playeablesCardsInHandInStringFormat = new StringCollection(new List<string>());
+        _playeablesCardsInHand = new CardRepresentationListCollection(new List<FormatterCardRepresentation>());
+        _playeablesCardsInHandInStringListFormat = new StringListCollection(new List<string>());
         foreach (var card in _cardsInHand.Where(card => card.IsPlayeableCard(GetFortitude())))
         {
             AddAllTypesToPlayeableCardsList(card);
         }
-        return new Tuple<CardRepresentationCollection, StringCollection>(_playeablesCardsInHand, _playeablesCardsInHandInStringFormat);
+        return new Tuple<CardRepresentationListCollection, StringListCollection>(_playeablesCardsInHand, _playeablesCardsInHandInStringListFormat);
     }
     
     private void AddAllTypesToPlayeableCardsList(Card card)
@@ -144,7 +145,7 @@ public class PlayersDecksCollections
         foreach (var type in card.Types!)
         {
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
-            _playeablesCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
+            _playeablesCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
             _playeablesCardsInHand.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
@@ -154,16 +155,16 @@ public class PlayersDecksCollections
         }
     }
     
-    public CardRepresentationCollection MakeAListOfReversalCardsOnCardFormat()
+    public CardRepresentationListCollection MakeAListOfReversalCardsOnCardFormat()
     {
         CheckWhichCardsAreReversal();
         return _reversalCardsInHand;
     }
     
-    public StringCollection MakeAListOfReversalCardsInStringFormat()
+    public StringListCollection MakeAListOfReversalCardsInStringFormat()
     {
         CheckWhichCardsAreReversal();
-        return _reversalCardsInHandInStringFormat;
+        return _reversalCardsInHandInStringListFormat;
     }
     
     public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
@@ -181,8 +182,8 @@ public class PlayersDecksCollections
     
     private void CheckWhichCardsAreReversal()
     {
-        _reversalCardsInHand = new CardRepresentationCollection(new List<FormatterCardRepresentation>());
-        _reversalCardsInHandInStringFormat = new StringCollection(new List<string>());
+        _reversalCardsInHand = new CardRepresentationListCollection(new List<FormatterCardRepresentation>());
+        _reversalCardsInHandInStringListFormat = new StringListCollection(new List<string>());
         foreach (Card card in _cardsInHand)
         {
             if (CheckReversalOfTheCardPlayedByTheOpponent(card))
@@ -224,7 +225,7 @@ public class PlayersDecksCollections
         foreach (var type in card.Types!)
         {
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
-            _reversalCardsInHandInStringFormat.Add(formaterPlayableCardInfo);
+            _reversalCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
             _reversalCardsInHand.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
@@ -307,17 +308,17 @@ public class PlayersDecksCollections
         return _cardsInArsenal.Count == EmptyDeck;
     }
     
-    public DeckCollection GetRingsideDeck()
+    public DeckListCollection GetRingsideDeck()
     {
         return _cardsInRingside;
     }
 
-    public DeckCollection GetHandCards()
+    public DeckListCollection GetHandCards()
     {
         return _cardsInHand;
     }
     
-    public DeckCollection GetArsenalDeck()
+    public DeckListCollection GetArsenalDeck()
     {
         return _cardsInArsenal;
     }

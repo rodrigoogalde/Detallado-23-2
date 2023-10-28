@@ -1,15 +1,13 @@
 using System.Collections;
-using RawDeal.Cards;
-using RawDealView.Formatters;
 
 namespace RawDeal.Decks;
 
-public abstract class Collection<T> : ICollection<T>
+public abstract class ListCollection<T> : ICollection<T>
 {
     protected ICollection<T> _collectionImplementation;
     protected const int EmptyDeck = 0;
 
-    protected Collection(ICollection<T> collectionImplementation)
+    protected ListCollection(ICollection<T> collectionImplementation)
     {
         _collectionImplementation = collectionImplementation;
     }
