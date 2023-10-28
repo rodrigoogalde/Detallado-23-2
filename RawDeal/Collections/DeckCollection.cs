@@ -1,7 +1,8 @@
 using RawDeal.Cards;
+using RawDeal.Decks;
 using RawDealView.Formatters;
 
-namespace RawDeal.Decks;
+namespace RawDeal.Collections;
 
 public class DeckCollection : Collection<Card>
 {
