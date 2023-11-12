@@ -14,8 +14,8 @@ public class Card
     
     private const string CardPlayAsAction = "Action";
     private const string CardPlayAsManeuver = "Maneuver";
-    
     private const string ReversalCardType = "Reversal";
+    
     private readonly LoaderCardInfo _loaderCardInfo = new();
     
     public Card(string title)
