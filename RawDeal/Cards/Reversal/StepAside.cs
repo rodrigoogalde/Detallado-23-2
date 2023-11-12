@@ -18,7 +18,8 @@ public class StepAside: Reversal
     
     public bool IsReversalApplicable(Game game, Player player, Player opponent)
     {
-        return opponent.GetLastCardPlayedAs() == "MANEUVER" &&
-               opponent.GetLastCardPlayedSubtypes().Contains("Strike");
+        // return opponent.GetLastCardPlayedAs() == "MANEUVER" &&
+        //        opponent.GetLastCardPlayedSubtypes().Contains("Strike");
+        return true;
     }
 }

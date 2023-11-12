@@ -185,7 +185,7 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Hand));
     }
     
-    public void MoveTopeCardFromArsenalToHand()
+    public void MoveTopCardFromArsenalToHand()
     {
         Card card = _decksCollections.GetArsenalDeck().Last();
         _decksCollections.MoveCardBetweenDecks(card,
@@ -197,6 +197,13 @@ public class Player
         Card card = _decksCollections.GetHandCards()[index];
         _decksCollections.MoveCardBetweenDecks(card,
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.Arsenal));
+    }
+    
+    public void MoveTopCardFromArsenalToRingSide()
+    {
+        Card card = _decksCollections.GetArsenalDeck().Last();
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.RingsidePile));
     }
     
     public PlayerInfo GetPlayerInfo()

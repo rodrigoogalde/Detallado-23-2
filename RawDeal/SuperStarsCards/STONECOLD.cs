@@ -29,7 +29,7 @@ public class Stonecold: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        Player.MoveTopeCardFromArsenalToHand();
+        Player.MoveTopCardFromArsenalToHand();
         GameView.SayThatPlayerDrawCards(SuperCard.Name, NumberOfCardsToDraw);
         Player.MoveCardFromHandToArsenalBottomWithIndex(
             GameView.AskPlayerToReturnOneCardFromHisHandToHisArsenal(SuperCard.Name,

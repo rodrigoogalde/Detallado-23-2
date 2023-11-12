@@ -423,5 +423,6 @@ public class ReversalsFactory
                 return null;
                 break;
         }
+        return null;
     }
 }
