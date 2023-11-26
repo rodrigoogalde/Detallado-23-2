@@ -241,6 +241,8 @@ public class Game
         if (_optionCardChoosed == OptionComeBack) return;
         var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
         _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        
+        // TODO: reemplazar por el efecto de la carta
         _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
         throw new ReversalFromHandException(card);
     }

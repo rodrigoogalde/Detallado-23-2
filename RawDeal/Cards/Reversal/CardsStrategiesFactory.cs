@@ -1,9 +1,26 @@
+using RawDeal.Cards.Maneuver;
+using RawDeal.Cards.Reversal.General;
+using RawDeal.Cards.Reversal.WithoutEffects;
+using RawDeal.Effects;
+using RawDealView;
+
 namespace RawDeal.Cards.Reversal;
 
-public class ReversalsFactory
+public class CardsStrategiesFactory
 {
-    public static Reversal BuildReversal(Card card)
+    private Dictionary<string, ICardTypeStrategy> _card;
+    private View _view;
+    private Player _player;
+    public CardsStrategiesFactory(View view, Player player)
     {
+        _view = view;
+        _player = player;
+        _card = new Dictionary<string, ICardTypeStrategy>();
+    }
+    
+    public Dictionary<string, ICardTypeStrategy> BuildCard(Card card)
+    {
+        Dictionary<string, ICardTypeStrategy> cardStrategy = new Dictionary<string, ICardTypeStrategy>();
         string cardTitle = card.Title;
         switch (cardTitle)
         {
@@ -14,13 +31,13 @@ public class ReversalsFactory
                 // Handle Ankle Lock here
                 break;
             case "Arm Bar":
-                // Handle Arm Bar here
+                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
                 break;
             case "Arm Bar Takedown":
                 // Handle Arm Bar Takedown here
                 break;
             case "Arm Drag":
-                // Handle Arm Drag here
+                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
                 break;
             case "Atomic Drop":
                 // Handle Atomic Drop here
@@ -41,7 +58,7 @@ public class ReversalsFactory
                 // Handle Back Breaker here
                 break;
             case "Bear Hug":
-                // Handle Bear Hug here
+                cardStrategy.Add("MANEUVER", new OpponentsDiscardsCardsFromHand(_view, _player, 1));
                 break;
             case "Belly to Back Suplex":
                 // Handle Belly to Back Suplex here
@@ -62,7 +79,7 @@ public class ReversalsFactory
                 // Handle Bow & Arrow here
                 break;
             case "Break the Hold":
-                // Handle Break the Hold here
+                cardStrategy.Add("REVERSAL", new BreakTheHold(_view));
                 break;
             case "Bulldog":
                 // Handle Bulldog here
@@ -80,16 +97,16 @@ public class ReversalsFactory
                 // Handle Chin Lock here
                 break;
             case "Choke Hold":
-                // Handle Choke Hold here
+                cardStrategy.Add("MANEUVER", new OpponentsDiscardsCardsFromHand(_view, _player, 1));
                 break;
             case "Chop":
                 // Handle Chop here
                 break;
             case "Chyna Interferes":
-                // Handle Chyna Interferes here
+                cardStrategy.Add("REVERSAL", new ChynaInterferes(_view));
                 break;
             case "Clean Break":
-                // Handle Clean Break here
+                cardStrategy.Add("REVERSAL", new CleanBreak(_view));
                 break;
             case "Clothesline":
                 // Handle Clothesline here
@@ -146,13 +163,13 @@ public class ReversalsFactory
                 // Handle Ego Boost here
                 break;
             case "Elbow to the Face":
-                // Handle Elbow to the Face here
+                cardStrategy.Add("REVERSAL", new ElbowToTheFace(_view));
                 break;
             case "Ensugiri":
                 // Handle Ensugiri here
                 break;
             case "Escape Move":
-                // Handle Escape Move here
+                cardStrategy.Add("REVERSAL", new EscapeMove(_view));
                 break;
             case "Facebuster":
                 // Handle Facebuster here
@@ -188,7 +205,7 @@ public class ReversalsFactory
                 // Handle Haymaker here
                 break;
             case "Head Butt":
-                // Handle Head Butt here
+                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
                 break;
             case "Headlock Takedown":
                 // Handle Headlock Takedown here
@@ -233,7 +250,7 @@ public class ReversalsFactory
                 // Handle Kick here
                 break;
             case "Knee to the Gut":
-                // Handle Knee to the Gut here
+                cardStrategy.Add("REVERSAL", new KneeToTheGut(_view));
                 break;
             case "Leaping Knee to the Face":
                 // Handle Leaping Knee to the Face here
@@ -248,7 +265,7 @@ public class ReversalsFactory
                 // Handle Maintain Hold here
                 break;
             case "Manager Interferes":
-                // Handle Manager Interferes here
+                cardStrategy.Add("REVERSAL", new ManagerInterferes(_view));
                 break;
             case "Mandible Claw":
                 // Handle Mandible Claw here
@@ -260,7 +277,7 @@ public class ReversalsFactory
                 // Handle Mr. Socko here
                 break;
             case "No Chance in Hell":
-                // Handle No Chance in Hell here
+                cardStrategy.Add("REVERSAL", new NoChanceInHell(_view));
                 break;
             case "Not Yet":
                 // Handle Not Yet here
@@ -311,7 +328,7 @@ public class ReversalsFactory
                 // Handle Roll Out of the Ring here
                 break;
             case "Rolling Takedown":
-                // Handle Rolling Takedown here
+                cardStrategy.Add("REVERSAL", new RollingTakedown(_view));
                 break;
             case "Roundhouse Punch":
                 // Handle Roundhouse Punch here
@@ -362,7 +379,7 @@ public class ReversalsFactory
                 // Handle Standing Side Headlock here
                 break;
             case "Step Aside":
-                // Handle Step Aside here
+                cardStrategy.Add("REVERSAL", new StepAside(_view));
                 break;
             case "Step Over Toe Hold":
                 // Handle Step Over Toe Hold here

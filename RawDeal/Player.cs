@@ -213,6 +213,11 @@ public class Player
             _decksCollections.GetHandCards().Count,
             _decksCollections.GetArsenalDeck().Count);
     }
+
+    public FormatterCardRepresentation GetLastCardPlayedByOpponent()
+    {
+        return _decksCollections.GetLastCardPlayedByOpponent();
+    }
     
     public void CleanDataFromPastTurn()
     {

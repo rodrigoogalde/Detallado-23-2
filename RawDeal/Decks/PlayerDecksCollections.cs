@@ -324,5 +324,9 @@ public class PlayerDecksCollections
     {
         return _cardsInArsenal;
     }
-    
+
+    public FormatterCardRepresentation GetLastCardPlayedByOpponent()
+    {
+        return _cardPlayedByOpponent;
+    }
 }

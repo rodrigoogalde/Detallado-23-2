@@ -1,4 +1,5 @@
 using RawDeal.Decks;
+using RawDeal.Options;
 
 namespace RawDeal.Cards;
 
@@ -11,6 +12,7 @@ public class Card
     public string StunValue = null!;
     public string? CardEffect;
     public string? Damage;
+    public CardSetFull PlayedFromDeck;
     
     private const string CardPlayAsAction = "Action";
     private const string CardPlayAsManeuver = "Maneuver";
@@ -46,6 +48,11 @@ public class Card
     public bool CanBeUsedAsReversal(int fortitude, string usedAs)
     {
         return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
+    }
+    
+    public void SetPlayedFromDeck(CardSetFull deckName)
+    {
+        PlayedFromDeck = deckName;
     }
 
 }

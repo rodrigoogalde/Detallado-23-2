@@ -1,7 +1,9 @@
+using RawDeal.Utils;
+
 namespace RawDeal.Cards;
 
 public interface ICardTypeStrategy
 {
-    bool IsEffectApplicable(Game gameStatus, Player player, Player opponent);
-    void PerformEffect(Card playableCard, Game gameStatus, Player player, Player opponent);
+    bool IsEffectApplicable(Game game, Player player, Player playerOnWait);
+    void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait);
 }
