@@ -9,18 +9,21 @@ namespace RawDeal.Cards.Reversal;
 public class CardsStrategiesFactory
 {
     private Dictionary<string, ICardTypeStrategy> _card;
-    private View _view;
-    private Player _player;
-    public CardsStrategiesFactory(View view, Player player)
+    private readonly View _view;
+    private readonly Player _player;
+    private readonly Game _game;
+    public CardsStrategiesFactory(View view, Player player, Game game)
     {
         _view = view;
         _player = player;
+        _game = game;
         _card = new Dictionary<string, ICardTypeStrategy>();
     }
     
-    public Dictionary<string, ICardTypeStrategy> BuildCard(Card card)
+    public ICardTypeStrategy BuildCard(Card card)
     {
-        Dictionary<string, ICardTypeStrategy> cardStrategy = new Dictionary<string, ICardTypeStrategy>();
+        // Dictionary<string, ICardTypeStrategy> cardStrategy = new Dictionary<string, ICardTypeStrategy>();
+        
         string cardTitle = card.Title;
         switch (cardTitle)
         {
@@ -31,14 +34,12 @@ public class CardsStrategiesFactory
                 // Handle Ankle Lock here
                 break;
             case "Arm Bar":
-                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
-                break;
+                return new PlayerDiscardCardFromHisHand(_view, _player, 1);
             case "Arm Bar Takedown":
                 // Handle Arm Bar Takedown here
                 break;
             case "Arm Drag":
-                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
-                break;
+                return new PlayerDiscardCardFromHisHand(_view, _player, 1);
             case "Atomic Drop":
                 // Handle Atomic Drop here
                 break;
@@ -58,8 +59,7 @@ public class CardsStrategiesFactory
                 // Handle Back Breaker here
                 break;
             case "Bear Hug":
-                cardStrategy.Add("MANEUVER", new OpponentsDiscardsCardsFromHand(_view, _player, 1));
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Belly to Back Suplex":
                 // Handle Belly to Back Suplex here
                 break;
@@ -79,8 +79,7 @@ public class CardsStrategiesFactory
                 // Handle Bow & Arrow here
                 break;
             case "Break the Hold":
-                cardStrategy.Add("REVERSAL", new BreakTheHold(_view));
-                break;
+                return new BreakTheHold(_view, _player, _game);
             case "Bulldog":
                 // Handle Bulldog here
                 break;
@@ -97,17 +96,14 @@ public class CardsStrategiesFactory
                 // Handle Chin Lock here
                 break;
             case "Choke Hold":
-                cardStrategy.Add("MANEUVER", new OpponentsDiscardsCardsFromHand(_view, _player, 1));
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Chop":
                 // Handle Chop here
                 break;
             case "Chyna Interferes":
-                cardStrategy.Add("REVERSAL", new ChynaInterferes(_view));
-                break;
+                return new ChynaInterferes(_view, _player, _game);
             case "Clean Break":
-                cardStrategy.Add("REVERSAL", new CleanBreak(_view));
-                break;
+                return new CleanBreak(_view, _player, _game);
             case "Clothesline":
                 // Handle Clothesline here
                 break;
@@ -163,14 +159,12 @@ public class CardsStrategiesFactory
                 // Handle Ego Boost here
                 break;
             case "Elbow to the Face":
-                cardStrategy.Add("REVERSAL", new ElbowToTheFace(_view));
-                break;
+                return new ElbowToTheFace(_view, _player, _game);
             case "Ensugiri":
                 // Handle Ensugiri here
                 break;
             case "Escape Move":
-                cardStrategy.Add("REVERSAL", new EscapeMove(_view));
-                break;
+                return new EscapeMove(_view, _player, _game);
             case "Facebuster":
                 // Handle Facebuster here
                 break;
@@ -205,8 +199,7 @@ public class CardsStrategiesFactory
                 // Handle Haymaker here
                 break;
             case "Head Butt":
-                cardStrategy.Add("MANEUVER", new PlayerDiscardCardFromHisHand(_view, _player, 1));
-                break;
+                return new PlayerDiscardCardFromHisHand(_view, _player, 1);
             case "Headlock Takedown":
                 // Handle Headlock Takedown here
                 break;
@@ -250,8 +243,7 @@ public class CardsStrategiesFactory
                 // Handle Kick here
                 break;
             case "Knee to the Gut":
-                cardStrategy.Add("REVERSAL", new KneeToTheGut(_view));
-                break;
+                return new KneeToTheGut(_view, _player, _game);
             case "Leaping Knee to the Face":
                 // Handle Leaping Knee to the Face here
                 break;
@@ -265,8 +257,7 @@ public class CardsStrategiesFactory
                 // Handle Maintain Hold here
                 break;
             case "Manager Interferes":
-                cardStrategy.Add("REVERSAL", new ManagerInterferes(_view));
-                break;
+                return new ManagerInterferes(_view, _player, _game);
             case "Mandible Claw":
                 // Handle Mandible Claw here
                 break;
@@ -277,8 +268,7 @@ public class CardsStrategiesFactory
                 // Handle Mr. Socko here
                 break;
             case "No Chance in Hell":
-                cardStrategy.Add("REVERSAL", new NoChanceInHell(_view));
-                break;
+                return new NoChanceInHell(_view, _player, _game);
             case "Not Yet":
                 // Handle Not Yet here
                 break;
@@ -328,8 +318,7 @@ public class CardsStrategiesFactory
                 // Handle Roll Out of the Ring here
                 break;
             case "Rolling Takedown":
-                cardStrategy.Add("REVERSAL", new RollingTakedown(_view));
-                break;
+                return new RollingTakedown(_view, _player, _game);
             case "Roundhouse Punch":
                 // Handle Roundhouse Punch here
                 break;
@@ -379,8 +368,7 @@ public class CardsStrategiesFactory
                 // Handle Standing Side Headlock here
                 break;
             case "Step Aside":
-                cardStrategy.Add("REVERSAL", new StepAside(_view));
-                break;
+                return new StepAside(_view, _player, _game);
             case "Step Over Toe Hold":
                 // Handle Step Over Toe Hold here
                 break;
@@ -438,7 +426,6 @@ public class CardsStrategiesFactory
             default:
                 // Handle default case here
                 return null;
-                break;
         }
         return null;
     }

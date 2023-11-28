@@ -7,15 +7,19 @@ namespace RawDeal.Cards.Reversal.General;
 public class CleanBreak: ICardReversalStrategy
 {
     private readonly View _view;
+    private readonly Player _player;
+    private readonly Game _game;
     
-    public CleanBreak(View view)
+    public CleanBreak(View view, Player player, Game game)
     {
         _view = view;
+        _player = player;
+        _game = game;
     }
     
-    public bool IsEffectApplicable(Game game, Player player, Player playerOnWait)
+    public bool IsEffectApplicable()
     {
-        return IsReversalApplicable(game, player);
+        return IsReversalApplicable(_game, _player);
     }
     
     public bool IsReversalApplicable(Game game, Player player)

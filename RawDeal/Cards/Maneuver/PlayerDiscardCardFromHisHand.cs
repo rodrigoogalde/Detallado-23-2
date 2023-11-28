@@ -12,7 +12,7 @@ public class PlayerDiscardCardFromHisHand : ICardManeuverStrategy
     {
         _effect = new DiscardCardFromHand(view, player, cardsToDiscard);
     }
-    public bool IsEffectApplicable(Game game, Player player, Player playerOnWait)
+    public bool IsEffectApplicable()
     {
         return true;
     }

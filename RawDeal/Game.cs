@@ -24,6 +24,10 @@ public class Game
     
     private const int MaindKindDamageReduction = 1;
     private const int EmptyDeck = 0;
+    private const int GrappleDamagePlus = 4;
+    private const int GrappleFortitudePlusForReversal = 8;
+    public SelectedEffectFull OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+    
 
     private NextPlay _optionChoosed;
     private int _optionCardChoosed;
@@ -64,7 +68,7 @@ public class Game
         int numberOfPlayers = 2;
         for (var i = 0; i < numberOfPlayers; i++)
         {
-            Player player = new Player(_view.AskUserToSelectDeck(_deckFolder), _view);
+            Player player = new Player(_view.AskUserToSelectDeck(_deckFolder), _view, this);
             AddThisPlayer(player);
         }
     }
@@ -223,10 +227,47 @@ public class Game
     private void PlayerChooseToPlayACard()
     {
         _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(_optionCardChoosed);
-        _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
+        SetCardPlayedByOpponent();
         CheckIfPlayerCanReverseTheCardPlayed();
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
+    }
+    
+    private void SetCardPlayedByOpponent()
+    {
+        ModifyCardByJockeyingForPositionEffect(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats!);
+    }
+    
+    private void ModifyCardByJockeyingForPositionEffect(Card card)
+    {
+        SelectedEffectFull optionChoosed = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        switch (optionChoosed)
+        {
+            case SelectedEffectFull.NextGrappleIsPlus4D when card.Subtypes!.Contains("Grapple"):
+                card.Damage = (int.Parse(card.Damage!) + GrappleDamagePlus).ToString();
+                OptionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrappleIsPlus4D;
+                break;
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when card.Subtypes!.Contains("Grapple"):
+                OptionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrapplesReversalIsPlus8F;
+                break;
+        }
+        
+    }
+
+    private void ResetCardJockeyingForPositionEffects()
+    {
+        SelectedEffectFull optionChoosed = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        Card cardChoosen = _cardChoseenInBothFormats!.CardInObjectFormat!;
+        switch (optionChoosed)
+        {
+            case SelectedEffectFull.NextGrappleIsPlus4D:
+                cardChoosen.Damage = (int.Parse(cardChoosen.Damage!) - GrappleDamagePlus).ToString();
+                break;
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F:
+                // cardChoosen.Fortitude = (int.Parse(cardChoosen.Fortitude) - GrappleFortitudePlusForReversal).ToString();
+                break;
+        }
     }
     
     private void CheckIfPlayerCanReverseTheCardPlayed()
@@ -235,6 +276,7 @@ public class Game
         _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,  _playerWaiting.GimeMeReversalCardsInStringFormat().ToList());
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
+    
     
     private void CheckIfPlayerReversedTheCardPlayedByOpponent()
     {
@@ -254,9 +296,16 @@ public class Game
             _playerOnTurn.PlayCardAsAction(card);
         }
         else {
-            _playerOnTurn.MoveCardFromHandToRingArea(card);
-            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage));
+            CardPlayedAsManeuver(card);
         }
+    }
+    
+    private void CardPlayedAsManeuver(Card card)
+    {
+        int damage = Convert.ToInt32(card.Damage);
+        ResetCardJockeyingForPositionEffects();
+        _playerOnTurn.MoveCardFromHandToRingArea(card);
+        PlayerWaitingTakeDamage(damage);
     }
 
     private void PlayerWaitingTakeDamage(int damage)
@@ -270,6 +319,11 @@ public class Game
     private bool IsDamageReducedForManKind(SuperStar superstar)
     {
         return superstar.IsManKind();
+    }
+    
+    private bool IsDamageBoostedForJockeyingForPosition()
+    {
+        return _playerOnTurn.GetOptionChoosedForJockeyingForPosition() == SelectedEffectFull.NextGrappleIsPlus4D;
     }
 
     private bool GameHasWinner()

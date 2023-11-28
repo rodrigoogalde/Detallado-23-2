@@ -1,9 +1,11 @@
 using RawDeal.Cards;
+using RawDeal.Cards.Reversal;
 using RawDeal.Collections;
 using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
+using RawDealView;
 using RawDealView.Formatters;
 
 namespace RawDeal.Decks;
@@ -20,6 +22,10 @@ public class PlayerDecksCollections
     private CardRepresentationListCollection _playeablesCardsInHand;
     private CardRepresentationListCollection _reversalCardsInHand;
     private FormatterCardRepresentation _cardPlayedByOpponent;
+    private ICardTypeStrategy _cardTypeStrategyPlayedByOpponent;
+    private CardsStrategiesFactory _factory;
+    private SelectedEffectFull _selectedEffect;
+    private Game _game;
     
     private bool _hasHeel;
     private bool _hasFace;
@@ -29,6 +35,7 @@ public class PlayerDecksCollections
     private const string ReversalCardType = "Reversal";
     private const string UniqueCardType = "Unique";
     private const string SetUpCardType = "SetUp";
+    private const int GrappleFortitudePlusForReversal = 8;
     
     private const string HeelCardSubType = "Heel";
     private const string FaceCardSubType = "Face";
@@ -36,13 +43,15 @@ public class PlayerDecksCollections
     
     private const string CardPlayAsAction = "Action";
     
-    public PlayerDecksCollections(SuperStar superStar)
+    public PlayerDecksCollections(SuperStar superStar, CardsStrategiesFactory factory, Game game)
     {
         _superStar = superStar;
         _cardsInArsenal = new DeckListCollection(new List<Card>());
         _cardsInHand = new DeckListCollection(new List<Card>());
         _cardsInRingside = new DeckListCollection(new List<Card>());
         _cardsInRingArea = new DeckListCollection(new List<Card>());
+        _factory = factory;
+        _game = game;
     }
     
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
@@ -151,6 +160,7 @@ public class PlayerDecksCollections
     {
         foreach (var type in card.Types!)
         {
+            if (type == ReversalCardType) continue;
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
             _playeablesCardsInHand.Add( new FormatterCardRepresentation
@@ -177,6 +187,8 @@ public class PlayerDecksCollections
     public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
     {
         _cardPlayedByOpponent = card;
+        if (card.CardInObjectFormat == null) return;
+        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card.CardInObjectFormat!);
     }
     
     public void TryReversalFromMaze(Card card, int remainingDamage)
@@ -202,12 +214,22 @@ public class PlayerDecksCollections
     
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
+        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card);
         bool isReversal = _cardPlayedByOpponent.Type != null;
+        bool isReversal2 = _cardTypeStrategyPlayedByOpponent != null;
         if (isReversal)
         {
             isReversal = CheckReversalForAction(card) || CheckReversalForCardType(card);
         }
-        return isReversal;
+        if (isReversal2)
+        {
+            int fortitude = _game.OptionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrapplesReversalIsPlus8F ? 
+                GrappleFortitudePlusForReversal : 0;
+            isReversal2 = _cardTypeStrategyPlayedByOpponent!.IsEffectApplicable() &&
+                          GetFortitude() >= int.Parse(card.Fortitude) + fortitude;
+        }
+        
+        return isReversal || isReversal2;
     }
     
     private bool CheckReversalForAction(Card card)
@@ -328,5 +350,10 @@ public class PlayerDecksCollections
     public FormatterCardRepresentation GetLastCardPlayedByOpponent()
     {
         return _cardPlayedByOpponent;
+    }
+    
+    public void SetSelectedEffect(SelectedEffectFull selectedEffect)
+    {
+        _selectedEffect = selectedEffect;
     }
 }
