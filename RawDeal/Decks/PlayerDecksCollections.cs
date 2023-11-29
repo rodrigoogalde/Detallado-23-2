@@ -217,19 +217,24 @@ public class PlayerDecksCollections
         _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card);
         bool isReversal = _cardPlayedByOpponent.Type != null;
         bool isReversal2 = _cardTypeStrategyPlayedByOpponent != null;
+        
         if (isReversal)
         {
             isReversal = CheckReversalForAction(card) || CheckReversalForCardType(card);
         }
-        if (isReversal2)
-        {
-            int fortitude = _game.OptionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrapplesReversalIsPlus8F ? 
-                GrappleFortitudePlusForReversal : 0;
-            isReversal2 = _cardTypeStrategyPlayedByOpponent!.IsEffectApplicable() &&
-                          GetFortitude() >= int.Parse(card.Fortitude) + fortitude;
-        }
+        if (!isReversal2) return isReversal && isReversal2;
         
-        return isReversal || isReversal2;
+        int fortitude = _game.OptionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrapplesReversalIsPlus8F ? 
+            GrappleFortitudePlusForReversal : 0;
+        isReversal2 = _cardTypeStrategyPlayedByOpponent!.IsEffectApplicable() &&
+                      GetFortitude() >= int.Parse(card.Fortitude) + fortitude &&
+                      CheckIfIsReversal(card);
+        return isReversal2;
+    }
+    
+    private bool CheckIfIsReversal(Card card)
+    {
+        return card.Subtypes!.Any(subtype => subtype.Contains(ReversalCardType));
     }
     
     private bool CheckReversalForAction(Card card)
@@ -243,7 +248,7 @@ public class PlayerDecksCollections
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
         return (from subtype in card.Subtypes! 
-            where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper()
+            where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() && subtype.Contains(ReversalCardType)
             select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
     
@@ -251,13 +256,15 @@ public class PlayerDecksCollections
     {
         foreach (var type in card.Types!)
         {
+            if (!type.Contains(ReversalCardType)) continue;
             var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
             _reversalCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
             _reversalCardsInHand.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
                 CardInStringFormat = formaterPlayableCardInfo,
-                Type = type.ToUpper()
+                Type = type.ToUpper(),
+                CardTypeStrategy = _factory.BuildCard(card)
             });
         }
     }

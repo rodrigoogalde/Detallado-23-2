@@ -282,10 +282,11 @@ public class Game
     {
         if (_optionCardChoosed == OptionComeBack) return;
         var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
-        _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        _playerOnTurn.MoveCardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        var cardTypeStrategy = card.CardTypeStrategy;
+        cardTypeStrategy.PerformEffect(card, this, _playerOnTurn,_playerWaiting);
+        // _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
         
-        // TODO: reemplazar por el efecto de la carta
-        _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
         throw new ReversalFromHandException(card);
     }
     
@@ -357,8 +358,8 @@ public class Game
         (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
         (_optionChoosed, _optionWhichCardsToSee,
             _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
-        _playerOnTurn.CleanDataFromPastTurn();
-        _playerWaiting.CleanDataFromPastTurn();
+        _playerOnTurn.CleanDataFromPastTurn(true);
+        _playerWaiting.CleanDataFromPastTurn(false);
     }
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()

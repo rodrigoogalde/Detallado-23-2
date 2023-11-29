@@ -123,12 +123,12 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
     
-    private bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)
+    public bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)
     {
         if (cardToPlay.Title != "Jockeying for Position") return false;
         OptionChoosedForJockeyingForPosition(_view.AskUserToSelectAnEffectForJockeyForPosition(SuperStar.Name!));
-        _decksCollections.MoveCardBetweenDecks(cardToPlay,
-            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
+        // _decksCollections.MoveCardBetweenDecks(cardToPlay,
+        //     new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
         return true;
     }
     
@@ -219,7 +219,7 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
 
-    public void CardFromHandToRingside(Card card)
+    public void MoveCardFromHandToRingside(Card card)
     {
         _decksCollections.MoveCardBetweenDecks(card,
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
@@ -270,9 +270,10 @@ public class Player
         return _optionChoosedForJockeyingForPosition;
     }
     
-    public void CleanDataFromPastTurn()
+    public void CleanDataFromPastTurn(bool isPlayerReversedCardWithJockeyingForPosition)
     {
         SetTheCardPlayedByOpponent(new FormatterCardRepresentation());
+        if (isPlayerReversedCardWithJockeyingForPosition) return;
         _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
         _decksCollections.SetSelectedEffect(_optionChoosedForJockeyingForPosition);
     }

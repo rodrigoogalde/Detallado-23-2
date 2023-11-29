@@ -1,4 +1,5 @@
 using RawDeal.Effects;
+using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -36,7 +37,7 @@ public class StepAside: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
     {
-        Reverse reverse = new Reverse(_view, player, card);
+        Reverse reverse = new Reverse(_view, playerOnWait, card);
         reverse.Execute();
     }
 }

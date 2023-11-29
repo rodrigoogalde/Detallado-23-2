@@ -36,7 +36,7 @@ public class EscapeMove: ICardReversalStrategy
     
     public void PerformReversal(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
     {
-        Reverse reverse = new Reverse(_view, player, card);
+        Reverse reverse = new Reverse(_view, playerOnWait, card);
         reverse.Execute();
     }
 }

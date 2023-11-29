@@ -1,4 +1,5 @@
 using RawDeal.Effects;
+using RawDeal.Exceptions;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
@@ -36,13 +37,9 @@ public class JockeyingForPosition: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
     {
-        Reverse reverse = new Reverse(_view, player, card);
+        Reverse reverse = new Reverse(_view, playerOnWait, card);
         reverse.Execute();
         // TODO: Check if the card was played from hand
-        // if (card.PlayedFromDeck == "Arsenal") return;
-        SuperStar superstar = player.SuperStar;
-        var selectedEffect = _view.AskUserToSelectAnEffectForJockeyForPosition(superstar.Name!);
-        // Add Bonus
-        // playerOnWait.MoveTopCardFromRingAreaToRingside();
+        playerOnWait.CheckIfJockeyForPositionIsPlayed(card.CardInObjectFormat!);
     }
 }

@@ -9,6 +9,7 @@ namespace RawDeal.Cards.Reversal;
 public class CardsStrategiesFactory
 {
     private Dictionary<string, ICardTypeStrategy> _card;
+    private Dictionary<string, Dictionary<string, ICardTypeStrategy>> _dictionary;
     private readonly View _view;
     private readonly Player _player;
     private readonly Game _game;
@@ -18,12 +19,11 @@ public class CardsStrategiesFactory
         _player = player;
         _game = game;
         _card = new Dictionary<string, ICardTypeStrategy>();
+        _dictionary = new Dictionary<string, Dictionary<string, ICardTypeStrategy>>();
     }
     
     public ICardTypeStrategy BuildCard(Card card)
     {
-        // Dictionary<string, ICardTypeStrategy> cardStrategy = new Dictionary<string, ICardTypeStrategy>();
-        
         string cardTitle = card.Title;
         switch (cardTitle)
         {
@@ -225,8 +225,7 @@ public class CardsStrategiesFactory
                 // Handle Irish Whip here
                 break;
             case "Jockeying for Position":
-                // Handle Jockeying for Position here
-                break;
+                return new JockeyingForPosition(_view, _player, _game);
             case "Kane's Chokeslam":
                 // Handle Kane's Chokeslam here
                 break;
@@ -428,5 +427,10 @@ public class CardsStrategiesFactory
                 return null;
         }
         return null;
+    }
+
+    private void CreateReversalStrategy(Card card)
+    {
+        
     }
 }

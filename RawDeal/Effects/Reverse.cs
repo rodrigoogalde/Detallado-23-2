@@ -29,8 +29,7 @@ public class Reverse: IEffect
             _view.SayThatCardWasReversedByDeck(superStar.Name!);
             return;
         }
-        
         _player.MoveCardFromHandToRingArea(cardInObjectFormat);
-        throw new ReversalFromHandException(_card);
+        _view.SayThatPlayerReversedTheCard(superStar.Name!, _card.CardInStringFormat!);
     }
 }
