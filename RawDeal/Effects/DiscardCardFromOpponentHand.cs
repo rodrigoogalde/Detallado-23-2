@@ -22,9 +22,12 @@ public class DiscardCardFromOpponentHand: IEffect
     
     public void Execute()
     {
-        var indexCardToDiscard = _view.AskPlayerToSelectACardToDiscard(
-            _player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
-            _superCard.Name, _superCard.Name, _totalCardsToDiscard);
-        _player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
+        for (var i = _totalCardsToDiscard; 0 < i; i--)
+        {
+            var indexCardToDiscard = _view.AskPlayerToSelectACardToDiscard(
+                _player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
+                _superCard.Name, _superCard.Name, i);
+            _player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
+        }
     }
 }

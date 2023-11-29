@@ -26,6 +26,7 @@ public class PlayerDecksCollections
     private CardsStrategiesFactory _factory;
     private SelectedEffectFull _selectedEffect;
     private Game _game;
+    private Player _player;
     
     private bool _hasHeel;
     private bool _hasFace;
@@ -43,7 +44,7 @@ public class PlayerDecksCollections
     
     private const string CardPlayAsAction = "Action";
     
-    public PlayerDecksCollections(SuperStar superStar, CardsStrategiesFactory factory, Game game)
+    public PlayerDecksCollections(SuperStar superStar, CardsStrategiesFactory factory, Game game, Player player)
     {
         _superStar = superStar;
         _cardsInArsenal = new DeckListCollection(new List<Card>());
@@ -52,6 +53,8 @@ public class PlayerDecksCollections
         _cardsInRingArea = new DeckListCollection(new List<Card>());
         _factory = factory;
         _game = game;
+        _player = player;
+        _cardPlayedByOpponent = new FormatterCardRepresentation();
     }
     
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
@@ -140,9 +143,16 @@ public class PlayerDecksCollections
         _cardsInArsenal.Add(card);
     }
 
-    private int GetFortitude()
+    public int GetFortitude()
     {
-        return _cardsInRingArea.Sum(card => int.Parse(card.Damage!));
+        int fortitude = 0;
+        foreach (Card card in _cardsInRingArea)
+        {
+            if (card.Damage == "#") continue;
+            fortitude += int.Parse(card.Damage!);
+        }
+        // return _cardsInRingArea.Sum(card => int.Parse(card.Damage!));
+        return fortitude;
     } 
     
     public Tuple<CardRepresentationListCollection, StringListCollection> MakeAListOfCardsThatArePlayeableFromHand()
@@ -195,9 +205,32 @@ public class PlayerDecksCollections
     {
         if (!CheckReversalOfTheCardPlayedByTheOpponent(card)) return;
         int stunValue = CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(remainingDamage);
+        PerformReversalFromMaze(card);
+        _game.ResetCardJockeyingForPositionEffects();
         _cardPlayedByOpponent = new FormatterCardRepresentation();
         throw new ReversalFromDeckException(stunValue);
-    } 
+    }
+
+    private void PerformReversalFromMaze(Card card)
+    {
+        _player.LastCardPlayedFromDeck = CardSetFull.Arsenal;
+        FormatterCardRepresentation cardFormatter = CreateReversalCardFormatter(card);
+        ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy;
+        cardTypeStrategy.PerformEffect(_cardPlayedByOpponent, _game, _player, _player);
+    }
+
+    private FormatterCardRepresentation CreateReversalCardFormatter(Card card)
+    {
+        var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, ReversalCardType));
+        FormatterCardRepresentation cardPlayed =  new FormatterCardRepresentation
+        {
+            CardInObjectFormat = card,
+            CardInStringFormat = formaterPlayableCardInfo,
+            Type = ReversalCardType,
+            CardTypeStrategy = _factory.BuildCard(card)
+        };
+        return cardPlayed;
+    }
     
     private void CheckWhichCardsAreReversal()
     {
@@ -215,7 +248,7 @@ public class PlayerDecksCollections
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
         _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card);
-        bool isReversal = _cardPlayedByOpponent.Type != null;
+        bool isReversal = _cardPlayedByOpponent != null;
         bool isReversal2 = _cardTypeStrategyPlayedByOpponent != null;
         
         if (isReversal)
@@ -247,6 +280,7 @@ public class PlayerDecksCollections
     private bool CheckReversalForCardType(Card card)
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
+        if (_cardPlayedByOpponent.Type == null) return false; // Esto va a ser eleminado
         return (from subtype in card.Subtypes! 
             where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() && subtype.Contains(ReversalCardType)
             select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));

@@ -27,6 +27,7 @@ public class Player
     private const int GrappleDamagePlus = 4;
     private const int GrappleFortitudePlusForReversal = 8;
     private SelectedEffectFull _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+    public CardSetFull LastCardPlayedFromDeck { get; set; }
 
     public Player(string pathDeck, View view, Game game)
     {
@@ -48,7 +49,8 @@ public class Player
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
         SelectWhichSuperStar(superName);
-        _decksCollections = new PlayerDecksCollections(SuperStar, new CardsStrategiesFactory(_view, this, _game), _game);
+        _decksCollections = new PlayerDecksCollections(SuperStar, new CardsStrategiesFactory(_view, this, _game),
+            _game, this);
     }
 
     private void SelectWhichSuperStar(string superName)
@@ -126,13 +128,14 @@ public class Player
     public bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)
     {
         if (cardToPlay.Title != "Jockeying for Position") return false;
-        OptionChoosedForJockeyingForPosition(_view.AskUserToSelectAnEffectForJockeyForPosition(SuperStar.Name!));
-        // _decksCollections.MoveCardBetweenDecks(cardToPlay,
-        //     new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
+        SetOptionChoosedForJockeyingForPosition(_view.AskUserToSelectAnEffectForJockeyForPosition(SuperStar.Name!));
+        _decksCollections.MoveCardBetweenDecks(cardToPlay,
+             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
         return true;
+        
     }
     
-    private void OptionChoosedForJockeyingForPosition(SelectedEffect optionChoosed)
+    private void SetOptionChoosedForJockeyingForPosition(SelectedEffect optionChoosed)
     {
         switch (optionChoosed)
         {
@@ -147,9 +150,14 @@ public class Player
         _game.OptionChoosedForJockeyingForPosition = _optionChoosedForJockeyingForPosition;
     }
     
-    public void MoveCardFromHandToRingArea(Card cardToDiscard)
+    public void PlayerLoosesEffectOfJockeyingForPosition()
     {
-        _fortitude += int.Parse(cardToDiscard.Damage!);
+        _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+        _decksCollections.SetSelectedEffect(_optionChoosedForJockeyingForPosition);
+    }
+    
+    public void MoveCardFromHandToRingArea(Card cardToDiscard)
+    { 
         _decksCollections.MoveCardBetweenDecks(cardToDiscard,
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
     }
@@ -185,20 +193,7 @@ public class Player
     
     public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
     {
-        // ModifyCardByJockeyingForPositionEffect(card.CardInObjectFormat!);
         _decksCollections.SetTheCardPlayedByOpponent(card);
-    }
-
-    private void ModifyCardByJockeyingForPositionEffect(Card card)
-    {
-        if (_optionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrappleIsPlus4D)
-        {
-            card.Damage = (int.Parse(card.Damage!) + GrappleDamagePlus).ToString();
-        } 
-        else if (_optionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrapplesReversalIsPlus8F)
-        {
-            card.Fortitude = (int.Parse(card.Fortitude!) + GrappleFortitudePlusForReversal).ToString();
-        }
     }
     
     public void MoveCardFromRingsideToArsenalWithIndex(int index)
@@ -209,6 +204,7 @@ public class Player
     
     public bool CanReverseTheCardPlayed()
     {
+        LastCardPlayedFromDeck = CardSetFull.Hand;
         return _decksCollections.PlayerHasAllConditionsToPlayReversalFromHand();
     }
     
@@ -255,7 +251,7 @@ public class Player
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
-        return new PlayerInfo(superCardInfo.Name, _fortitude,
+        return new PlayerInfo(superCardInfo.Name, _decksCollections.GetFortitude(),
             _decksCollections.GetHandCards().Count,
             _decksCollections.GetArsenalDeck().Count);
     }

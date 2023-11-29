@@ -133,7 +133,12 @@ public class Game
         try
         {
             LoopUntilPlayerEndsHisTurn();
-        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar); }
+        }
+        catch (ReversalFromDeckException e)
+        {
+            e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar);
+            _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
+        }
         catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
     }
 
@@ -246,26 +251,30 @@ public class Game
         {
             case SelectedEffectFull.NextGrappleIsPlus4D when card.Subtypes!.Contains("Grapple"):
                 card.Damage = (int.Parse(card.Damage!) + GrappleDamagePlus).ToString();
-                OptionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrappleIsPlus4D;
                 break;
             case SelectedEffectFull.NextGrapplesReversalIsPlus8F when card.Subtypes!.Contains("Grapple"):
-                OptionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrapplesReversalIsPlus8F;
+                break;
+            case SelectedEffectFull.NextGrappleIsPlus4D when !card.Subtypes!.Contains("Grapple"):
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when !card.Subtypes!.Contains("Grapple"):
+                _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
-        
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
     }
 
-    private void ResetCardJockeyingForPositionEffects()
+    public void ResetCardJockeyingForPositionEffects()
     {
         SelectedEffectFull optionChoosed = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
         Card cardChoosen = _cardChoseenInBothFormats!.CardInObjectFormat!;
+        OptionChoosedForJockeyingForPosition = optionChoosed;
         switch (optionChoosed)
         {
-            case SelectedEffectFull.NextGrappleIsPlus4D:
+            case SelectedEffectFull.NextGrappleIsPlus4D when cardChoosen.Subtypes!.Contains("Grapple"):
                 cardChoosen.Damage = (int.Parse(cardChoosen.Damage!) - GrappleDamagePlus).ToString();
                 break;
-            case SelectedEffectFull.NextGrapplesReversalIsPlus8F:
-                // cardChoosen.Fortitude = (int.Parse(cardChoosen.Fortitude) - GrappleFortitudePlusForReversal).ToString();
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when cardChoosen.Subtypes!.Contains("Grapple"):
+                OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+                _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
     }
@@ -285,8 +294,6 @@ public class Game
         _playerOnTurn.MoveCardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
         var cardTypeStrategy = card.CardTypeStrategy;
         cardTypeStrategy.PerformEffect(card, this, _playerOnTurn,_playerWaiting);
-        // _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
-        
         throw new ReversalFromHandException(card);
     }
     
@@ -304,9 +311,9 @@ public class Game
     private void CardPlayedAsManeuver(Card card)
     {
         int damage = Convert.ToInt32(card.Damage);
-        ResetCardJockeyingForPositionEffects();
         _playerOnTurn.MoveCardFromHandToRingArea(card);
         PlayerWaitingTakeDamage(damage);
+        ResetCardJockeyingForPositionEffects();
     }
 
     private void PlayerWaitingTakeDamage(int damage)
@@ -320,11 +327,6 @@ public class Game
     private bool IsDamageReducedForManKind(SuperStar superstar)
     {
         return superstar.IsManKind();
-    }
-    
-    private bool IsDamageBoostedForJockeyingForPosition()
-    {
-        return _playerOnTurn.GetOptionChoosedForJockeyingForPosition() == SelectedEffectFull.NextGrappleIsPlus4D;
     }
 
     private bool GameHasWinner()
@@ -360,6 +362,7 @@ public class Game
             _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
         _playerOnTurn.CleanDataFromPastTurn(true);
         _playerWaiting.CleanDataFromPastTurn(false);
+        OptionChoosedForJockeyingForPosition = _playerWaiting.GetOptionChoosedForJockeyingForPosition();
     }
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()

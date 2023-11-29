@@ -1,4 +1,6 @@
 using RawDeal.Effects;
+using RawDeal.Options;
+using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -19,10 +21,10 @@ public class ElbowToTheFace: ICardReversalStrategy
     
     public bool IsEffectApplicable()
     {
-        return IsReversalApplicable(_game, _player);
+        return IsReversalApplicable(_player);
     }
     
-    public bool IsReversalApplicable(Game game, Player player)
+    public bool IsReversalApplicable(Player player)
     {
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
         Card cardInObjectFormat = card.CardInObjectFormat!;
@@ -32,12 +34,12 @@ public class ElbowToTheFace: ICardReversalStrategy
 
     public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
     {
-        PerformReversal(card, game, player, playerOnWait);
+        PerformReversal(card, player);
     }
 
-    public void PerformReversal(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformReversal(FormatterCardRepresentation card, Player player)
     {
-        Reverse reverse = new Reverse(_view, player, card);
-        reverse.Execute();
+        ReverseAndDamage reverseAndDamage = new ReverseAndDamage(_view, _player, player, card);
+        reverseAndDamage.Execute();
     }
 }

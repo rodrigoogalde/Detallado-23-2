@@ -1,4 +1,5 @@
 using RawDeal.Effects;
+using RawDeal.Options;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -19,24 +20,36 @@ public class ChynaInterferes: ICardReversalStrategy
     
     public bool IsEffectApplicable()
     {
-        return IsReversalApplicable(_game, _player);
+        return IsReversalApplicable(_player);
     }
     
-    public bool IsReversalApplicable(Game game, Player player)
+    public bool IsReversalApplicable(Player player)
     {
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
         return card.Type == "MANEUVER";
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
-    {
-        PerformReversal(card, game, player, playerOnWait);
+    { // TODO Caambir player a opponent
+        PerformReversal(card, player);
     }
 
-    public void PerformReversal(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformReversal(FormatterCardRepresentation card, Player player)
     {
-        // TODO: Reverse, Draw 2 card, and Damage 1 card
-        Reverse reverse = new Reverse(_view, player, card);
+        Reverse reverse = new Reverse(_view, _player, card);
         reverse.Execute();
+        switch (_player.LastCardPlayedFromDeck)
+        {
+            case CardSetFull.Arsenal:
+                return;
+            case CardSetFull.Hand:
+            {
+                DrawCard drawCard = new DrawCard(_player, _view, 2);
+                drawCard.Execute();
+                break;
+            }
+        }
+        Damager damager = new Damager(_view, _player, player, card);
+        damager.Execute();
     }
 }

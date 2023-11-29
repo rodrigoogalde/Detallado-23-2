@@ -1,5 +1,4 @@
 using RawDeal.Cards;
-using RawDeal.Exceptions;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -24,11 +23,7 @@ public class Reverse: IEffect
     {
         SuperStar superStar = _player.SuperStar;
         Card cardInObjectFormat = _card.CardInObjectFormat!;
-        if (cardInObjectFormat.PlayedFromDeck == CardSetFull.Arsenal)
-        {
-            _view.SayThatCardWasReversedByDeck(superStar.Name!);
-            return;
-        }
+        if (_player.LastCardPlayedFromDeck == CardSetFull.Arsenal) return;
         _player.MoveCardFromHandToRingArea(cardInObjectFormat);
         _view.SayThatPlayerReversedTheCard(superStar.Name!, _card.CardInStringFormat!);
     }
