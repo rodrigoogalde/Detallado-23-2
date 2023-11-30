@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Cards.Reversal;
 using RawDeal.Collections;
 using RawDeal.Decks;
 using RawDeal.Options;
@@ -6,6 +7,7 @@ using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
+using RawDealView.Options;
 using FormatterCardInfo = RawDeal.Cards.FormatterCardInfo;
 
 namespace RawDeal;
@@ -13,6 +15,7 @@ namespace RawDeal;
 public class Player
 {
     private readonly View _view;
+    private readonly Game _game;
     public SuperStar SuperStar;
     
     private int _indexCardToDiscard;
@@ -20,11 +23,17 @@ public class Player
     private PlayerDecksCollections _decksCollections;
     private readonly string? _pathDeck;
     private int _fortitude;
+    
+    private const int GrappleDamagePlus = 4;
+    private const int GrappleFortitudePlusForReversal = 8;
+    private SelectedEffectFull _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+    public CardSetFull LastCardPlayedFromDeck { get; set; }
 
-    public Player(string pathDeck, View view)
+    public Player(string pathDeck, View view, Game game)
     {
         _pathDeck = pathDeck;
         _view = view;
+        _game = game;
         
         SetUpDeck();
     }
@@ -40,7 +49,8 @@ public class Player
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
         SelectWhichSuperStar(superName);
-        _decksCollections = new PlayerDecksCollections(SuperStar);
+        _decksCollections = new PlayerDecksCollections(SuperStar, new CardsStrategiesFactory(_view, this, _game),
+            _game, this);
     }
 
     private void SelectWhichSuperStar(string superName)
@@ -107,6 +117,7 @@ public class Player
     
     public void PlayCardAsAction(Card cardToPlay)
     {   
+        if (CheckIfJockeyForPositionIsPlayed(cardToPlay)) return; 
         _view.SayThatPlayerMustDiscardThisCard(SuperStar.Name!, cardToPlay.Title);
         DrawCard();
         _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
@@ -114,9 +125,37 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
     
-    public void MoveCardFromHandToRingArea(Card cardToDiscard)
+    public bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)
     {
-        _fortitude += int.Parse(cardToDiscard.Damage!);
+        if (cardToPlay.Title != "Jockeying for Position") return false;
+        SetOptionChoosedForJockeyingForPosition(_view.AskUserToSelectAnEffectForJockeyForPosition(SuperStar.Name!));
+        _decksCollections.MoveCardBetweenDecks(cardToPlay,
+             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
+        return true;
+        
+    }
+    
+    private void SetOptionChoosedForJockeyingForPosition(SelectedEffect optionChoosed)
+    {
+        switch (optionChoosed)
+        {
+            case SelectedEffect.NextGrappleIsPlus4D:
+                _optionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrappleIsPlus4D;
+                break;
+            case SelectedEffect.NextGrapplesReversalIsPlus8F:
+                _optionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrapplesReversalIsPlus8F;
+                break;
+        }
+        _game.OptionChoosedForJockeyingForPosition = _optionChoosedForJockeyingForPosition;
+    }
+    
+    public void PlayerLoosesEffectOfJockeyingForPosition()
+    {
+        _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+    }
+    
+    public void MoveCardFromHandToRingArea(Card cardToDiscard)
+    { 
         _decksCollections.MoveCardBetweenDecks(cardToDiscard,
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
     }
@@ -163,6 +202,7 @@ public class Player
     
     public bool CanReverseTheCardPlayed()
     {
+        LastCardPlayedFromDeck = CardSetFull.Hand;
         return _decksCollections.PlayerHasAllConditionsToPlayReversalFromHand();
     }
     
@@ -173,7 +213,7 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
     }
 
-    public void CardFromHandToRingside(Card card)
+    public void MoveCardFromHandToRingside(Card card)
     {
         _decksCollections.MoveCardBetweenDecks(card,
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
@@ -185,7 +225,7 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.RingsidePile, CardSetFull.Hand));
     }
     
-    public void MoveTopeCardFromArsenalToHand()
+    public void MoveTopCardFromArsenalToHand()
     {
         Card card = _decksCollections.GetArsenalDeck().Last();
         _decksCollections.MoveCardBetweenDecks(card,
@@ -199,17 +239,36 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.Arsenal));
     }
     
+    public void MoveTopCardFromArsenalToRingSide()
+    {
+        Card card = _decksCollections.GetArsenalDeck().Last();
+        _decksCollections.MoveCardBetweenDecks(card,
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.RingsidePile));
+    }
+    
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
-        return new PlayerInfo(superCardInfo.Name, _fortitude,
+        return new PlayerInfo(superCardInfo.Name, _decksCollections.GetFortitude(),
             _decksCollections.GetHandCards().Count,
             _decksCollections.GetArsenalDeck().Count);
     }
+
+    public FormatterCardRepresentation GetLastCardPlayedByOpponent()
+    {
+        return _decksCollections.GetLastCardPlayedByOpponent();
+    }
     
-    public void CleanDataFromPastTurn()
+    public SelectedEffectFull GetOptionChoosedForJockeyingForPosition()
+    {
+        return _optionChoosedForJockeyingForPosition;
+    }
+    
+    public void CleanDataFromPastTurn(bool isPlayerReversedCardWithJockeyingForPosition)
     {
         SetTheCardPlayedByOpponent(new FormatterCardRepresentation());
+        if (isPlayerReversedCardWithJockeyingForPosition) return;
+        _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
     }
     
 }

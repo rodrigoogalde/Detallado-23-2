@@ -24,6 +24,10 @@ public class Game
     
     private const int MaindKindDamageReduction = 1;
     private const int EmptyDeck = 0;
+    private const int GrappleDamagePlus = 4;
+    private const int GrappleFortitudePlusForReversal = 8;
+    public SelectedEffectFull OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+    
 
     private NextPlay _optionChoosed;
     private int _optionCardChoosed;
@@ -64,7 +68,7 @@ public class Game
         int numberOfPlayers = 2;
         for (var i = 0; i < numberOfPlayers; i++)
         {
-            Player player = new Player(_view.AskUserToSelectDeck(_deckFolder), _view);
+            Player player = new Player(_view.AskUserToSelectDeck(_deckFolder), _view, this);
             AddThisPlayer(player);
         }
     }
@@ -129,7 +133,12 @@ public class Game
         try
         {
             LoopUntilPlayerEndsHisTurn();
-        } catch (ReversalFromDeckException e) { e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar); }
+        }
+        catch (ReversalFromDeckException e)
+        {
+            e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar);
+            _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
+        }
         catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
     }
 
@@ -223,10 +232,49 @@ public class Game
     private void PlayerChooseToPlayACard()
     {
         _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(_optionCardChoosed);
-        _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats);
+        SetCardPlayedByOpponent();
         CheckIfPlayerCanReverseTheCardPlayed();
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
+    }
+    
+    private void SetCardPlayedByOpponent()
+    {
+        ModifyCardByJockeyingForPositionEffect(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats!);
+    }
+    
+    private void ModifyCardByJockeyingForPositionEffect(Card card)
+    {
+        switch (_playerOnTurn.GetOptionChoosedForJockeyingForPosition())
+        {
+            case SelectedEffectFull.NextGrappleIsPlus4D when card.Subtypes!.Contains("Grapple"):
+                card.SetDamageWithEffect(true, GrappleDamagePlus);
+                break;
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when card.Subtypes!.Contains("Grapple"):
+                break;
+            case SelectedEffectFull.NextGrappleIsPlus4D when !card.Subtypes!.Contains("Grapple"):
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when !card.Subtypes!.Contains("Grapple"):
+                _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
+                break;
+        }
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+    }
+
+    public void ResetCardJockeyingForPositionEffects()
+    {
+        Card cardChoosen = _cardChoseenInBothFormats!.CardInObjectFormat!;
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        switch (OptionChoosedForJockeyingForPosition)
+        {
+            case SelectedEffectFull.NextGrappleIsPlus4D when cardChoosen.Subtypes!.Contains("Grapple"):
+                cardChoosen.DamageValue -= GrappleDamagePlus;
+                break;
+            case SelectedEffectFull.NextGrapplesReversalIsPlus8F when cardChoosen.Subtypes!.Contains("Grapple"):
+                OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
+                _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
+                break;
+        }
     }
     
     private void CheckIfPlayerCanReverseTheCardPlayed()
@@ -236,12 +284,14 @@ public class Game
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
     
+    
     private void CheckIfPlayerReversedTheCardPlayedByOpponent()
     {
         if (_optionCardChoosed == OptionComeBack) return;
         var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
-        _playerOnTurn.CardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
-        _playerWaiting.MoveCardFromHandToRingArea(card.CardInObjectFormat!);
+        _playerOnTurn.MoveCardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
+        var cardTypeStrategy = card.CardTypeStrategy;
+        cardTypeStrategy.PerformEffect(card, this, _playerOnTurn,_playerWaiting);
         throw new ReversalFromHandException(card);
     }
     
@@ -252,9 +302,15 @@ public class Game
             _playerOnTurn.PlayCardAsAction(card);
         }
         else {
-            _playerOnTurn.MoveCardFromHandToRingArea(card);
-            PlayerWaitingTakeDamage(Convert.ToInt32(card.Damage));
+            CardPlayedAsManeuver(card);
         }
+    }
+    
+    private void CardPlayedAsManeuver(Card card)
+    {
+        _playerOnTurn.MoveCardFromHandToRingArea(card);
+        PlayerWaitingTakeDamage(card.DamageValue);
+        ResetCardJockeyingForPositionEffects();
     }
 
     private void PlayerWaitingTakeDamage(int damage)
@@ -301,8 +357,9 @@ public class Game
         (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
         (_optionChoosed, _optionWhichCardsToSee,
             _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
-        _playerOnTurn.CleanDataFromPastTurn();
-        _playerWaiting.CleanDataFromPastTurn();
+        _playerOnTurn.CleanDataFromPastTurn(true);
+        _playerWaiting.CleanDataFromPastTurn(false);
+        OptionChoosedForJockeyingForPosition = _playerWaiting.GetOptionChoosedForJockeyingForPosition();
     }
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()

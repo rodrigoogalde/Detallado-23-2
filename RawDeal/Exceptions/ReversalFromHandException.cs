@@ -13,6 +13,6 @@ public class ReversalFromHandException: Exception
     public void ReversalFromHandMessage(View view, Player player)
     {
         SuperStar superStarOpponent = player.SuperStar;
-        view.SayThatPlayerReversedTheCard(superStarOpponent.Name!, _cardChoosed.CardInStringFormat!);
+        // view.SayThatPlayerReversedTheCard(superStarOpponent.Name!, _cardChoosed.CardInStringFormat!);
     }
 }
