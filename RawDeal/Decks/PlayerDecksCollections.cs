@@ -145,14 +145,7 @@ public class PlayerDecksCollections
 
     public int GetFortitude()
     {
-        int fortitude = 0;
-        foreach (Card card in _cardsInRingArea)
-        {
-            if (card.Damage == "#") continue;
-            fortitude += int.Parse(card.Damage!);
-        }
-        // return _cardsInRingArea.Sum(card => int.Parse(card.Damage!));
-        return fortitude;
+        return _cardsInRingArea.Sum(card => card.DamageValue);
     } 
     
     public Tuple<CardRepresentationListCollection, StringListCollection> MakeAListOfCardsThatArePlayeableFromHand()
@@ -317,10 +310,9 @@ public class PlayerDecksCollections
     public bool PlayerHasAllConditionsToPlayReversalFromHand()
     {
         MakeAListOfReversalCardsOnCardFormat();
-        bool hasConditions = _reversalCardsInHand.Count != EmptyDeck
-                             && _reversalCardsInHand.Any(card =>
-                                 CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); 
-        return hasConditions;
+        return _reversalCardsInHand.Count != EmptyDeck
+               && _reversalCardsInHand.Any(card =>
+                   CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); ;
     }
     
     public void MoveCardBetweenDecks(Card card, Tuple<CardSetFull, CardSetFull> cardsFromTo)
@@ -391,10 +383,5 @@ public class PlayerDecksCollections
     public FormatterCardRepresentation GetLastCardPlayedByOpponent()
     {
         return _cardPlayedByOpponent;
-    }
-    
-    public void SetSelectedEffect(SelectedEffectFull selectedEffect)
-    {
-        _selectedEffect = selectedEffect;
     }
 }

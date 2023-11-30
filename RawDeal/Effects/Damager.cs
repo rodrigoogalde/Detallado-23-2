@@ -37,27 +37,9 @@ public class Damager: IEffect
         bool shouldApplyMankindReduction = _superStarDamager.IsManKind() || 
                                            (_superStarReverser.IsManKind() && isDamageWildcard);
 
-        string? effectiveDamageValue = isDamageWildcard ? _damagerCard.Damage! : _reversalCard.Damage;
-        _damage = Convert.ToInt32(effectiveDamageValue) - (shouldApplyMankindReduction ? MaindKindDamageReduction : 0);
-
-        // if (_superStarDamager.IsManKind())
-        // {
-        //     if (_reversalCard.Damage == "#")
-        //     {
-        //         _damage = Convert.ToInt32(_damagerCard.Damage!) - MaindKindDamageReduction;
-        //     }
-        //     else
-        //     {
-        //         _damage = Convert.ToInt32(_reversalCard.Damage) - MaindKindDamageReduction;
-        //     }
-        // } else if (_superStarReverser.IsManKind() && _reversalCard.Damage == "#")
-        // {
-        //     _damage = Convert.ToInt32(_damagerCard.Damage!) - MaindKindDamageReduction;
-        // }
-        // else
-        // {
-        //     _damage = Convert.ToInt32(_reversalCard.Damage == "#" ? _damagerCard.Damage! : _reversalCard.Damage);
-        // }
+        int effectiveDamageValue = isDamageWildcard ? _damagerCard.DamageValue : _reversalCard.DamageValue;
+        _damage = effectiveDamageValue - (shouldApplyMankindReduction ? MaindKindDamageReduction : 0);
+        _player.GetOptionChoosedForJockeyingForPosition();
         if (_damage <= 0) return;
         _view.SayThatSuperstarWillTakeSomeDamage(_superStarDamager.Name!, _damage);
         _opponent.TakeDamage(_damage);

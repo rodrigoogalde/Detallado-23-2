@@ -146,14 +146,12 @@ public class Player
                 _optionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrapplesReversalIsPlus8F;
                 break;
         }
-        _decksCollections.SetSelectedEffect(_optionChoosedForJockeyingForPosition);
         _game.OptionChoosedForJockeyingForPosition = _optionChoosedForJockeyingForPosition;
     }
     
     public void PlayerLoosesEffectOfJockeyingForPosition()
     {
         _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
-        _decksCollections.SetSelectedEffect(_optionChoosedForJockeyingForPosition);
     }
     
     public void MoveCardFromHandToRingArea(Card cardToDiscard)
@@ -271,7 +269,6 @@ public class Player
         SetTheCardPlayedByOpponent(new FormatterCardRepresentation());
         if (isPlayerReversedCardWithJockeyingForPosition) return;
         _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
-        _decksCollections.SetSelectedEffect(_optionChoosedForJockeyingForPosition);
     }
     
 }

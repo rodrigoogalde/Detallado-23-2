@@ -29,7 +29,7 @@ public class ElbowToTheFace: ICardReversalStrategy
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
         Card cardInObjectFormat = card.CardInObjectFormat!;
         return card.Type == "MANEUVER" &&
-               int.Parse(cardInObjectFormat.Damage!) <= 7;
+               cardInObjectFormat.DamageValue <= 7;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)

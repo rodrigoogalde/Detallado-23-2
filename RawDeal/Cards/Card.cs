@@ -12,7 +12,8 @@ public class Card
     public string StunValue = null!;
     public string? CardEffect;
     public string? Damage;
-    public CardSetFull PlayedFromDeck;
+    public int DamageValue;
+    public bool IsHisDamageWithEffect;
     
     private const string CardPlayAsAction = "Action";
     private const string CardPlayAsManeuver = "Maneuver";
@@ -23,6 +24,7 @@ public class Card
     {
         Title = title;
         _loaderCardInfo.LoadCardData(this);
+        DamageValue = Damage == "#" ? 0 : int.Parse(Damage!);
     }
     
     public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)
@@ -49,9 +51,11 @@ public class Card
         return Subtypes!.Any(subtype => subtype.Contains(usedAs)) && fortitude >= int.Parse(Fortitude);
     }
     
-    public void SetPlayedFromDeck(CardSetFull deckName)
+    public void SetDamageWithEffect(bool damageWithEffect, int damageValue)
     {
-        PlayedFromDeck = deckName;
+        DamageValue += damageValue; 
+        if (!damageWithEffect) DamageValue = Damage == "#" ? 0 : int.Parse(Damage!);
+        IsHisDamageWithEffect = damageWithEffect;
     }
 
 }

@@ -28,7 +28,7 @@ public class RollingTakedown: ICardReversalStrategy
         Card cardInObjectFormat = card.CardInObjectFormat!;
         return card.Type == "MANEUVER" &&
                cardInObjectFormat.Subtypes!.Contains("Grapple") &&
-               int.Parse(cardInObjectFormat.Damage!) <= 7;
+               cardInObjectFormat.DamageValue <= 7;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)

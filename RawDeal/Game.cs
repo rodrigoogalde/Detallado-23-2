@@ -246,11 +246,10 @@ public class Game
     
     private void ModifyCardByJockeyingForPositionEffect(Card card)
     {
-        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
-        switch (OptionChoosedForJockeyingForPosition)
+        switch (_playerOnTurn.GetOptionChoosedForJockeyingForPosition())
         {
             case SelectedEffectFull.NextGrappleIsPlus4D when card.Subtypes!.Contains("Grapple"):
-                card.Damage = (int.Parse(card.Damage!) + GrappleDamagePlus).ToString();
+                card.SetDamageWithEffect(true, GrappleDamagePlus);
                 break;
             case SelectedEffectFull.NextGrapplesReversalIsPlus8F when card.Subtypes!.Contains("Grapple"):
                 break;
@@ -259,17 +258,17 @@ public class Game
                 _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
     }
 
     public void ResetCardJockeyingForPositionEffects()
     {
-        SelectedEffectFull optionChoosed = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
         Card cardChoosen = _cardChoseenInBothFormats!.CardInObjectFormat!;
-        OptionChoosedForJockeyingForPosition = optionChoosed;
-        switch (optionChoosed)
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        switch (OptionChoosedForJockeyingForPosition)
         {
             case SelectedEffectFull.NextGrappleIsPlus4D when cardChoosen.Subtypes!.Contains("Grapple"):
-                cardChoosen.Damage = (int.Parse(cardChoosen.Damage!) - GrappleDamagePlus).ToString();
+                cardChoosen.DamageValue -= GrappleDamagePlus;
                 break;
             case SelectedEffectFull.NextGrapplesReversalIsPlus8F when cardChoosen.Subtypes!.Contains("Grapple"):
                 OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
@@ -309,9 +308,8 @@ public class Game
     
     private void CardPlayedAsManeuver(Card card)
     {
-        int damage = Convert.ToInt32(card.Damage);
         _playerOnTurn.MoveCardFromHandToRingArea(card);
-        PlayerWaitingTakeDamage(damage);
+        PlayerWaitingTakeDamage(card.DamageValue);
         ResetCardJockeyingForPositionEffects();
     }
 
