@@ -12,7 +12,6 @@ public class ReverseAndDamage: IEffect
     private Player _player;
     private Player _opponent;
     private FormatterCardRepresentation _card;
-    private const int MaindKindDamageReduction = 1;
     
     public ReverseAndDamage(View view, Player player, Player opponent, FormatterCardRepresentation card)
     {
@@ -25,17 +24,13 @@ public class ReverseAndDamage: IEffect
     public void Execute()
     {
         SuperStar superStar = _player.SuperStar;
-        SuperStar superStarOpponent = _opponent.SuperStar;
         Card cardInObjectFormat = _card.CardInObjectFormat!;
         if (_player.LastCardPlayedFromDeck == CardSetFull.Arsenal) return; 
-        FormatterCardRepresentation opponentCardFormatter = _player.GetLastCardPlayedByOpponent();
-        Card opponentCard = opponentCardFormatter.CardInObjectFormat!;
-        int damage = cardInObjectFormat.Damage == "#" ? 
-            Convert.ToInt32(opponentCard.Damage!) : Convert.ToInt32(cardInObjectFormat.Damage);
-        damage = superStarOpponent.IsManKind() ? damage - MaindKindDamageReduction : damage;
+        
         _player.MoveCardFromHandToRingArea(cardInObjectFormat);
         _view.SayThatPlayerReversedTheCard(superStar.Name!, _card.CardInStringFormat!);
-        _view.SayThatSuperstarWillTakeSomeDamage(superStarOpponent.Name!, damage);
-        _opponent.TakeDamage(damage);
+        Damager damager = new Damager(_view, _player, _opponent, _card);
+        damager.Execute();
+        
     }
 }

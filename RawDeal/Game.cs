@@ -246,8 +246,8 @@ public class Game
     
     private void ModifyCardByJockeyingForPositionEffect(Card card)
     {
-        SelectedEffectFull optionChoosed = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
-        switch (optionChoosed)
+        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        switch (OptionChoosedForJockeyingForPosition)
         {
             case SelectedEffectFull.NextGrappleIsPlus4D when card.Subtypes!.Contains("Grapple"):
                 card.Damage = (int.Parse(card.Damage!) + GrappleDamagePlus).ToString();
@@ -259,7 +259,6 @@ public class Game
                 _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
-        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
     }
 
     public void ResetCardJockeyingForPositionEffects()
