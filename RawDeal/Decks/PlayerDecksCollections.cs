@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Cards.Formatter;
 using RawDeal.Cards.Reversal;
 using RawDeal.Collections;
 using RawDeal.Exceptions;
