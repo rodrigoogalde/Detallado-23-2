@@ -1,5 +1,4 @@
 using RawDeal.Effects;
-using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -9,13 +8,11 @@ public class StepAside: ICardReversalStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     
-    public StepAside(View view, Player player, Game game)
+    public StepAside(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -30,9 +27,9 @@ public class StepAside: ICardReversalStrategy
         return card.Type == "MANEUVER" && cardInObjectFormat.Subtypes!.Contains("Strike");
     }
 
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformReversal(card, player);
+        PerformReversal(card, opponent);
     }
 
     public void PerformReversal(FormatterCardRepresentation card, Player player)

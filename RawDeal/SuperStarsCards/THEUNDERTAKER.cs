@@ -21,11 +21,11 @@ public class Theundertaker: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        for (int i = 2 ; i > 0 ; i--) TheUndertakerAbilityFirtsPart(i);
-        TheUndertakerAbilitySecondPart();
+        for (int i = 2 ; i > 0 ; i--) TheUndertakerDiscardCards(i);
+        TheUndertakerTakeCardsFromRingside();
     }
     
-    private void TheUndertakerAbilityFirtsPart(int totalCardsToDiscard)
+    private void TheUndertakerDiscardCards(int totalCardsToDiscard)
     {
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
             Player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
@@ -33,7 +33,7 @@ public class Theundertaker: SuperStar
         Player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
     }
     
-    private void TheUndertakerAbilitySecondPart()
+    private void TheUndertakerTakeCardsFromRingside()
     {
         const int cardsToRecover = 1;
         var indexCardToTake = GameView.AskPlayerToSelectCardsToPutInHisHand(SuperCard.Name, cardsToRecover, 

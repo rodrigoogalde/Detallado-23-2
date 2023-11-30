@@ -1,5 +1,6 @@
 using RawDealView.Formatters;
-namespace RawDeal.Cards;
+
+namespace RawDeal.Cards.Formatter;
 
 public class FormatterCardInfo: IViewableCardInfo
 {

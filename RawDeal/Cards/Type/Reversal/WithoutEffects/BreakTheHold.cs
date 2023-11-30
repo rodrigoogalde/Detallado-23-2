@@ -4,17 +4,15 @@ using RawDealView;
 
 namespace RawDeal.Cards.Reversal.WithoutEffects;
 
-public class EscapeMove: ICardReversalStrategy
+public class BreakTheHold: ICardReversalStrategy
 {
-    private readonly View _view;    
+    private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     
-    public EscapeMove(View view, Player player, Game game)
+    public BreakTheHold(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -26,15 +24,15 @@ public class EscapeMove: ICardReversalStrategy
     {
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
         Card cardInObjectFormat = card.CardInObjectFormat!;
-        return card.Type == "MANEUVER" && cardInObjectFormat.Subtypes!.Contains("Grapple");
+        return card.Type == "MANEUVER" && cardInObjectFormat.Subtypes!.Contains("Submission");
     }
     
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformReversal(card, player);
+        PerformReversal(card, opponent);
     }
     
-    public void PerformReversal(FormatterCardRepresentation card, Player player)
+    public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
         Reverse reverse = new Reverse(_view, _player, card);
         reverse.Execute();

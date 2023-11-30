@@ -13,37 +13,33 @@ namespace RawDeal.Decks;
 
 public class PlayerDecksCollections
 {
-    private SuperStar _superStar;
-    private DeckListCollection _cardsInRingside;
-    private DeckListCollection _cardsInRingArea;
-    private DeckListCollection _cardsInHand;
-    private DeckListCollection _cardsInArsenal;
-    private StringListCollection _playeablesCardsInHandInStringListFormat;
-    private StringListCollection _reversalCardsInHandInStringListFormat;
-    private CardRepresentationListCollection _playeablesCardsInHand;
-    private CardRepresentationListCollection _reversalCardsInHand;
+    private readonly SuperStar _superStar;
+    private readonly DeckListCollection _cardsInRingside;
+    private readonly DeckListCollection _cardsInRingArea;
+    private readonly DeckListCollection _cardsInHand;
+    private readonly DeckListCollection _cardsInArsenal;
+    private StringListCollection? _playeablesCardsInHandInStringListFormat;
+    private StringListCollection? _reversalCardsInHandInStringListFormat;
+    private CardRepresentationListCollection? _playeablesCardsInHand;
+    private CardRepresentationListCollection? _reversalCardsInHand;
     private FormatterCardRepresentation _cardPlayedByOpponent;
-    private ICardTypeStrategy _cardTypeStrategyPlayedByOpponent;
-    private CardsStrategiesFactory _factory;
-    private SelectedEffectFull _selectedEffect;
-    private Game _game;
-    private Player _player;
-    
+    private ICardTypeStrategy? _cardTypeStrategyPlayedByOpponent;
+    private readonly CardsStrategiesFactory _factory;
+    private readonly Game _game;
+    private readonly Player _player;
     private bool _hasHeel;
     private bool _hasFace;
-    
     private const int MaxDeckSize = 60;
     private const int EmptyDeck = 0;
+    private const string CardPlayAsAction = "Action";
     private const string ReversalCardType = "Reversal";
+    private const string ManeuverCardType = "Maneuver";
     private const string UniqueCardType = "Unique";
     private const string SetUpCardType = "SetUp";
     private const int GrappleFortitudePlusForReversal = 8;
-    
     private const string HeelCardSubType = "Heel";
     private const string FaceCardSubType = "Face";
     private const string ReversalActionCardSubType = "ReversalAction";
-    
-    private const string CardPlayAsAction = "Action";
     
     public PlayerDecksCollections(SuperStar superStar, CardsStrategiesFactory factory, Game game, Player player)
     {
@@ -60,11 +56,21 @@ public class PlayerDecksCollections
     
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
     {
+        CheckDuplicateCards(cardToAdd);
+        CheckIfTheCardAddedIsValid(cardToAdd);
+        IsDeckSizeExceeded();
+    }
+
+    private void CheckDuplicateCards(Card cardToAdd)
+    {
         var numberOfRepeatedCards = _cardsInArsenal.Count(cardInDeck => cardInDeck.Title == cardToAdd.Title);
         IsInvalidUniqueCard(cardToAdd, numberOfRepeatedCards);
-        IsInvalidNumberOfRepeatedCards(numberOfRepeatedCards, cardToAdd);
+        IsInvalidNumberOfRepeatedCards(cardToAdd, numberOfRepeatedCards);
+    }
+
+    private void CheckIfTheCardAddedIsValid(Card cardToAdd)
+    {
         IsInvalidFaceAndHeelCombination(cardToAdd);
-        IsDeckSizeExceeded();
         IsInvalidLogo(cardToAdd);
     }
     
@@ -75,7 +81,7 @@ public class PlayerDecksCollections
             throw new InvalidDeckException();
     }
     
-    private static void IsInvalidNumberOfRepeatedCards(int numberOfRepeatedCards, Card card)
+    private static void IsInvalidNumberOfRepeatedCards( Card card, int numberOfRepeatedCards)
     {
         const int numberOfRepeatedCardsAllowed = 3;
         if (!card.Subtypes!.Contains(SetUpCardType) && numberOfRepeatedCards >= numberOfRepeatedCardsAllowed)
@@ -149,7 +155,7 @@ public class PlayerDecksCollections
         return _cardsInRingArea.Sum(card => card.DamageValue);
     } 
     
-    public Tuple<CardRepresentationListCollection, StringListCollection> MakeAListOfCardsThatArePlayeableFromHand()
+    public Tuple<CardRepresentationListCollection, StringListCollection?> MakeAListOfCardsThatArePlayeableFromHand()
     {
         _playeablesCardsInHand = new CardRepresentationListCollection(new List<FormatterCardRepresentation>());
         _playeablesCardsInHandInStringListFormat = new StringListCollection(new List<string>());
@@ -157,7 +163,8 @@ public class PlayerDecksCollections
         {
             AddAllTypesToPlayeableCardsList(card);
         }
-        return new Tuple<CardRepresentationListCollection, StringListCollection>(_playeablesCardsInHand, _playeablesCardsInHandInStringListFormat);
+        return new Tuple<CardRepresentationListCollection, StringListCollection?>(_playeablesCardsInHand,
+            _playeablesCardsInHandInStringListFormat);
     }
     
     private void AddAllTypesToPlayeableCardsList(Card card)
@@ -165,9 +172,10 @@ public class PlayerDecksCollections
         foreach (var type in card.Types!)
         {
             if (type == ReversalCardType) continue;
-            var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
-            _playeablesCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
-            _playeablesCardsInHand.Add( new FormatterCardRepresentation
+            var formaterPlayableCardInfo = Formatter.PlayToString(
+                new FormatterPlayableCardInfo(card, type.ToUpper()));
+            _playeablesCardsInHandInStringListFormat!.Add(formaterPlayableCardInfo);
+            _playeablesCardsInHand!.Add( new FormatterCardRepresentation
             {
                 CardInObjectFormat = card,
                 CardInStringFormat = formaterPlayableCardInfo,
@@ -176,13 +184,13 @@ public class PlayerDecksCollections
         }
     }
     
-    public CardRepresentationListCollection MakeAListOfReversalCardsOnCardFormat()
+    public CardRepresentationListCollection? MakeAListOfReversalCardsOnCardFormat()
     {
         CheckWhichCardsAreReversal();
         return _reversalCardsInHand;
     }
     
-    public StringListCollection MakeAListOfReversalCardsInStringFormat()
+    public StringListCollection? MakeAListOfReversalCardsInStringFormat()
     {
         CheckWhichCardsAreReversal();
         return _reversalCardsInHandInStringListFormat;
@@ -192,7 +200,7 @@ public class PlayerDecksCollections
     {
         _cardPlayedByOpponent = card;
         if (card.CardInObjectFormat == null) return;
-        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card.CardInObjectFormat!);
+        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card.CardInObjectFormat!, card.Type!.ToUpper());
     }
     
     public void TryReversalFromMaze(Card card, int remainingDamage)
@@ -200,28 +208,41 @@ public class PlayerDecksCollections
         if (!CheckReversalOfTheCardPlayedByTheOpponent(card)) return;
         int stunValue = CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(remainingDamage);
         PerformReversalFromMaze(card);
+        CleanDataAfterReversalFromMaze();
+        throw new ReversalFromDeckException(stunValue);
+    }
+
+    public void PerformManeuver(Card card, Player opponent)
+    {
+        FormatterCardRepresentation cardFormatter = CreateCardFormatter(card, ManeuverCardType);
+        ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy!;
+        cardTypeStrategy.PerformEffect(cardFormatter, opponent);
+    }
+
+    private void CleanDataAfterReversalFromMaze()
+    {
         _game.ResetCardJockeyingForPositionEffects();
         _cardPlayedByOpponent = new FormatterCardRepresentation();
-        throw new ReversalFromDeckException(stunValue);
     }
 
     private void PerformReversalFromMaze(Card card)
     {
         _player.LastCardPlayedFromDeck = CardSetFull.Arsenal;
-        FormatterCardRepresentation cardFormatter = CreateReversalCardFormatter(card);
-        ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy;
-        cardTypeStrategy.PerformEffect(_cardPlayedByOpponent, _game, _player, _player);
+        FormatterCardRepresentation cardFormatter = CreateCardFormatter(card, ReversalCardType);
+        ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy!;
+        cardTypeStrategy.PerformEffect(_cardPlayedByOpponent, _player);
     }
 
-    private FormatterCardRepresentation CreateReversalCardFormatter(Card card)
+    private FormatterCardRepresentation CreateCardFormatter(Card card, string type)
     {
-        var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, ReversalCardType));
+        var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card,
+            ReversalCardType));
         FormatterCardRepresentation cardPlayed =  new FormatterCardRepresentation
         {
             CardInObjectFormat = card,
             CardInStringFormat = formaterPlayableCardInfo,
             Type = ReversalCardType,
-            CardTypeStrategy = _factory.BuildCard(card)
+            CardTypeStrategy = _factory.BuildCard(card, type.ToUpper())
         };
         return cardPlayed;
     }
@@ -239,9 +260,10 @@ public class PlayerDecksCollections
         }
     }
     
+    // TODO: Refactorizar este metodo
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
-        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card);
+        _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card, ReversalCardType.ToUpper());
         bool isReversal = _cardPlayedByOpponent != null;
         bool isReversal2 = _cardTypeStrategyPlayedByOpponent != null;
         
@@ -251,7 +273,7 @@ public class PlayerDecksCollections
         }
         if (!isReversal2) return isReversal && isReversal2;
         
-        int fortitude = _game.OptionChoosedForJockeyingForPosition == SelectedEffectFull.NextGrapplesReversalIsPlus8F ? 
+        int fortitude = _game.GetOptionChoosedForJockeyingForPosition() == SelectedEffectFull.NextGrapplesReversalIsPlus8F ? 
             GrappleFortitudePlusForReversal : 0;
         isReversal2 = _cardTypeStrategyPlayedByOpponent!.IsEffectApplicable() &&
                       GetFortitude() >= int.Parse(card.Fortitude) + fortitude &&
@@ -264,6 +286,7 @@ public class PlayerDecksCollections
         return card.Subtypes!.Any(subtype => subtype.Contains(ReversalCardType));
     }
     
+    // Esto va a ser eleminado
     private bool CheckReversalForAction(Card card)
     {
         return _cardPlayedByOpponent.Type == CardPlayAsAction.ToUpper() &&
@@ -271,30 +294,37 @@ public class PlayerDecksCollections
                    subtype.Contains(ReversalActionCardSubType) && GetFortitude() >= int.Parse(card.Fortitude));
     }
 
+    // Esto va a ser eleminado
     private bool CheckReversalForCardType(Card card)
     {
         Card cardPlayedByOpponent = _cardPlayedByOpponent.CardInObjectFormat!;
-        if (_cardPlayedByOpponent.Type == null) return false; // Esto va a ser eleminado
+        if (_cardPlayedByOpponent.Type == null) return false; 
         return (from subtype in card.Subtypes! 
-            where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() && subtype.Contains(ReversalCardType)
-            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
+            where card.CanBeUsedAsReversal(GetFortitude(), ReversalCardType) && 
+                  _cardPlayedByOpponent.Type != CardPlayAsAction.ToUpper() && subtype.Contains(ReversalCardType)
+            select subtype.Split(ReversalCardType)[1]).Any(typeOfReversal 
+                    => cardPlayedByOpponent.Subtypes!.Contains(typeOfReversal));
     }
     
     private void AddAllTypesToReversalCardsList(Card card)
     {
-        foreach (var type in card.Types!)
+        foreach (var type in card.Types!.Where(type => type.Contains(ReversalCardType)))
         {
-            if (!type.Contains(ReversalCardType)) continue;
-            var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
-            _reversalCardsInHandInStringListFormat.Add(formaterPlayableCardInfo);
-            _reversalCardsInHand.Add( new FormatterCardRepresentation
-            {
-                CardInObjectFormat = card,
-                CardInStringFormat = formaterPlayableCardInfo,
-                Type = type.ToUpper(),
-                CardTypeStrategy = _factory.BuildCard(card)
-            });
+            AddOneTypeToReversalCardsList(card, type);
         }
+    }
+
+    private void AddOneTypeToReversalCardsList(Card card, string type)
+    {
+        var formaterPlayableCardInfo = Formatter.PlayToString(new FormatterPlayableCardInfo(card, type.ToUpper()));
+        _reversalCardsInHandInStringListFormat!.Add(formaterPlayableCardInfo);
+        _reversalCardsInHand!.Add( new FormatterCardRepresentation
+        {
+            CardInObjectFormat = card,
+            CardInStringFormat = formaterPlayableCardInfo,
+            Type = type.ToUpper(),
+            CardTypeStrategy = _factory.BuildCard(card, type.ToUpper())
+        });
     }
     
     private int CheckHayManyCardsCanTheOpponentStealFromDeckByHisStunValue(int remainingDamage)
@@ -311,7 +341,7 @@ public class PlayerDecksCollections
     public bool PlayerHasAllConditionsToPlayReversalFromHand()
     {
         MakeAListOfReversalCardsOnCardFormat();
-        return _reversalCardsInHand.Count != EmptyDeck
+        return _reversalCardsInHand!.Count != EmptyDeck
                && _reversalCardsInHand.Any(card =>
                    CheckReversalOfTheCardPlayedByTheOpponent(card.CardInObjectFormat!)); ;
     }

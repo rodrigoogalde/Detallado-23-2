@@ -19,16 +19,11 @@ public class Game
     private SuperStar _superStarWaiting = null!;
     private Player? _winnerPlayer;
     private FormatterCardRepresentation? _cardChoseenInBothFormats;
-    
     private const int OptionComeBack = -1;
-    
     private const int MaindKindDamageReduction = 1;
     private const int EmptyDeck = 0;
     private const int GrappleDamagePlus = 4;
-    private const int GrappleFortitudePlusForReversal = 8;
-    public SelectedEffectFull OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
-    
-
+    private SelectedEffectFull _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
     private NextPlay _optionChoosed;
     private int _optionCardChoosed;
     private CardSetFull _optionWhichCardsToSee;
@@ -46,12 +41,6 @@ public class Game
         _playersList = new List<Player>();
         _winnerPlayer = null;
         File.ReadAllText(Path.Combine("data", "cards.json"));
-        
-    }
-
-    private void AddThisPlayer(Player player)
-    {
-        _playersList.Add(player);
     }
 
     public void Play()
@@ -71,6 +60,11 @@ public class Game
             Player player = new Player(_view.AskUserToSelectDeck(_deckFolder), _view, this);
             AddThisPlayer(player);
         }
+    }
+    
+    private void AddThisPlayer(Player player)
+    {
+        _playersList.Add(player);
     }
     
     private void InitializeGame()
@@ -139,7 +133,7 @@ public class Game
             e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar);
             _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
         }
-        catch (ReversalFromHandException e) { e.ReversalFromHandMessage(_view, _playerWaiting); }
+        catch (ReversalFromHandException e) { }
     }
 
     private void LoopUntilPlayerEndsHisTurn()
@@ -180,7 +174,8 @@ public class Game
                 ChooseWhichCardsYouWantToSee();
                 break;
             case NextPlay.PlayCard:
-                _optionCardChoosed = _view.AskUserToSelectAPlay(_playerOnTurn.GimeMePlayeableCardsFromHandInStringFormat().ToList());
+                _optionCardChoosed = _view.AskUserToSelectAPlay(
+                    _playerOnTurn.GimeMePlayeableCardsFromHandInStringFormat()!.ToList());
                 ChooseWhichCardDoYouWantToPlayOrPass();
                 break;
             case NextPlay.EndTurn:
@@ -258,29 +253,34 @@ public class Game
                 _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
-        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
+        _optionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
     }
 
+    public SelectedEffectFull GetOptionChoosedForJockeyingForPosition()
+    {
+        return _optionChoosedForJockeyingForPosition;
+    }
+    
     public void ResetCardJockeyingForPositionEffects()
     {
         Card cardChoosen = _cardChoseenInBothFormats!.CardInObjectFormat!;
-        OptionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
-        switch (OptionChoosedForJockeyingForPosition)
+        switch (_playerOnTurn.GetOptionChoosedForJockeyingForPosition())
         {
             case SelectedEffectFull.NextGrappleIsPlus4D when cardChoosen.Subtypes!.Contains("Grapple"):
                 cardChoosen.DamageValue -= GrappleDamagePlus;
                 break;
             case SelectedEffectFull.NextGrapplesReversalIsPlus8F when cardChoosen.Subtypes!.Contains("Grapple"):
-                OptionChoosedForJockeyingForPosition = SelectedEffectFull.None;
                 _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
                 break;
         }
+        _optionChoosedForJockeyingForPosition = _playerOnTurn.GetOptionChoosedForJockeyingForPosition();
     }
     
     private void CheckIfPlayerCanReverseTheCardPlayed()
     {
         if (!_playerWaiting.CanReverseTheCardPlayed()) return;
-        _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,  _playerWaiting.GimeMeReversalCardsInStringFormat().ToList());
+        _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,
+            _playerWaiting.GimeMeReversalCardsInStringFormat()!.ToList());
         CheckIfPlayerReversedTheCardPlayedByOpponent();
     }
     
@@ -288,11 +288,11 @@ public class Game
     private void CheckIfPlayerReversedTheCardPlayedByOpponent()
     {
         if (_optionCardChoosed == OptionComeBack) return;
-        var card = _playerWaiting.GimeMeReversalCardsInCardFormat()[_optionCardChoosed];
+        var card = _playerWaiting.GimeMeReversalCardsInCardFormat()![_optionCardChoosed];
         _playerOnTurn.MoveCardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
         var cardTypeStrategy = card.CardTypeStrategy;
-        cardTypeStrategy.PerformEffect(card, this, _playerOnTurn,_playerWaiting);
-        throw new ReversalFromHandException(card);
+        cardTypeStrategy!.PerformEffect(card, _playerOnTurn);
+        throw new ReversalFromHandException();
     }
     
     private void CheckPlayModeOfTheCardPlayed()
@@ -308,7 +308,7 @@ public class Game
     
     private void CardPlayedAsManeuver(Card card)
     {
-        _playerOnTurn.MoveCardFromHandToRingArea(card);
+        _playerOnTurn.PlayCardAsManeuver(card, _playerWaiting);
         PlayerWaitingTakeDamage(card.DamageValue);
         ResetCardJockeyingForPositionEffects();
     }
@@ -359,7 +359,7 @@ public class Game
             _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
         _playerOnTurn.CleanDataFromPastTurn(true);
         _playerWaiting.CleanDataFromPastTurn(false);
-        OptionChoosedForJockeyingForPosition = _playerWaiting.GetOptionChoosedForJockeyingForPosition();
+        _optionChoosedForJockeyingForPosition = _playerWaiting.GetOptionChoosedForJockeyingForPosition();
     }
     
     private void CheckIfPlayerHasTheConditionsToUseHisAbility()

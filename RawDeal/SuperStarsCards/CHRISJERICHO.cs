@@ -1,7 +1,6 @@
 using RawDeal.Cards;
 using RawDeal.Options;
 using RawDealView;
-using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 
@@ -23,11 +22,11 @@ public class Chrisjericho: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        TheJerichoAbilityFirstPart(TotalCardsToDiscard);
-        TheJerichoAbilitySecondPart(TotalCardsToDiscard, playerOnWait);
+        PlayerDiscardCards(TotalCardsToDiscard);
+        OpponentDiscardCards(TotalCardsToDiscard, playerOnWait);
     }
     
-    private void TheJerichoAbilityFirstPart(int totalCardsToDiscard)
+    private void PlayerDiscardCards(int totalCardsToDiscard)
     {
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
             Player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
@@ -37,7 +36,7 @@ public class Chrisjericho: SuperStar
         Player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
     }
     
-    private void TheJerichoAbilitySecondPart(int totalCardsToDiscard, Player playerOnWait)
+    private void OpponentDiscardCards(int totalCardsToDiscard, Player playerOnWait)
     {
         SuperStar superStarOpponent = playerOnWait.SuperStar;
         var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(

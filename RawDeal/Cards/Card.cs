@@ -1,6 +1,3 @@
-using RawDeal.Decks;
-using RawDeal.Options;
-
 namespace RawDeal.Cards;
 
 public class Card

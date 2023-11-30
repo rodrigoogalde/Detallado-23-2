@@ -8,7 +8,7 @@ using RawDeal.Utils;
 using RawDealView;
 using RawDealView.Formatters;
 using RawDealView.Options;
-using FormatterCardInfo = RawDeal.Cards.FormatterCardInfo;
+using FormatterCardInfo = RawDeal.Cards.Formatter.FormatterCardInfo;
 
 namespace RawDeal;
 
@@ -17,24 +17,21 @@ public class Player
     private readonly View _view;
     private readonly Game _game;
     public SuperStar SuperStar;
-    
     private int _indexCardToDiscard;
-    
     private PlayerDecksCollections _decksCollections;
     private readonly string? _pathDeck;
+    private readonly CardsStrategiesFactory _factory;
     private int _fortitude;
-    
-    private const int GrappleDamagePlus = 4;
-    private const int GrappleFortitudePlusForReversal = 8;
     private SelectedEffectFull _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
     public CardSetFull LastCardPlayedFromDeck { get; set; }
+    private const string ManeuverCardType = "Maneuver";
 
     public Player(string pathDeck, View view, Game game)
     {
         _pathDeck = pathDeck;
         _view = view;
         _game = game;
-        
+        _factory = new CardsStrategiesFactory(_view, this, _game);
         SetUpDeck();
     }
 
@@ -49,7 +46,7 @@ public class Player
     {
         var superName = deckLines[0].Replace(" (Superstar Card)", "");
         SelectWhichSuperStar(superName);
-        _decksCollections = new PlayerDecksCollections(SuperStar, new CardsStrategiesFactory(_view, this, _game),
+        _decksCollections = new PlayerDecksCollections(SuperStar, _factory,
             _game, this);
     }
 
@@ -80,11 +77,6 @@ public class Player
         _decksCollections.IsDeckSizeCorrect();
     }
 
-    public void DrawCard()
-    {
-        _decksCollections.AddCardToHandFromArsenal();
-    }
-
     public void DrawFirstHand()
     {
         SuperCardInfo superCard = SuperStar.SuperCard;
@@ -94,25 +86,39 @@ public class Player
             DrawCard();
         }
     }
+    
+    public void DrawCard()
+    {
+        _decksCollections.AddCardToHandFromArsenal();
+    }
 
     public StringListCollection TransformMazeToStringFormat(CardSetFull cardSet)
     {
         return _decksCollections.ChooseWhichMazeOfCardsTransformToStringFormat(cardSet);
     }
     
-    public StringListCollection GimeMePlayeableCardsFromHandInStringFormat()
+    public StringListCollection? GimeMePlayeableCardsFromHandInStringFormat()
     {
         return _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item2;
     }
     
-    public StringListCollection GimeMeReversalCardsInStringFormat()
+    public StringListCollection? GimeMeReversalCardsInStringFormat()
     {
         return _decksCollections.MakeAListOfReversalCardsInStringFormat();
     }
 
-    public CardRepresentationListCollection GimeMeReversalCardsInCardFormat()
+    public CardRepresentationListCollection? GimeMeReversalCardsInCardFormat()
     {
         return _decksCollections.MakeAListOfReversalCardsOnCardFormat();
+    }
+
+
+    public void PlayCardAsManeuver(Card cardToPlay, Player opponent)
+    {
+        _decksCollections.MoveCardBetweenDecks(cardToPlay, 
+            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
+        // _decksCollections.PerformManeuver(cardToPlay, opponent);
+        
     }
     
     public void PlayCardAsAction(Card cardToPlay)
@@ -146,7 +152,7 @@ public class Player
                 _optionChoosedForJockeyingForPosition = SelectedEffectFull.NextGrapplesReversalIsPlus8F;
                 break;
         }
-        _game.OptionChoosedForJockeyingForPosition = _optionChoosedForJockeyingForPosition;
+        _game.GetOptionChoosedForJockeyingForPosition();
     }
     
     public void PlayerLoosesEffectOfJockeyingForPosition()
@@ -171,9 +177,11 @@ public class Player
     public FormatterCardRepresentation CheckWhichCardWillBePlayed(int indexCardToDiscard)
     {
         _indexCardToDiscard = indexCardToDiscard;
-        CardRepresentationListCollection playeablesCardsInHand = _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item1;
+        CardRepresentationListCollection playeablesCardsInHand = 
+            _decksCollections.MakeAListOfCardsThatArePlayeableFromHand().Item1;
         var cardToDiscardInBothFormats = playeablesCardsInHand[_indexCardToDiscard];
-        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!, cardToDiscardInBothFormats.CardInStringFormat!);
+        _view.SayThatPlayerIsTryingToPlayThisCard(SuperStar.Name!,
+            cardToDiscardInBothFormats.CardInStringFormat!);
         return cardToDiscardInBothFormats;
     }
     
@@ -183,7 +191,8 @@ public class Player
         for (i = 1; (i - 1) < damage && !_decksCollections.IsArsenalDeckEmpty(); i++)
         {
             Card card = MoveLastCardFromArsenalToRingSide();
-            _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(new FormatterCardInfo(card)), i, damage);
+            _view.ShowCardOverturnByTakingDamage(Formatter.CardToString(
+                new FormatterCardInfo(card)), i, damage);
             _decksCollections.TryReversalFromMaze(card, damage - i);
         }
         return _decksCollections.IsArsenalDeckEmpty() && (i - 1) != damage;

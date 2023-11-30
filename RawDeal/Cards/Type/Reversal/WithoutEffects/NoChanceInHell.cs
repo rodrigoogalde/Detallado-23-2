@@ -8,13 +8,11 @@ public class NoChanceInHell: ICardReversalStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     
-    public NoChanceInHell(View view, Player player, Game game)
+    public NoChanceInHell(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -28,7 +26,7 @@ public class NoChanceInHell: ICardReversalStrategy
         return card.Type == "ACTION";
     }
 
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player player)
     {
         PerformReversal(card, player);
     }

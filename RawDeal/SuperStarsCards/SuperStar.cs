@@ -37,10 +37,14 @@ public abstract class SuperStar
     }
 
     public abstract void UseAbility(Player playerOnWait);
-    
+
     public virtual bool CanSteelMoreThanOneCard()
-    { return false; }
-    
+    {
+        return false;
+    }
+
     public virtual bool IsManKind()
-    { return false; }
+    {
+        return false;
+    }
 }

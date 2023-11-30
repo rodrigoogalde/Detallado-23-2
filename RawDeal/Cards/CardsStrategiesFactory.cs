@@ -1,15 +1,16 @@
 using RawDeal.Cards.Maneuver;
+using RawDeal.Cards.Maneuver.Simple;
 using RawDeal.Cards.Reversal.General;
 using RawDeal.Cards.Reversal.WithoutEffects;
-using RawDeal.Effects;
+using RawDeal.Cards.Type.Action;
+using RawDeal.Cards.Type.Maneuver.Effects;
+using RawDeal.Cards.Type.Maneuver.Simple;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal;
+namespace RawDeal.Cards;
 
 public class CardsStrategiesFactory
 {
-    private Dictionary<string, ICardTypeStrategy> _card;
-    private Dictionary<string, Dictionary<string, ICardTypeStrategy>> _dictionary;
     private readonly View _view;
     private readonly Player _player;
     private readonly Game _game;
@@ -18,11 +19,9 @@ public class CardsStrategiesFactory
         _view = view;
         _player = player;
         _game = game;
-        _card = new Dictionary<string, ICardTypeStrategy>();
-        _dictionary = new Dictionary<string, Dictionary<string, ICardTypeStrategy>>();
     }
     
-    public ICardTypeStrategy BuildCard(Card card)
+    public ICardTypeStrategy? BuildCard(Card card, string type)
     {
         string cardTitle = card.Title;
         switch (cardTitle)
@@ -31,8 +30,7 @@ public class CardsStrategiesFactory
                 // Handle Abdominal Stretch here
                 break;
             case "Ankle Lock":
-                // Handle Ankle Lock here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Arm Bar":
                 return new PlayerDiscardCardFromHisHand(_view, _player, 1);
             case "Arm Bar Takedown":
@@ -73,16 +71,14 @@ public class CardsStrategiesFactory
                 // Handle Body Slam here
                 break;
             case "Boston Crab":
-                // Handle Boston Crab here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Bow & Arrow":
                 // Handle Bow & Arrow here
                 break;
             case "Break the Hold":
-                return new BreakTheHold(_view, _player, _game);
+                return new BreakTheHold(_view, _player);
             case "Bulldog":
-                // Handle Bulldog here
-                break;
+                return new Bulldog(_view, _player);
             case "Camel Clutch":
                 // Handle Camel Clutch here
                 break;
@@ -90,8 +86,7 @@ public class CardsStrategiesFactory
                 // Handle Chair Shot here
                 break;
             case "Chicken Wing":
-                // Handle Chicken Wing here
-                break;
+                return new PlayerMoveCardFromRingSideToArsenal(_view, _player, 2);
             case "Chin Lock":
                 // Handle Chin Lock here
                 break;
@@ -101,9 +96,9 @@ public class CardsStrategiesFactory
                 // Handle Chop here
                 break;
             case "Chyna Interferes":
-                return new ChynaInterferes(_view, _player, _game);
+                return new ChynaInterferes(_view, _player);
             case "Clean Break":
-                return new CleanBreak(_view, _player, _game);
+                return new CleanBreak(_view, _player);
             case "Clothesline":
                 // Handle Clothesline here
                 break;
@@ -150,8 +145,7 @@ public class CardsStrategiesFactory
                 // Handle Double Digits here
                 break;
             case "Double Leg Takedown":
-                // Handle Double Leg Takedown here
-                break;
+                return new PlayerDrawCards(_view, _player, 1);
             case "Drop Kick":
                 // Handle Drop Kick here
                 break;
@@ -159,24 +153,22 @@ public class CardsStrategiesFactory
                 // Handle Ego Boost here
                 break;
             case "Elbow to the Face":
-                return new ElbowToTheFace(_view, _player, _game);
+                return new ElbowToTheFace(_view, _player);
             case "Ensugiri":
                 // Handle Ensugiri here
                 break;
             case "Escape Move":
-                return new EscapeMove(_view, _player, _game);
+                return new EscapeMove(_view, _player);
             case "Facebuster":
                 // Handle Facebuster here
                 break;
             case "Figure Four Leg Lock":
-                // Handle Figure Four Leg Lock here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Fireman's Carry":
                 // Handle Fireman's Carry here
                 break;
             case "Fisherman's Suplex":
-                // Handle Fisherman's Suplex here
-                break;
+                return new FishermansSuplex(_view, _player);
             case "Flash in the Pan":
                 // Handle Flash in the Pan here
                 break;
@@ -187,8 +179,7 @@ public class CardsStrategiesFactory
                 // Handle Get Crowd Support here
                 break;
             case "Guillotine Stretch":
-                // Handle Guillotine Stretch here
-                break;
+                return new GuillotineStretch(_view, _player);
             case "Gut Buster":
                 // Handle Gut Buster here
                 break;
@@ -201,8 +192,7 @@ public class CardsStrategiesFactory
             case "Head Butt":
                 return new PlayerDiscardCardFromHisHand(_view, _player, 1);
             case "Headlock Takedown":
-                // Handle Headlock Takedown here
-                break;
+                return new OpponentDrawCards(_view, _player, 1);
             case "Hellfire & Brimstone":
                 // Handle Hellfire & Brimstone here
                 break;
@@ -225,7 +215,7 @@ public class CardsStrategiesFactory
                 // Handle Irish Whip here
                 break;
             case "Jockeying for Position":
-                return new JockeyingForPosition(_view, _player, _game);
+                return new JockeyingForPosition(_view, _player);
             case "Kane's Chokeslam":
                 // Handle Kane's Chokeslam here
                 break;
@@ -239,16 +229,14 @@ public class CardsStrategiesFactory
                 // Handle Kane's Tombstone Piledriver here
                 break;
             case "Kick":
-                // Handle Kick here
-                break;
+                return new PlayerMoveCardFromArsenalToRingSide(_player);
             case "Knee to the Gut":
-                return new KneeToTheGut(_view, _player, _game);
+                return new KneeToTheGut(_view, _player);
             case "Leaping Knee to the Face":
                 // Handle Leaping Knee to the Face here
                 break;
             case "Lionsault":
-                // Handle Lionsault here
-                break;
+                return new Lionsault(_view, _player); 
             case "Lou Thesz Press":
                 // Handle Lou Thesz Press here
                 break;
@@ -256,7 +244,7 @@ public class CardsStrategiesFactory
                 // Handle Maintain Hold here
                 break;
             case "Manager Interferes":
-                return new ManagerInterferes(_view, _player, _game);
+                return new ManagerInterferes(_view, _player);
             case "Mandible Claw":
                 // Handle Mandible Claw here
                 break;
@@ -267,13 +255,12 @@ public class CardsStrategiesFactory
                 // Handle Mr. Socko here
                 break;
             case "No Chance in Hell":
-                return new NoChanceInHell(_view, _player, _game);
+                return new NoChanceInHell(_view, _player);
             case "Not Yet":
                 // Handle Not Yet here
                 break;
             case "Offer Handshake":
-                // Handle Offer Handshake here
-                break;
+                return new OfferHandshake(_view, _player);
             case "Open Up a Can of Whoop-A%$":
                 // Handle Open Up a Can of Whoop-A%$ here
                 break;
@@ -284,8 +271,7 @@ public class CardsStrategiesFactory
                 // Handle Pedigree here
                 break;
             case "Power Slam":
-                // Handle Power Slam here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Power of Darkness":
                 // Handle Power of Darkness here
                 break;
@@ -293,23 +279,18 @@ public class CardsStrategiesFactory
                 // Handle Powerbomb here
                 break;
             case "Press Slam":
-                // Handle Press Slam here
-                break;
+                return new PressSlam(_view, _player);
             case "Pump Handle Slam":
-                // Handle Pump Handle Slam here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 2);
             case "Punch":
                 // Handle Punch here
                 break;
             case "Puppies! Puppies!":
-                // Handle Puppies! Puppies! here
-                break;
+                return new Puppies(_view, _player, 5, 2);
             case "Recovery":
-                // Handle Recovery here
-                break;
+                return new Recovery(_view, _player, 2, 1);
             case "Reverse DDT":
-                // Handle Reverse DDT here
-                break;
+                return new PlayerDrawCards(_view, _player, 1);
             case "Rock Bottom":
                 // Handle Rock Bottom here
                 break;
@@ -317,19 +298,17 @@ public class CardsStrategiesFactory
                 // Handle Roll Out of the Ring here
                 break;
             case "Rolling Takedown":
-                return new RollingTakedown(_view, _player, _game);
+                return new RollingTakedown(_view, _player);
             case "Roundhouse Punch":
                 // Handle Roundhouse Punch here
                 break;
             case "Running Elbow Smash":
-                // Handle Running Elbow Smash here
-                break;
+                return new PlayerMoveCardFromArsenalToRingSide(_player);
             case "Russian Leg Sweep":
                 // Handle Russian Leg Sweep here
                 break;
             case "Samoan Drop":
-                // Handle Samoan Drop here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Shake It Off":
                 // Handle Shake It Off here
                 break;
@@ -355,19 +334,16 @@ public class CardsStrategiesFactory
                 // Handle Spear here
                 break;
             case "Spinning Heel Kick":
-                // Handle Spinning Heel Kick here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Spit At Opponent":
-                // Handle Spit At Opponent here
-                break;
+                return new SpitAtOpponent(_view, _player);
             case "Stagger":
                 // Handle Stagger here
                 break;
             case "Standing Side Headlock":
-                // Handle Standing Side Headlock here
-                break;
+                return new OpponentDrawCards(_view, _player, 1);
             case "Step Aside":
-                return new StepAside(_view, _player, _game);
+                return new StepAside(_view, _player);
             case "Step Over Toe Hold":
                 // Handle Step Over Toe Hold here
                 break;
@@ -387,11 +363,9 @@ public class CardsStrategiesFactory
                 // Handle The People's Eyebrow here
                 break;
             case "Torture Rack":
-                // Handle Torture Rack here
-                break;
-            case "Tree of Woe":
-                // Handle Tree of Woe here
-                break;
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
+            case "Tree of Woe": // TODO: Check this
+                return new OpponentsDiscardsCardsFromHand(_view, _player, 1);
             case "Undertaker Sits Up!":
                 // Handle Undertaker Sits Up! here
                 break;
@@ -424,9 +398,9 @@ public class CardsStrategiesFactory
                 break;
             default:
                 // Handle default case here
-                return null;
+                return null!;
         }
-        return null;
+        return null!;
     }
 
     private void CreateReversalStrategy(Card card)

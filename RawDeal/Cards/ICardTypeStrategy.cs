@@ -5,5 +5,5 @@ namespace RawDeal.Cards;
 public interface ICardTypeStrategy
 {
     bool IsEffectApplicable();
-    void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait);
+    void PerformEffect(FormatterCardRepresentation card, Player opponent);
 }
