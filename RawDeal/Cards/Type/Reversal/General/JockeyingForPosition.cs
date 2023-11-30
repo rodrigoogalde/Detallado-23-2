@@ -1,6 +1,4 @@
 using RawDeal.Effects;
-using RawDeal.Exceptions;
-using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -10,12 +8,10 @@ public class JockeyingForPosition: ICardReversalStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
-    public JockeyingForPosition(View view, Player player, Game game)
+    public JockeyingForPosition(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -26,21 +22,20 @@ public class JockeyingForPosition: ICardReversalStrategy
     public bool IsReversalApplicable(Player player)
     {
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
-        Card cardInObjectFormat = card.CardInObjectFormat!;
         if (card.Type == null) return false;
+        Card cardInObjectFormat = card.CardInObjectFormat!;
         return cardInObjectFormat.Title == "Jockeying for Position";
     }
 
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformReversal(card, player);
+        PerformReversal(card, opponent);
     }
 
-    public void PerformReversal(FormatterCardRepresentation card, Player player)
+    public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
         Reverse reverse = new Reverse(_view, _player, card);
         reverse.Execute();
-        // TODO: Check if the card was played from hand
         _player.CheckIfJockeyForPositionIsPlayed(card.CardInObjectFormat!);
     }
 }

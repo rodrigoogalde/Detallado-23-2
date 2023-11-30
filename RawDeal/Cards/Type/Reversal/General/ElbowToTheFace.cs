@@ -1,6 +1,4 @@
 using RawDeal.Effects;
-using RawDeal.Options;
-using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
@@ -10,13 +8,11 @@ public class ElbowToTheFace: ICardReversalStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     
-    public ElbowToTheFace(View view, Player player, Game game)
+    public ElbowToTheFace(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -32,14 +28,14 @@ public class ElbowToTheFace: ICardReversalStrategy
                cardInObjectFormat.DamageValue <= 7;
     }
 
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformReversal(card, player);
+        PerformReversal(card, opponent);
     }
 
-    public void PerformReversal(FormatterCardRepresentation card, Player player)
+    public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
-        ReverseAndDamage reverseAndDamage = new ReverseAndDamage(_view, _player, player, card);
+        ReverseAndDamage reverseAndDamage = new ReverseAndDamage(_view, _player, opponent, card);
         reverseAndDamage.Execute();
     }
 }

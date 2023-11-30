@@ -8,13 +8,11 @@ public class CleanBreak: ICardReversalStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     
-    public CleanBreak(View view, Player player, Game game)
+    public CleanBreak(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public bool IsEffectApplicable()
@@ -25,22 +23,21 @@ public class CleanBreak: ICardReversalStrategy
     public bool IsReversalApplicable(Player player)
     {
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
-        Card cardInObjectFormat = card.CardInObjectFormat!;
-        // TODO: Check if the card is played from Hand
         if (card.Type == null) return false;
+        Card cardInObjectFormat = card.CardInObjectFormat!;
         return cardInObjectFormat.Title == "Jockeying for Position";
     }
 
-    public void PerformEffect(FormatterCardRepresentation card, Game game, Player player, Player playerOnWait)
+    public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformReversal(card, player);
+        PerformReversal(card, opponent);
     }
 
-    public void PerformReversal(FormatterCardRepresentation card, Player player)
+    public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
         Reverse reverse = new Reverse(_view, _player, card);
         reverse.Execute();
-        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, player, 4);
+        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, opponent, 4);
         discardCardFromOpponentHand.Execute();
         DrawCard drawCard = new DrawCard(_player, _view, 1);
         drawCard.Execute();
