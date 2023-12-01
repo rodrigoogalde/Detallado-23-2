@@ -5,6 +5,7 @@ using RawDeal.Cards.Reversal.WithoutEffects;
 using RawDeal.Cards.Type.Action;
 using RawDeal.Cards.Type.Maneuver.Effects;
 using RawDeal.Cards.Type.Maneuver.Simple;
+using RawDeal.Cards.Type.Reversal.General;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDealView;
@@ -55,7 +56,7 @@ public class CardsStrategiesFactory
             "Bulldog" => new Bulldog(_view, _player),
             "Chicken Wing" => new PlayerMoveCardFromRingSideToArsenal(_view, _player, 2),
             "Choke Hold" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "DDT" => null!, // TODO: Check this
+            "DDT" => new Ddt(_view, _player),
             "Double Leg Takedown" => new PlayerDrawCards(_view, _player),
             "Figure Four Leg Lock" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
             "Fisherman's Suplex" => new FishermansSuplex(_view, _player),

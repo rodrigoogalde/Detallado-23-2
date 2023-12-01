@@ -5,6 +5,7 @@ using RawDeal.Cards.Reversal.WithoutEffects;
 using RawDeal.Cards.Type.Action;
 using RawDeal.Cards.Type.Maneuver.Effects;
 using RawDeal.Cards.Type.Maneuver.Simple;
+using RawDeal.Cards.Type.Reversal.General;
 using RawDealView;
 
 namespace RawDeal.Cards;

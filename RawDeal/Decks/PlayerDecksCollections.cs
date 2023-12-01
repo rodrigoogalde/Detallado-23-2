@@ -40,6 +40,7 @@ public class PlayerDecksCollections
     private const string HeelCardSubType = "Heel";
     private const string FaceCardSubType = "Face";
     private const string ReversalActionCardSubType = "ReversalAction";
+    private const string HibridCard = "Undertaker's Tombstone Piledriver";
     
     public PlayerDecksCollections(SuperStar superStar, CardsStrategiesFactory factory, Game game, Player player)
     {
@@ -146,7 +147,7 @@ public class PlayerDecksCollections
         }
         return cardsInStringFormat;
     }
-    
+     
     public void AddCardToArsenal(Card card)
     {
         _cardsInArsenal.Add(card);
@@ -173,7 +174,7 @@ public class PlayerDecksCollections
     {
         foreach (var type in card.Types!)
         {
-            if (type == ReversalCardType) continue;
+            if (type == ReversalCardType || !CheckIfValidHibridCardType(card, type)) continue;
             var formaterPlayableCardInfo = Formatter.PlayToString(
                 new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringListFormat!.Add(formaterPlayableCardInfo);
@@ -184,6 +185,14 @@ public class PlayerDecksCollections
                 Type = type.ToUpper()
             });
         }
+    }
+
+    private bool CheckIfValidHibridCardType(Card card, string type)
+    {
+        bool isItHibridCard = card.Title == HibridCard;
+        bool isValidAsAction = type == CardPlayAsAction && GetFortitude() >= 0;
+        bool isValidAsManeuver = type == ManeuverCardType && GetFortitude() >= long.Parse(card.Fortitude);
+        return !isItHibridCard || (isValidAsAction || isValidAsManeuver);
     }
     
     public CardRepresentationListCollection? MakeAListOfReversalCardsOnCardFormat()

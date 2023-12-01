@@ -134,6 +134,7 @@ public class Game
             _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
         }
         catch (ReversalFromHandException e) { }
+        catch (PlayerLosesDueToSelfDamage e) { }
     }
 
     private void LoopUntilPlayerEndsHisTurn()

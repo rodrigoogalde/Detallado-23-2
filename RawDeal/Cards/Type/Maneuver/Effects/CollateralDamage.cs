@@ -1,4 +1,5 @@
 using RawDeal.Cards.Maneuver;
+using RawDeal.Effects;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
@@ -32,8 +33,7 @@ public class CollateralDamage: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        _view.SayThatPlayerDamagedHimself(_superStar.Name!,1);
-        _view.SayThatSuperstarWillTakeSomeDamage(_superStar.Name!, 1);
-        _player.TakeDamage(1);
+        RecieveCollateralDamage recieveCollateralDamage = new RecieveCollateralDamage(_view, _player);
+        recieveCollateralDamage.Execute();
     }
 }

@@ -29,12 +29,7 @@ public class OpponentsDiscardsCardsFromHand: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        for (int i = _cardsToDiscard; i > 0; i--)
-        {
-            if (opponent.GetHandCards().Count == 0) return;
-            DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, i);
-            discardCardFromHand.Execute();    
-        }
-        
+        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, _cardsToDiscard);
+        discardCardFromHand.Execute();
     }
 }
