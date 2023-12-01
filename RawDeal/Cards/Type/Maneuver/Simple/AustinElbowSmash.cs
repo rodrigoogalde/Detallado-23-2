@@ -1,22 +1,26 @@
+using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Maneuver.Simple;
+namespace RawDeal.Cards.Type.Maneuver.Simple;
 
-public class OfferHandshake: ICardManeuverStrategy
+public class AustinElbowSmash: ICardManeuverStrategy
 {
     private readonly View _view;
     private readonly Player _player;
     
-    public OfferHandshake(View view, Player player)
+    public AustinElbowSmash(View view, Player player)
     {
         _view = view;
         _player = player;
     }
+    
     public bool IsEffectApplicable()
     {
-        return true;
+        FormatterCardRepresentation card = _player.GetLastCardPlayed();
+        Card cardInObjectForm = card.CardInObjectFormat!;
+        return card.Type == "MANEUVER" && cardInObjectForm.NetDamage >= 5;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)
@@ -26,9 +30,5 @@ public class OfferHandshake: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DrawCard drawCard = new DrawCard(opponent, _view, 3);
-        drawCard.Execute();
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, _player, 1);
-        discardCardFromHand.Execute();
     }
 }

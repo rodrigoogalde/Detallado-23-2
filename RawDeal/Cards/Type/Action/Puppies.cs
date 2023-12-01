@@ -10,6 +10,7 @@ public class Puppies: ICardActionStrategy
     private readonly Player _player;
     private readonly int _numberOfCardsToShuffle;
     private readonly int _numberOfCardsToDraw;
+    private Card? _card;
     
     public Puppies(View view, Player player, int numberOfCardsToShuffle, int numberOfCardsToDraw)
     {
@@ -25,11 +26,13 @@ public class Puppies: ICardActionStrategy
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
+        _card = card.CardInObjectFormat;
         PerformAction(opponent);
     }
 
     public void PerformAction(Player opponent)
     {
+        _player.MoveCardFromHandToRingArea(_card!);
         ShuffleCardsFromRingsideToArsenal shuffle = 
             new ShuffleCardsFromRingsideToArsenal(_view, _player, _numberOfCardsToShuffle);
         shuffle.Execute();

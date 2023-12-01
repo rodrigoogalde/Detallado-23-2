@@ -1,25 +1,26 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
-using RawDeal.Options;
+using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
 namespace RawDeal.Cards.Type.Action;
 
-public class SpitAtOpponent: ICardActionStrategy
+public class NoEffectActionStrategy: ICardActionStrategy
 {
     private readonly View _view;
     private readonly Player _player;
+    private readonly SuperStar _superStar;
     private Card? _card;
     
-    public SpitAtOpponent(View view, Player player)
+    public NoEffectActionStrategy(View view,Player player)
     {
         _view = view;
         _player = player;
+        _superStar = _player.SuperStar;
     }
     public bool IsEffectApplicable()
-    {
-        return _player.TransformMazeToStringFormat(CardSetFull.Hand).Count >= 2;
+    {   
+        return true;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)
@@ -31,9 +32,8 @@ public class SpitAtOpponent: ICardActionStrategy
     public void PerformAction(Player opponent)
     {
         _player.MoveCardFromHandToRingside(_card!);
-        DiscardCardFromHand discardCard = new DiscardCardFromHand(_view, _player, 1);
-        discardCard.Execute();
-        DiscardCardFromHand opponentDiscardCard = new DiscardCardFromHand(_view, opponent, 4);
-        opponentDiscardCard.Execute();
+        _view.SayThatPlayerMustDiscardThisCard(_superStar.Name!, _card!.Title);
+        DrawCard drawCard = new DrawCard(_player, _view, 1);
+        drawCard.Execute();
     }
 }

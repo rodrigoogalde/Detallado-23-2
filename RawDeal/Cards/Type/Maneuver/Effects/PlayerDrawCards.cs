@@ -10,13 +10,13 @@ public class PlayerDrawCards : ICardManeuverStrategy
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly SuperStar _superstar;
+    private readonly SuperStar _superStar;
     
     public PlayerDrawCards(View view, Player player)
     {
         _view = view;
         _player = player;
-        _superstar = _player.SuperStar;
+        _superStar = _player.SuperStar;
     }
     public bool IsEffectApplicable()
     {
@@ -30,7 +30,7 @@ public class PlayerDrawCards : ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superstar.Name!, 1);
+        int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superStar.Name!, 1);
         DrawCard drawCards = new DrawCard(_player, _view, cardsToDiscard);
         drawCards.Execute();
     }

@@ -18,8 +18,9 @@ public class Lionsault: ICardManeuverStrategy
     
     public bool IsEffectApplicable()
     {
-        // Only aplicable after a 4D or greater maneuver
-        return true;
+        FormatterCardRepresentation card = _player.GetLastCardPlayed();
+        Card cardInObjectForm = card.CardInObjectFormat!;
+        return card.Type == "MANEUVER" && cardInObjectForm.NetDamage >= 4;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)

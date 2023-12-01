@@ -24,6 +24,9 @@ public class PlayerDecksCollections
     private CardRepresentationListCollection? _reversalCardsInHand;
     private FormatterCardRepresentation _cardPlayedByOpponent;
     private ICardTypeStrategy? _cardTypeStrategyPlayedByOpponent;
+    private FormatterCardRepresentation _cardPlayed;
+    private ICardTypeStrategy? _cardTypeStrategyPlayed;
+    
     private readonly CardsStrategiesFactory _factory;
     private readonly Game _game;
     private readonly Player _player;
@@ -53,6 +56,7 @@ public class PlayerDecksCollections
         _game = game;
         _player = player;
         _cardPlayedByOpponent = new FormatterCardRepresentation();
+        _cardPlayed = new FormatterCardRepresentation();
     }
     
     public void CheckIfHaveValidDeckWhenYouAddCard(Card cardToAdd)
@@ -174,7 +178,7 @@ public class PlayerDecksCollections
     {
         foreach (var type in card.Types!)
         {
-            if (type == ReversalCardType || !CheckIfValidHibridCardType(card, type)) continue;
+            if (type == ReversalCardType || !CheckSpecificConditions(card, type)) continue;
             var formaterPlayableCardInfo = Formatter.PlayToString(
                 new FormatterPlayableCardInfo(card, type.ToUpper()));
             _playeablesCardsInHandInStringListFormat!.Add(formaterPlayableCardInfo);
@@ -186,13 +190,26 @@ public class PlayerDecksCollections
             });
         }
     }
+    
+    private bool CheckSpecificConditions(Card card, string type)
+    {
+        _cardTypeStrategyPlayed = _factory.BuildCard(card, type.ToUpper());
+        bool isEffectApplicable = _cardTypeStrategyPlayed.IsEffectApplicable();
+        return card.Title switch
+        {
+            "Undertaker's Tombstone Piledriver" => CheckIfValidHibridCardType(card, type),
+            "Lionsault" => isEffectApplicable,
+            "Austin Elbow Smash" => isEffectApplicable,
+            "Spit At Opponent" => isEffectApplicable,
+            _ => true
+        };
+    }
 
     private bool CheckIfValidHibridCardType(Card card, string type)
     {
-        bool isItHibridCard = card.Title == HibridCard;
         bool isValidAsAction = type == CardPlayAsAction && GetFortitude() >= 0;
         bool isValidAsManeuver = type == ManeuverCardType && GetFortitude() >= long.Parse(card.Fortitude);
-        return !isItHibridCard || (isValidAsAction || isValidAsManeuver);
+        return isValidAsAction || isValidAsManeuver;
     }
     
     public CardRepresentationListCollection? MakeAListOfReversalCardsOnCardFormat()
@@ -210,8 +227,15 @@ public class PlayerDecksCollections
     public void SetTheCardPlayedByOpponent(FormatterCardRepresentation card)
     {
         _cardPlayedByOpponent = card;
-        if (card.CardInObjectFormat == null) return;
+        if (card.Type == null) return;
         _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card.CardInObjectFormat!, card.Type!.ToUpper());
+    }
+    
+    public void SetCardPlayed(FormatterCardRepresentation card)
+    {
+        _cardPlayed = card;
+        if (card.Type == null) return;
+        _cardTypeStrategyPlayed = _factory.BuildCard(card.CardInObjectFormat!, card.Type!.ToUpper());
     }
     
     public void TryReversalFromMaze(Card card, int remainingDamage)
@@ -229,6 +253,15 @@ public class PlayerDecksCollections
         ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy!;
         if (!cardTypeStrategy.IsEffectApplicable()) return;
         cardTypeStrategy.PerformEffect(cardFormatter, opponent);
+    }
+    
+    public bool PerformAction(Card card, Player opponent)
+    {
+        FormatterCardRepresentation cardFormatter = CreateCardFormatter(card, CardPlayAsAction);
+        ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy!;
+        if (!cardTypeStrategy.IsEffectApplicable()) return false;
+        cardTypeStrategy.PerformEffect(cardFormatter, opponent);
+        return true;
     }
 
     private void CleanDataAfterReversalFromMaze()
@@ -276,6 +309,8 @@ public class PlayerDecksCollections
     private bool CheckReversalOfTheCardPlayedByTheOpponent(Card card)
     {
         _cardTypeStrategyPlayedByOpponent = _factory.BuildCard(card, ReversalCardType.ToUpper());
+        if (CheckIfIsNonReversalCard()) return false;
+        
         bool isReversal = _cardPlayedByOpponent != null;
         bool isReversal2 = _cardTypeStrategyPlayedByOpponent != null;
         
@@ -291,6 +326,22 @@ public class PlayerDecksCollections
                       GetFortitude() >= int.Parse(card.Fortitude) + fortitude &&
                       CheckIfIsReversal(card);
         return isReversal2;
+    }
+
+    private bool CheckIfIsNonReversalCard()
+    {
+        FormatterCardRepresentation cardPlayed = GetLastCardPlayedByOpponent();
+        Card card = cardPlayed.CardInObjectFormat!;
+        if (cardPlayed.Type == null) return false;
+        switch (card.Title)
+        {
+            case "Tree of Woe":
+                return true;
+            case "Austin Elbow Smash":
+                return true;
+            default:
+                return false;
+        }
     }
     
     private bool CheckIfIsReversal(Card card)
@@ -360,6 +411,7 @@ public class PlayerDecksCollections
     
     public void MoveCardBetweenDecks(Card card, Tuple<CardSetFull, CardSetFull> cardsFromTo)
     {
+
         DeckListCollection deckFrom = ChooseDeck(cardsFromTo.Item1);
         DeckListCollection deckTo = ChooseDeck(cardsFromTo.Item2);
         RemoveCardFromDeck(card, deckFrom);
@@ -426,5 +478,10 @@ public class PlayerDecksCollections
     public FormatterCardRepresentation GetLastCardPlayedByOpponent()
     {
         return _cardPlayedByOpponent;
+    }
+    
+    public FormatterCardRepresentation GetLastCardPlayed()
+    {
+        return _cardPlayed;
     }
 }

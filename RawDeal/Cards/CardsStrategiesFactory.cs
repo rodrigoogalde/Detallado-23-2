@@ -1,5 +1,4 @@
 using RawDeal.Cards.Maneuver;
-using RawDeal.Cards.Maneuver.Simple;
 using RawDeal.Cards.Reversal.General;
 using RawDeal.Cards.Reversal.WithoutEffects;
 using RawDeal.Cards.Type.Action;
@@ -50,7 +49,7 @@ public class CardsStrategiesFactory
             "Ankle Lock" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
             "Arm Bar" => new PlayerDiscardCardFromHisHand(_view, _player, 1),
             "Arm Drag" => new PlayerDiscardCardFromHisHand(_view, _player, 1),
-            "Austin Elbow Smash" => null!, // TODO: Check this
+            "Austin Elbow Smash" => new AustinElbowSmash(_view, _player),
             "Bear Hug" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
             "Boston Crab" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
             "Bulldog" => new Bulldog(_view, _player),
@@ -74,8 +73,8 @@ public class CardsStrategiesFactory
             "Spinning Heel Kick" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
             "Standing Side Headlock" => new OpponentDrawCards(_view, _player, 1),
             "Torture Rack" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Tree of Woe" => new OpponentsDiscardsCardsFromHand(_view, _player, 1), // TODO: Check this
-            _ => new NoManeuverEffect()
+            "Tree of Woe" => new OpponentsDiscardsCardsFromHand(_view, _player, 2),
+            _ => new NoEffectStrategy()
         };
         return strategy;
     }
@@ -90,7 +89,7 @@ public class CardsStrategiesFactory
             "Puppies! Puppies!" => new Puppies(_view, _player, 5, 2),
             "Recovery" => new Recovery(_view, _player, 2, 1),
             "Spit At Opponent" => new SpitAtOpponent(_view, _player),
-            _ => new NoManeuverEffect()
+            _ => new NoEffectActionStrategy(_view, _player)
         };
         return strategy;
     }
@@ -111,7 +110,7 @@ public class CardsStrategiesFactory
             "Jockeying for Position" => new JockeyingForPosition(_view, _player),
             "Rolling Takedown" => new RollingTakedown(_view, _player),
             "Step Aside" => new StepAside(_view, _player),
-            _ => new NoManeuverEffect()
+            _ => new NoEffectStrategy()
         };
         return strategy;
     }

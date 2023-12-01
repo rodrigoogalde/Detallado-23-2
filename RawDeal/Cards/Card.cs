@@ -10,6 +10,7 @@ public class Card
     public string? CardEffect;
     public string? Damage;
     public int DamageValue;
+    public int NetDamage;
     public bool IsHisDamageWithEffect;
     
     private const string CardPlayAsAction = "Action";
@@ -23,6 +24,7 @@ public class Card
         Title = title;
         _loaderCardInfo.LoadCardData(this);
         DamageValue = Damage == "#" ? 0 : int.Parse(Damage!);
+        NetDamage = DamageValue;
     }
     
     public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)

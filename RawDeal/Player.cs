@@ -125,14 +125,10 @@ public class Player
         _decksCollections.PerformManeuver(cardToPlay, opponent);
     }
     
-    public void PlayCardAsAction(Card cardToPlay)
+    public void PlayCardAsAction(Card cardToPlay, Player opponent)
     {   
         if (CheckIfJockeyForPositionIsPlayed(cardToPlay)) return; 
-        _view.SayThatPlayerMustDiscardThisCard(SuperStar.Name!, cardToPlay.Title);
-        DrawCard();
-        _view.SayThatPlayerDrawCards(SuperStar.Name!, 1);
-        _decksCollections.MoveCardBetweenDecks(cardToPlay,
-            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingsidePile));
+        if (!_decksCollections.PerformAction(cardToPlay, opponent)) return;
     }
     
     public bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)
@@ -207,6 +203,11 @@ public class Player
         _decksCollections.SetTheCardPlayedByOpponent(card);
     }
     
+    public void SetCardPlayed(FormatterCardRepresentation card)
+    {
+        _decksCollections.SetCardPlayed(card);
+    }
+    
     public void MoveCardFromRingsideToArsenalWithIndex(int index)
     {
         _decksCollections.MoveCardBetweenDecks(_decksCollections.GetRingsideDeck()[index],
@@ -272,6 +273,11 @@ public class Player
         return _decksCollections.GetLastCardPlayedByOpponent();
     }
     
+    public FormatterCardRepresentation GetLastCardPlayed()
+    {
+        return _decksCollections.GetLastCardPlayed();
+    }
+    
     public SelectedEffectFull GetOptionChoosedForJockeyingForPosition()
     {
         return _optionChoosedForJockeyingForPosition;
@@ -280,6 +286,7 @@ public class Player
     public void CleanDataFromPastTurn(bool isPlayerReversedCardWithJockeyingForPosition)
     {
         SetTheCardPlayedByOpponent(new FormatterCardRepresentation());
+        SetCardPlayed(new FormatterCardRepresentation());
         if (isPlayerReversedCardWithJockeyingForPosition) return;
         _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
     }
