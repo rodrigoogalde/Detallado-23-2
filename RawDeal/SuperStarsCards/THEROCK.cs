@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Effects;
 using RawDeal.Options;
 using RawDealView;
 using RawDealView.Options;
@@ -40,8 +41,7 @@ public class Therock: SuperStar
     {
         const int cardsToRecover = 1;
         GameView.SayThatPlayerIsGoingToUseHisAbility(SuperCard.Name, SuperCard.SuperstarAbility!);
-        int indexCardsToRecover = GameView.AskPlayerToSelectCardsToRecover(SuperCard.Name, cardsToRecover,
-            Player.TransformMazeToStringFormat(CardSetFull.RingsidePile).ToList());
-        Player.MoveCardFromRingsideToArsenalWithIndex(indexCardsToRecover);
+        ShuffleCardsFromRingsideToArsenal shuffleCardsFromRingsideToArsenal = new(GameView, Player, cardsToRecover);
+        shuffleCardsFromRingsideToArsenal.Execute();
     }
 }

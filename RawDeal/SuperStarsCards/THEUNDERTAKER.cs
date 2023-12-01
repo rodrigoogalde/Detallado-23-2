@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Effects;
 using RawDeal.Options;
 using RawDealView;
 using RawDealView.Options;
@@ -21,16 +22,14 @@ public class Theundertaker: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        for (int i = 2 ; i > 0 ; i--) TheUndertakerDiscardCards(i);
+        TheUndertakerDiscardCards();
         TheUndertakerTakeCardsFromRingside();
     }
     
-    private void TheUndertakerDiscardCards(int totalCardsToDiscard)
+    private void TheUndertakerDiscardCards()
     {
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            Player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
-            SuperCard.Name, SuperCard.Name, totalCardsToDiscard);
-        Player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
+        DiscardCardFromHand discardCardFromHand = new(GameView, Player, 2);
+        discardCardFromHand.Execute();
     }
     
     private void TheUndertakerTakeCardsFromRingside()

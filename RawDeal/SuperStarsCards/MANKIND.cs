@@ -29,7 +29,9 @@ public class Mankind: SuperStar
     {
         return Player.TransformMazeToStringFormat(CardSetFull.Arsenal).Count >= OneCard;
     }
-    
+
     public override bool IsManKind()
-    { return true; }
+    {
+        return true;
+    }
 }
