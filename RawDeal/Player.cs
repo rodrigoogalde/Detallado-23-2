@@ -87,9 +87,9 @@ public class Player
         }
     }
     
-    public void DrawCard()
+    public bool DrawCard()
     {
-        _decksCollections.AddCardToHandFromArsenal();
+        return _decksCollections.AddCardToHandFromArsenal();
     }
 
     public StringListCollection TransformMazeToStringFormat(CardSetFull cardSet)
@@ -107,6 +107,11 @@ public class Player
         return _decksCollections.MakeAListOfReversalCardsInStringFormat();
     }
 
+    public DeckListCollection GetHandCards()
+    {
+        return _decksCollections.GetHandCards();
+    }
+
     public CardRepresentationListCollection? GimeMeReversalCardsInCardFormat()
     {
         return _decksCollections.MakeAListOfReversalCardsOnCardFormat();
@@ -117,8 +122,7 @@ public class Player
     {
         _decksCollections.MoveCardBetweenDecks(cardToPlay, 
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.RingArea));
-        // _decksCollections.PerformManeuver(cardToPlay, opponent);
-        
+        _decksCollections.PerformManeuver(cardToPlay, opponent);
     }
     
     public void PlayCardAsAction(Card cardToPlay)

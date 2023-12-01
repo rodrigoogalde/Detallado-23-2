@@ -117,11 +117,13 @@ public class PlayerDecksCollections
         if (_cardsInArsenal.Count != MaxDeckSize) throw new InvalidDeckException();
     }
 
-    public void AddCardToHandFromArsenal()
+    public bool AddCardToHandFromArsenal()
     {
+        if (_cardsInArsenal.Count == EmptyDeck) return false;
         Card card = _cardsInArsenal.Last();
         _cardsInHand.Add(card);
         _cardsInArsenal.Remove(card);
+        return true;
     }
     
     public StringListCollection ChooseWhichMazeOfCardsTransformToStringFormat(CardSetFull cardSet)
@@ -216,6 +218,7 @@ public class PlayerDecksCollections
     {
         FormatterCardRepresentation cardFormatter = CreateCardFormatter(card, ManeuverCardType);
         ICardTypeStrategy cardTypeStrategy = cardFormatter.CardTypeStrategy!;
+        if (!cardTypeStrategy.IsEffectApplicable()) return;
         cardTypeStrategy.PerformEffect(cardFormatter, opponent);
     }
 

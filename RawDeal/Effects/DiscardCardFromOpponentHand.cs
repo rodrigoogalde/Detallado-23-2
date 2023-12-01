@@ -24,6 +24,7 @@ public class DiscardCardFromOpponentHand: IEffect
     {
         for (var i = _totalCardsToDiscard; 0 < i; i--)
         {
+            if (_player.GetHandCards().Count == 0) return;
             var indexCardToDiscard = _view.AskPlayerToSelectACardToDiscard(
                 _player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
                 _superCard.Name, _superCard.Name, i);

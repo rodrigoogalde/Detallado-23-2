@@ -1,8 +1,9 @@
+using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Maneuver.Simple;
+namespace RawDeal.Cards.Type.Maneuver.Simple;
 
 public class GuillotineStretch: ICardManeuverStrategy
 {
