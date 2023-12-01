@@ -30,9 +30,8 @@ public class Bulldog: ICardManeuverStrategy
         DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, _player, 1);
         discardCardFromHand.Execute();
         
-        // TODO discard card from opponent's hand
-        // Revisar si este metodo funciona de la manera esperada
-        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, opponent, 1);
+        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, _player,
+            opponent, 1);
         discardCardFromOpponentHand.Execute();
     }
 }

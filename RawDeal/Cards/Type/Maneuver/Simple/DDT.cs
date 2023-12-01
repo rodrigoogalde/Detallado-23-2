@@ -1,8 +1,9 @@
+using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Maneuver.Simple;
+namespace RawDeal.Cards.Type.Maneuver.Simple;
 
 public class Ddt: ICardManeuverStrategy
 {
@@ -26,9 +27,10 @@ public class Ddt: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        MoveTopCardFromArsenalToRingsidePile moveCard = new MoveTopCardFromArsenalToRingsidePile(_player);
-        moveCard.Execute();
-        DrawCard drawCard = new DrawCard(opponent, _view, 2);
-        drawCard.Execute();
+        RecieveCollateralDamage recieveCollateralDamage = new RecieveCollateralDamage(_view, _player);
+        recieveCollateralDamage.Execute();
+        DiscardCardFromHand discardCard = new DiscardCardFromHand(_view, opponent, 2);
+        discardCard.Execute();    
+
     }
 }

@@ -18,7 +18,14 @@ public class DrawCard: IEffect
     public void Execute()
     {
         SuperStar superStar = _player.SuperStar;
-        for (int i = 0; i < _totalCardsToDraw; i++) _player.DrawCard();
-        _view.SayThatPlayerDrawCards(superStar.Name!, _totalCardsToDraw);
+        int cardsDrawn = 0;
+        for (int i = 0; i < _totalCardsToDraw; i++)
+        {
+            if (_player.DrawCard())
+            {
+                cardsDrawn += 1;
+            }
+        }
+        _view.SayThatPlayerDrawCards(superStar.Name!, cardsDrawn);
     }
 }

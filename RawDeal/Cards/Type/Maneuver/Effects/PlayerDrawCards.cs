@@ -1,16 +1,22 @@
+using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
+using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Maneuver;
+namespace RawDeal.Cards.Type.Maneuver.Effects;
 
 public class PlayerDrawCards : ICardManeuverStrategy
 {
-    private IEffect _effect;
+    private readonly View _view;
+    private readonly Player _player;
+    private readonly SuperStar _superStar;
     
-    public PlayerDrawCards(View view, Player player, int cardsToDiscard)
+    public PlayerDrawCards(View view, Player player)
     {
-        _effect = new DrawCard(player, view, cardsToDiscard);
+        _view = view;
+        _player = player;
+        _superStar = _player.SuperStar;
     }
     public bool IsEffectApplicable()
     {
@@ -24,6 +30,8 @@ public class PlayerDrawCards : ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        _effect.Execute();
+        int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superStar.Name!, 1);
+        DrawCard drawCards = new DrawCard(_player, _view, cardsToDiscard);
+        drawCards.Execute();
     }
 }

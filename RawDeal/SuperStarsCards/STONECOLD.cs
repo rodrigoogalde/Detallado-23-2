@@ -24,7 +24,6 @@ public class Stonecold: SuperStar
 
     public override void UseAbilityOncePerTurn()
     {
-        throw new NotImplementedException();
     }
 
     public override void UseAbility(Player playerOnWait)

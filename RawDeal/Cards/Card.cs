@@ -10,10 +10,12 @@ public class Card
     public string? CardEffect;
     public string? Damage;
     public int DamageValue;
+    public int NetDamage;
     public bool IsHisDamageWithEffect;
     
     private const string CardPlayAsAction = "Action";
     private const string CardPlayAsManeuver = "Maneuver";
+    private const string HibridCard = "Undertaker's Tombstone Piledriver";
     
     private readonly LoaderCardInfo _loaderCardInfo = new();
     
@@ -22,6 +24,7 @@ public class Card
         Title = title;
         _loaderCardInfo.LoadCardData(this);
         DamageValue = Damage == "#" ? 0 : int.Parse(Damage!);
+        NetDamage = DamageValue;
     }
     
     public bool CheckIfHaveAnotherLogo(SuperCardInfo superCard)
@@ -39,8 +42,18 @@ public class Card
 
     public bool IsPlayeableCard(int fortitude)
     {
-        return (Types!.Contains(CardPlayAsManeuver) || Types.Contains(CardPlayAsAction)) 
-               && fortitude >= long.Parse(Fortitude) ;
+        bool isManeuverOrAction = Types!.Contains(CardPlayAsManeuver) || Types.Contains(CardPlayAsAction);
+        bool isValidHibridCard = CheckIfIsValidHibridCard(fortitude);
+        bool isValidCard = !isValidHibridCard ? fortitude >= int.Parse(Fortitude) : isValidHibridCard;
+        return isManeuverOrAction && isValidCard;
+    }
+
+    private bool CheckIfIsValidHibridCard(int fortitude)
+    {
+        bool isItHibridCard = Title == HibridCard;
+        bool isValidAsAction = fortitude >= 0;
+        bool isValidAsManeuver = fortitude >= long.Parse(Fortitude);
+        return isItHibridCard && (isValidAsAction || isValidAsManeuver);
     }
     
     public bool CanBeUsedAsReversal(int fortitude, string usedAs)

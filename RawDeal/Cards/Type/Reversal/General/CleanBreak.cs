@@ -1,8 +1,9 @@
+using RawDeal.Cards.Reversal;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal.General;
+namespace RawDeal.Cards.Type.Reversal.General;
 
 public class CleanBreak: ICardReversalStrategy
 {
@@ -37,8 +38,8 @@ public class CleanBreak: ICardReversalStrategy
     {
         Reverse reverse = new Reverse(_view, _player, card);
         reverse.Execute();
-        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, opponent, 4);
-        discardCardFromOpponentHand.Execute();
+        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, 4);
+        discardCardFromHand.Execute();
         DrawCard drawCard = new DrawCard(_player, _view, 1);
         drawCard.Execute();
     }

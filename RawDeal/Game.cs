@@ -133,7 +133,8 @@ public class Game
             e.ReversalFromDeckMessage(_view, _playerOnTurn, _playerWaiting.SuperStar);
             _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
         }
-        catch (ReversalFromHandException e) { }
+        catch (ReversalFromHandException) { }
+        catch (PlayerLosesDueToSelfDamage) { }
     }
 
     private void LoopUntilPlayerEndsHisTurn()
@@ -227,16 +228,18 @@ public class Game
     private void PlayerChooseToPlayACard()
     {
         _cardChoseenInBothFormats = _playerOnTurn.CheckWhichCardWillBePlayed(_optionCardChoosed);
-        SetCardPlayedByOpponent();
+        SetCardPlayed();
         CheckIfPlayerCanReverseTheCardPlayed();
         _view.SayThatPlayerSuccessfullyPlayedACard();
         CheckPlayModeOfTheCardPlayed();
     }
     
-    private void SetCardPlayedByOpponent()
+    private void SetCardPlayed()
     {
         ModifyCardByJockeyingForPositionEffect(_cardChoseenInBothFormats!.CardInObjectFormat!);
         _playerWaiting.SetTheCardPlayedByOpponent(_cardChoseenInBothFormats!);
+        _playerOnTurn.SetCardPlayed(_cardChoseenInBothFormats);
+        CalculateDamage(_cardChoseenInBothFormats!.CardInObjectFormat!);
     }
     
     private void ModifyCardByJockeyingForPositionEffect(Card card)
@@ -299,7 +302,7 @@ public class Game
     {
         Card card = _cardChoseenInBothFormats!.CardInObjectFormat!;
         if (_cardChoseenInBothFormats.CardInStringFormat!.Contains(ActionCardType.ToUpper())) {
-            _playerOnTurn.PlayCardAsAction(card);
+            _playerOnTurn.PlayCardAsAction(card, _playerWaiting);
         }
         else {
             CardPlayedAsManeuver(card);
@@ -309,13 +312,20 @@ public class Game
     private void CardPlayedAsManeuver(Card card)
     {
         _playerOnTurn.PlayCardAsManeuver(card, _playerWaiting);
-        PlayerWaitingTakeDamage(card.DamageValue);
+        CalculateDamage(card);
+        PlayerWaitingTakeDamage(card.NetDamage);
         ResetCardJockeyingForPositionEffects();
+    }
+
+    private void CalculateDamage(Card card)
+    {
+        int damage = card.DamageValue;
+        damage = IsDamageReducedForManKind(_superStarWaiting) ? damage - MaindKindDamageReduction : damage;
+        card.NetDamage = damage;
     }
 
     private void PlayerWaitingTakeDamage(int damage)
     {
-        damage = IsDamageReducedForManKind(_superStarWaiting) ? damage - MaindKindDamageReduction : damage;
         if (damage == 0) { return; }
         _view.SayThatSuperstarWillTakeSomeDamage(_superStarWaiting.Name!, damage);
         _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack = _playerWaiting.TakeDamage(damage);

@@ -71,7 +71,7 @@ public abstract class ListCollection<T> : ICollection<T>
 
     private void CheckIfIndexIsValid(int index)
     {
-        if (index < 0 || index >= Count)
+        if (index < 0 || Count < index)
         {
             throw new IndexOutOfRangeException("Index is out of range.");
         }

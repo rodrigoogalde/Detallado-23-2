@@ -1,8 +1,9 @@
+using RawDeal.Cards.Reversal;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal.General;
+namespace RawDeal.Cards.Type.Reversal.General;
 
 public class ElbowToTheFace: ICardReversalStrategy
 {
@@ -25,7 +26,7 @@ public class ElbowToTheFace: ICardReversalStrategy
         FormatterCardRepresentation card = player.GetLastCardPlayedByOpponent();
         Card cardInObjectFormat = card.CardInObjectFormat!;
         return card.Type == "MANEUVER" &&
-               cardInObjectFormat.DamageValue <= 7;
+               cardInObjectFormat.NetDamage <= 7;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)

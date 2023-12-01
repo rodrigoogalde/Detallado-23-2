@@ -22,10 +22,9 @@ public class ShuffleCardsFromRingsideToArsenal: IEffect
     
     public void Execute()
     {
-        for (int i = 0; i < _totalCardsToShuffle; i++)
+        for (int i = _totalCardsToShuffle; i > 0; i--)
         {
-            _view.SayThatPlayerIsGoingToUseHisAbility(_superCard.Name, _superCard.SuperstarAbility!);
-            int indexCardsToRecover = _view.AskPlayerToSelectCardsToRecover(_superCard.Name, _totalCardsToShuffle,
+            int indexCardsToRecover = _view.AskPlayerToSelectCardsToRecover(_superCard.Name, i,
                 _player.TransformMazeToStringFormat(CardSetFull.RingsidePile).ToList());
             _player.MoveCardFromRingsideToArsenalWithIndex(indexCardsToRecover);
         }
