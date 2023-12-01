@@ -32,10 +32,6 @@ public abstract class SuperStar
     {
     }
 
-    public virtual void UseAbilityOncePerTurn()
-    {
-    }
-
     public abstract void UseAbility(Player playerOnWait);
 
     public virtual bool CanSteelMoreThanOneCard()
@@ -43,8 +39,4 @@ public abstract class SuperStar
         return false;
     }
 
-    public virtual bool IsManKind()
-    {
-        return false;
-    }
 }

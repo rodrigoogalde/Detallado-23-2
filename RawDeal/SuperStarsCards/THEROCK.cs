@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Collections;
 using RawDeal.Effects;
 using RawDeal.Options;
 using RawDealView;
@@ -28,7 +29,8 @@ public class Therock: SuperStar
 
     public override void UseAbilityBeforeDrawing(Player playerOnWait)
     {
-        if (Player.TransformMazeToStringFormat(CardSetFull.RingsidePile).Count > NoCards) 
+        StringListCollection cardsInRingside = Player.TransformMazeToStringFormat(CardSetFull.RingsidePile);
+        if (cardsInRingside.Count > NoCards) 
             AskPlayerIfHeWantsToUseTheRockAbility();
     }
 

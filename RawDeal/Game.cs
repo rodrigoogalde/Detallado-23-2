@@ -333,7 +333,7 @@ public class Game
     
     private bool IsDamageReducedForManKind(SuperStar superstar)
     {
-        return superstar.IsManKind();
+        return superstar.Name!.ToUpper() == "MANKIND";
     }
 
     private bool GameHasWinner()

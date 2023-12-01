@@ -34,8 +34,8 @@ public class Damager: IEffect
     public void Execute()
     {
         bool isDamageWildcard = _reversalCard.Damage == "#";
-        bool shouldApplyMankindReduction = _superStarDamager.IsManKind() || 
-                                           (_superStarReverser.IsManKind() && isDamageWildcard);
+        bool shouldApplyMankindReduction = _superStarDamager.Name!.ToUpper() == "MANKIND" || 
+                                           (_superStarReverser.Name!.ToUpper() == "MANKIND" && isDamageWildcard);
 
         int effectiveDamageValue = isDamageWildcard ? _damagerCard.DamageValue : _reversalCard.DamageValue;
         _damage = effectiveDamageValue - (shouldApplyMankindReduction ? MaindKindDamageReduction : 0);
