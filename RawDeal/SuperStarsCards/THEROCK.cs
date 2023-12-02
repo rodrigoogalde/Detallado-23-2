@@ -3,7 +3,6 @@ using RawDeal.Collections;
 using RawDeal.Effects;
 using RawDeal.Options;
 using RawDealView;
-using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 
