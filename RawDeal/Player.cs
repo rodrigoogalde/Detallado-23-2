@@ -1,5 +1,4 @@
 using RawDeal.Cards;
-using RawDeal.Cards.Reversal;
 using RawDeal.Collections;
 using RawDeal.Decks;
 using RawDeal.Options;
@@ -14,24 +13,22 @@ namespace RawDeal;
 
 public class Player
 {
+    public SuperStar SuperStar;
     private readonly View _view;
     private readonly Game _game;
-    public SuperStar SuperStar;
     private int _indexCardToDiscard;
     private PlayerDecksCollections _decksCollections;
     private readonly string? _pathDeck;
     private readonly CardsStrategiesFactory _factory;
-    private int _fortitude;
     private SelectedEffectFull _optionChoosedForJockeyingForPosition = SelectedEffectFull.None;
-    public CardSetFull LastCardPlayedFromDeck { get; set; }
-    private const string ManeuverCardType = "Maneuver";
+    private CardSetFull _lastCardPlayedFromDeck;
 
     public Player(string pathDeck, View view, Game game)
     {
         _pathDeck = pathDeck;
         _view = view;
         _game = game;
-        _factory = new CardsStrategiesFactory(_view, this, _game);
+        _factory = new CardsStrategiesFactory(_view, this);
         SetUpDeck();
     }
 
@@ -216,7 +213,7 @@ public class Player
     
     public bool CanReverseTheCardPlayed()
     {
-        LastCardPlayedFromDeck = CardSetFull.Hand;
+        _lastCardPlayedFromDeck = CardSetFull.Hand;
         return _decksCollections.PlayerHasAllConditionsToPlayReversalFromHand();
     }
     
@@ -253,13 +250,6 @@ public class Player
             new Tuple<CardSetFull, CardSetFull>(CardSetFull.Hand, CardSetFull.Arsenal));
     }
     
-    public void MoveTopCardFromArsenalToRingSide()
-    {
-        Card card = _decksCollections.GetArsenalDeck().Last();
-        _decksCollections.MoveCardBetweenDecks(card,
-            new Tuple<CardSetFull, CardSetFull>(CardSetFull.Arsenal, CardSetFull.RingsidePile));
-    }
-    
     public PlayerInfo GetPlayerInfo()
     {
         SuperCardInfo superCardInfo = SuperStar.SuperCard;
@@ -281,6 +271,16 @@ public class Player
     public SelectedEffectFull GetOptionChoosedForJockeyingForPosition()
     {
         return _optionChoosedForJockeyingForPosition;
+    }
+    
+    public CardSetFull GetLastCardPlayedFromDeck()
+    {
+        return _lastCardPlayedFromDeck;
+    }
+    
+    public void SetLastCardPlayedFromDeck(CardSetFull cardSet)
+    {
+        _lastCardPlayedFromDeck = cardSet;
     }
     
     public void CleanDataFromPastTurn(bool isPlayerReversedCardWithJockeyingForPosition)

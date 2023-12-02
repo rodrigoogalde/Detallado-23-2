@@ -4,14 +4,14 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class ShuffleCardsFromRingsideToArsenal: IEffect
+public class DeckShufflingEffect: IEffect
 {
     private readonly View _view;
     private readonly Player _player;
     private readonly int _totalCardsToShuffle;
     private readonly SuperCardInfo _superCard;
     
-    public ShuffleCardsFromRingsideToArsenal(View view, Player player, int totalCardsToShuffle)
+    public DeckShufflingEffect(View view, Player player, int totalCardsToShuffle)
     {
         _view = view;
         _player = player;

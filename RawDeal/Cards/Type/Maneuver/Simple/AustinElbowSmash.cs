@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
@@ -7,12 +6,10 @@ namespace RawDeal.Cards.Type.Maneuver.Simple;
 
 public class AustinElbowSmash: ICardManeuverStrategy
 {
-    private readonly View _view;
     private readonly Player _player;
     
-    public AustinElbowSmash(View view, Player player)
+    public AustinElbowSmash(Player player)
     {
-        _view = view;
         _player = player;
     }
     
@@ -25,7 +22,6 @@ public class AustinElbowSmash: ICardManeuverStrategy
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)
     {
-        PerformManeuver(opponent);
     }
 
     public void PerformManeuver(Player opponent)

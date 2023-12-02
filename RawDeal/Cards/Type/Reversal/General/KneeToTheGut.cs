@@ -1,8 +1,9 @@
+using RawDeal.Cards.Reversal;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal.General;
+namespace RawDeal.Cards.Type.Reversal.General;
 
 public class KneeToTheGut: ICardReversalStrategy
 {
@@ -35,7 +36,7 @@ public class KneeToTheGut: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
-        ReverseAndDamage reverseAndDamage = new ReverseAndDamage(_view, _player, opponent, card);
-        reverseAndDamage.Execute();
+        DamageReversalEffect damageReversalEffect = new DamageReversalEffect(_view, _player, opponent, card);
+        damageReversalEffect.Execute();
     }
 }

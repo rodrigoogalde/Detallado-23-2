@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Exceptions;
 using RawDeal.SuperStarsCards;
@@ -31,10 +30,10 @@ public class FishermansSuplex: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        RecieveCollateralDamage recieveCollateralDamage = new RecieveCollateralDamage(_view, _player);
-        recieveCollateralDamage.Execute();
+        CollateralDamageEffect collateralDamageEffect = new CollateralDamageEffect(_view, _player);
+        collateralDamageEffect.Execute();
         int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superStar.Name!, 1);
-        DrawCard drawCards = new DrawCard(_player, _view, cardsToDiscard);
-        drawCards.Execute();
+        DrawCardEffect drawCardsEffect = new DrawCardEffect(_player, _view, cardsToDiscard);
+        drawCardsEffect.Execute();
     }
 }

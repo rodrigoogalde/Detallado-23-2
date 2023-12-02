@@ -33,7 +33,7 @@ public class NoEffectActionStrategy: ICardActionStrategy
     {
         _player.MoveCardFromHandToRingside(_card!);
         _view.SayThatPlayerMustDiscardThisCard(_superStar.Name!, _card!.Title);
-        DrawCard drawCard = new DrawCard(_player, _view, 1);
-        drawCard.Execute();
+        DrawCardEffect drawCardEffect = new DrawCardEffect(_player, _view, 1);
+        drawCardEffect.Execute();
     }
 }

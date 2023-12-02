@@ -36,11 +36,11 @@ public class CleanBreak: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
-        Reverse reverse = new Reverse(_view, _player, card);
-        reverse.Execute();
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, 4);
-        discardCardFromHand.Execute();
-        DrawCard drawCard = new DrawCard(_player, _view, 1);
-        drawCard.Execute();
+        ReversalEffect reversalEffect = new ReversalEffect(_view, _player, card);
+        reversalEffect.Execute();
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, opponent, 4);
+        handDiscardEffect.Execute();
+        DrawCardEffect drawCardEffect = new DrawCardEffect(_player, _view, 1);
+        drawCardEffect.Execute();
     }
 }

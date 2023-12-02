@@ -4,7 +4,7 @@ namespace RawDeal.Exceptions;
 
 public class ReversalFromDeckException: Exception
 {
-    private int _stunValue;
+    private readonly int _stunValue;
     private View _view;
     private Player _playerOnTurn;
     

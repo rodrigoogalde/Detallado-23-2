@@ -1,10 +1,8 @@
-using RawDeal.Cards.Maneuver;
-using RawDeal.Cards.Reversal.General;
-using RawDeal.Cards.Reversal.WithoutEffects;
 using RawDeal.Cards.Type.Action;
 using RawDeal.Cards.Type.Maneuver.Effects;
 using RawDeal.Cards.Type.Maneuver.Simple;
 using RawDeal.Cards.Type.Reversal.General;
+using RawDeal.Cards.Type.Reversal.WithoutEffects;
 using RawDeal.Options;
 using RawDeal.SuperStarsCards;
 using RawDealView;
@@ -15,15 +13,13 @@ public class CardsStrategiesFactory
 {
     private readonly View _view;
     private readonly Player _player;
-    private readonly Game _game;
     private const string CardPlayAsAction = "ACTION";
     private const string ReversalCardType = "REVERSAL";
     private const string ManeuverCardType = "MANEUVER";
-    public CardsStrategiesFactory(View view, Player player, Game game)
+    public CardsStrategiesFactory(View view, Player player)
     {
         _view = view;
         _player = player;
-        _game = game;
     }
     
     public ICardTypeStrategy BuildCard(Card card, string type)
@@ -46,34 +42,34 @@ public class CardsStrategiesFactory
         string cardTitle = card.Title;
         ICardTypeStrategy strategy = cardTitle switch
         {
-            "Ankle Lock" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Arm Bar" => new PlayerDiscardCardFromHisHand(_view, _player, 1),
-            "Arm Drag" => new PlayerDiscardCardFromHisHand(_view, _player, 1),
-            "Austin Elbow Smash" => new AustinElbowSmash(_view, _player),
-            "Bear Hug" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Boston Crab" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
+            "Ankle Lock" => new OpponentDiscardCardExecutor(_view, 1),
+            "Arm Bar" => new DiscardCardExecutor(_view, _player, 1),
+            "Arm Drag" => new DiscardCardExecutor(_view, _player, 1),
+            "Austin Elbow Smash" => new AustinElbowSmash(_player),
+            "Bear Hug" => new OpponentDiscardCardExecutor(_view, 1),
+            "Boston Crab" => new OpponentDiscardCardExecutor(_view, 1),
             "Bulldog" => new Bulldog(_view, _player),
-            "Chicken Wing" => new PlayerMoveCardFromRingSideToArsenal(_view, _player, 2),
-            "Choke Hold" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
+            "Chicken Wing" => new ShuffleExecutor(_view, _player, 2),
+            "Choke Hold" => new OpponentDiscardCardExecutor(_view, 1),
             "DDT" => new Ddt(_view, _player),
-            "Double Leg Takedown" => new PlayerDrawCards(_view, _player),
-            "Figure Four Leg Lock" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
+            "Double Leg Takedown" => new DrawCardExecutor(_view, _player),
+            "Figure Four Leg Lock" => new OpponentDiscardCardExecutor(_view, 1),
             "Fisherman's Suplex" => new FishermansSuplex(_view, _player),
             "Guillotine Stretch" => new GuillotineStretch(_view, _player),
-            "Head Butt" => new PlayerDiscardCardFromHisHand(_view, _player, 1),
-            "Headlock Takedown" => new OpponentDrawCards(_view, _player, 1),
-            "Kick" => new CollateralDamage(_view, _player),
+            "Head Butt" => new DiscardCardExecutor(_view, _player, 1),
+            "Headlock Takedown" => new OpponentCardDrawExecutor(_view, 1),
+            "Kick" => new CollateralDamageManeuverExecutor(_view, _player),
             "Lionsault" => new Lionsault(_view, _player), 
-            "Power Slam" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
+            "Power Slam" => new OpponentDiscardCardExecutor(_view, 1),
             "Press Slam" => new PressSlam(_view, _player),
-            "Pump Handle Slam" => new OpponentsDiscardsCardsFromHand(_view, _player, 2),
-            "Reverse DDT" => new PlayerDrawCards(_view, _player),
-            "Running Elbow Smash" => new CollateralDamage(_view, _player),
-            "Samoan Drop" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Spinning Heel Kick" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Standing Side Headlock" => new OpponentDrawCards(_view, _player, 1),
-            "Torture Rack" => new OpponentsDiscardsCardsFromHand(_view, _player, 1),
-            "Tree of Woe" => new OpponentsDiscardsCardsFromHand(_view, _player, 2),
+            "Pump Handle Slam" => new OpponentDiscardCardExecutor(_view, 2),
+            "Reverse DDT" => new DrawCardExecutor(_view, _player),
+            "Running Elbow Smash" => new CollateralDamageManeuverExecutor(_view, _player),
+            "Samoan Drop" => new OpponentDiscardCardExecutor(_view, 1),
+            "Spinning Heel Kick" => new OpponentDiscardCardExecutor(_view, 1),
+            "Standing Side Headlock" => new OpponentCardDrawExecutor(_view, 1),
+            "Torture Rack" => new OpponentDiscardCardExecutor(_view, 1),
+            "Tree of Woe" => new OpponentDiscardCardExecutor(_view, 2),
             _ => new NoEffectStrategy()
         };
         return strategy;

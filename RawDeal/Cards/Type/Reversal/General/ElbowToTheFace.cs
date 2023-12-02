@@ -36,7 +36,7 @@ public class ElbowToTheFace: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
-        ReverseAndDamage reverseAndDamage = new ReverseAndDamage(_view, _player, opponent, card);
-        reverseAndDamage.Execute();
+        DamageReversalEffect damageReversalEffect = new DamageReversalEffect(_view, _player, opponent, card);
+        damageReversalEffect.Execute();
     }
 }

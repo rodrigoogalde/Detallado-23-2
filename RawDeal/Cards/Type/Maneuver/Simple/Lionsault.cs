@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
@@ -30,7 +29,7 @@ public class Lionsault: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, 1);
-        discardCardFromHand.Execute();
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, opponent, 1);
+        handDiscardEffect.Execute();
     }
 }

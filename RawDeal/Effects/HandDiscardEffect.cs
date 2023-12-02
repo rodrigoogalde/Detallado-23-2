@@ -4,14 +4,14 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class DiscardCardFromHand: IEffect
+public class HandDiscardEffect: IEffect
 {
     private readonly View _view;
     private readonly Player _player;
     private readonly int _totalCardsToDiscard;
     private readonly SuperCardInfo _superCard;
 
-    public DiscardCardFromHand(View view, Player player, int totalCardsToDiscard)
+    public HandDiscardEffect(View view, Player player, int totalCardsToDiscard)
     {
         _view = view;
         _player = player;

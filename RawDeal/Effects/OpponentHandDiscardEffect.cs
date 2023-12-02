@@ -4,19 +4,17 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class DiscardCardFromOpponentHand: IEffect
+public class OpponentHandDiscardEffect: IEffect
 {
     private readonly View _view;
-    private readonly Player _player;
     private readonly Player _opponent;
     private readonly int _totalCardsToDiscard;
     private readonly SuperCardInfo _superCard;
     private readonly SuperCardInfo _superCardOpponent;
     
-    public DiscardCardFromOpponentHand(View view, Player player, Player opponent, int totalCardsToDiscard)
+    public OpponentHandDiscardEffect(View view, Player player, Player opponent, int totalCardsToDiscard)
     {
         _view = view;
-        _player = player;
         _opponent = opponent;
         _totalCardsToDiscard = totalCardsToDiscard;
         var superStar = player.SuperStar;

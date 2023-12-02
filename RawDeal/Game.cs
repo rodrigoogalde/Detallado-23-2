@@ -30,7 +30,6 @@ public class Game
     private bool _thePlayerRunOutOfArsenalCardsInMiddleOfTheAttack;
     private bool _playerCanUseHisAbility;
     private bool _playerUseHisAbilityInTheTurn;
-    
     private const string ActionCardType = "Action";
 
 
@@ -134,7 +133,7 @@ public class Game
             _playerOnTurn.PlayerLoosesEffectOfJockeyingForPosition();
         }
         catch (ReversalFromHandException) { }
-        catch (PlayerLosesDueToSelfDamage) { }
+        catch (SelfDamageLossException) { }
     }
 
     private void LoopUntilPlayerEndsHisTurn()
@@ -284,13 +283,18 @@ public class Game
         if (!_playerWaiting.CanReverseTheCardPlayed()) return;
         _optionCardChoosed = _view.AskUserToSelectAReversal(_superStarWaiting.Name!,
             _playerWaiting.GimeMeReversalCardsInStringFormat()!.ToList());
-        CheckIfPlayerReversedTheCardPlayedByOpponent();
+        CheckOptionChooseToReverseCard();
     }
     
     
-    private void CheckIfPlayerReversedTheCardPlayedByOpponent()
+    private void CheckOptionChooseToReverseCard()
     {
         if (_optionCardChoosed == OptionComeBack) return;
+        PlayerReverseTheCardPlayedByOpponent();
+    }
+
+    private void PlayerReverseTheCardPlayedByOpponent()
+    {
         var card = _playerWaiting.GimeMeReversalCardsInCardFormat()![_optionCardChoosed];
         _playerOnTurn.MoveCardFromHandToRingside(_cardChoseenInBothFormats!.CardInObjectFormat!);
         var cardTypeStrategy = card.CardTypeStrategy;
@@ -367,6 +371,11 @@ public class Game
         (_superStarOnTurn, _superStarWaiting) = (_superStarWaiting, _superStarOnTurn);
         (_optionChoosed, _optionWhichCardsToSee,
             _playerCanUseHisAbility, _playerUseHisAbilityInTheTurn) = (0, 0, false, false);
+        CleanDataFromPastTurn();
+    }
+
+    private void CleanDataFromPastTurn()
+    {
         _playerOnTurn.CleanDataFromPastTurn(true);
         _playerWaiting.CleanDataFromPastTurn(false);
         _optionChoosedForJockeyingForPosition = _playerWaiting.GetOptionChoosedForJockeyingForPosition();

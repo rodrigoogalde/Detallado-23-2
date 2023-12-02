@@ -6,11 +6,11 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class Damager: IEffect
+public class DamageEffect: IEffect
 {
-    private View _view;
-    private Player _player;
-    private Player _opponent;
+    private readonly View _view;
+    private readonly Player _player;
+    private readonly Player _opponent;
     private readonly Card _reversalCard;
     private readonly Card _damagerCard;
     private const int MaindKindDamageReduction = 1;
@@ -18,7 +18,7 @@ public class Damager: IEffect
     private readonly SuperStar _superStarReverser;
     private int _damage;
     
-    public Damager(View view, Player player, Player opponent, FormatterCardRepresentation card)
+    public DamageEffect(View view, Player player, Player opponent, FormatterCardRepresentation card)
     {
         _view = view;
         _player = player;

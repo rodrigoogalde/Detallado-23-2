@@ -1,8 +1,9 @@
+using RawDeal.Cards.Reversal;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal.WithoutEffects;
+namespace RawDeal.Cards.Type.Reversal.WithoutEffects;
 
 public class NoChanceInHell: ICardReversalStrategy
 {
@@ -33,9 +34,7 @@ public class NoChanceInHell: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Player player)
     {
-        Reverse reverse = new Reverse(_view, _player, card);
-        reverse.Execute();
+        ReversalEffect reversalEffect = new ReversalEffect(_view, _player, card);
+        reversalEffect.Execute();
     }
-
-
 }

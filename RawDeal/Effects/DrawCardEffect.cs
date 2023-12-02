@@ -3,13 +3,13 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class DrawCard: IEffect
+public class DrawCardEffect: IEffect
 {
     private readonly Player _player;
     private readonly View _view;
     private readonly int _totalCardsToDraw;
     
-    public DrawCard(Player player, View view, int totalCardsToDraw)
+    public DrawCardEffect(Player player, View view, int totalCardsToDraw)
     {
         _player = player;
         _view = view;

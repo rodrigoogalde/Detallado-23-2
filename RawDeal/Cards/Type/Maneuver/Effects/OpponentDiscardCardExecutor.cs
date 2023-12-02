@@ -1,20 +1,17 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
 namespace RawDeal.Cards.Type.Maneuver.Effects;
 
-public class OpponentsDiscardsCardsFromHand: ICardManeuverStrategy
+public class OpponentDiscardCardExecutor: ICardManeuverStrategy
 {
-    private Player _player;
-    private View _view;
-    private int _cardsToDiscard;
+    private readonly View _view;
+    private readonly int _cardsToDiscard;
     
-    public OpponentsDiscardsCardsFromHand(View view, Player player, int cardsToDiscard)
+    public OpponentDiscardCardExecutor(View view, int cardsToDiscard)
     {
         _view = view;
-        _player = player;
         _cardsToDiscard = cardsToDiscard;
     }
     public bool IsEffectApplicable()
@@ -29,7 +26,7 @@ public class OpponentsDiscardsCardsFromHand: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, _cardsToDiscard);
-        discardCardFromHand.Execute();
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, opponent, _cardsToDiscard);
+        handDiscardEffect.Execute();
     }
 }

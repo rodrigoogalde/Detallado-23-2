@@ -1,8 +1,9 @@
+using RawDeal.Cards.Reversal;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Reversal.General;
+namespace RawDeal.Cards.Type.Reversal.General;
 
 public class JockeyingForPosition: ICardReversalStrategy
 {
@@ -34,8 +35,8 @@ public class JockeyingForPosition: ICardReversalStrategy
 
     public void PerformReversal(FormatterCardRepresentation card, Player opponent)
     {
-        Reverse reverse = new Reverse(_view, _player, card);
-        reverse.Execute();
+        ReversalEffect reversalEffect = new ReversalEffect(_view, _player, card);
+        reversalEffect.Execute();
         _player.CheckIfJockeyForPositionIsPlayed(card.CardInObjectFormat!);
     }
 }

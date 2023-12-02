@@ -6,31 +6,25 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class ReverseAndDamage: IEffect
+public class ReversalEffect: IEffect
 {
-    private View _view;
-    private Player _player;
-    private Player _opponent;
-    private FormatterCardRepresentation _card;
+    private readonly View _view;
+    private readonly Player _player;
+    private readonly FormatterCardRepresentation _card;
     
-    public ReverseAndDamage(View view, Player player, Player opponent, FormatterCardRepresentation card)
+    public ReversalEffect(View view, Player player, FormatterCardRepresentation card)
     {
         _view = view;
         _player = player;
         _card = card;
-        _opponent = opponent;
     }
     
     public void Execute()
     {
+        if (_player.GetLastCardPlayedFromDeck() == CardSetFull.Arsenal) return;
         SuperStar superStar = _player.SuperStar;
         Card cardInObjectFormat = _card.CardInObjectFormat!;
-        if (_player.LastCardPlayedFromDeck == CardSetFull.Arsenal) return; 
-        
         _player.MoveCardFromHandToRingArea(cardInObjectFormat);
         _view.SayThatPlayerReversedTheCard(superStar.Name!, _card.CardInStringFormat!);
-        Damager damager = new Damager(_view, _player, _opponent, _card);
-        damager.Execute();
-        
     }
 }

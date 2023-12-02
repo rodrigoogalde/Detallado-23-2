@@ -23,9 +23,9 @@ public class Chrisjericho: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        DiscardCardFromHand discardCardFromHand = new(GameView, Player, TotalCardsToDiscard);
-        discardCardFromHand.Execute();
-        DiscardCardFromHand discardCardFromOpponentHand = new(GameView, playerOnWait, TotalCardsToDiscard);
-        discardCardFromOpponentHand.Execute();
+        HandDiscardEffect handDiscardEffect = new(GameView, Player, TotalCardsToDiscard);
+        handDiscardEffect.Execute();
+        HandDiscardEffect handDiscardCardFromOpponentHand = new(GameView, playerOnWait, TotalCardsToDiscard);
+        handDiscardCardFromOpponentHand.Execute();
     }
 }

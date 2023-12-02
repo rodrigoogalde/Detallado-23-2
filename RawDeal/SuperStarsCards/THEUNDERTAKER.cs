@@ -28,8 +28,8 @@ public class Theundertaker: SuperStar
     
     private void TheUndertakerDiscardCards()
     {
-        DiscardCardFromHand discardCardFromHand = new(GameView, Player, 2);
-        discardCardFromHand.Execute();
+        HandDiscardEffect handDiscardEffect = new(GameView, Player, 2);
+        handDiscardEffect.Execute();
     }
     
     private void TheUndertakerTakeCardsFromRingside()

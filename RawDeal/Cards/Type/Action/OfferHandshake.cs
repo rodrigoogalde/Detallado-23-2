@@ -1,4 +1,4 @@
-using RawDeal.Cards.Maneuver;
+using RawDeal.Cards.Type.Maneuver;
 using RawDeal.Effects;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -34,9 +34,9 @@ public class OfferHandshake: ICardManeuverStrategy
     {
         _player.MoveCardFromHandToRingArea(_card!);
         int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superStar.Name!, 3);
-        DrawCard drawCard = new DrawCard(_player, _view, cardsToDiscard);
-        drawCard.Execute();
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, _player, 1);
-        discardCardFromHand.Execute();
+        DrawCardEffect drawCardEffect = new DrawCardEffect(_player, _view, cardsToDiscard);
+        drawCardEffect.Execute();
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, _player, 1);
+        handDiscardEffect.Execute();
     }
 }

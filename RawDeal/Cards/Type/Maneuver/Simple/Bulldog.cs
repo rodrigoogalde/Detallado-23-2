@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
@@ -27,11 +26,10 @@ public class Bulldog: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, _player, 1);
-        discardCardFromHand.Execute();
-        
-        DiscardCardFromOpponentHand discardCardFromOpponentHand = new DiscardCardFromOpponentHand(_view, _player,
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, _player, 1);
+        handDiscardEffect.Execute();
+        OpponentHandDiscardEffect opponentHandDiscardEffect = new OpponentHandDiscardEffect(_view, _player,
             opponent, 1);
-        discardCardFromOpponentHand.Execute();
+        opponentHandDiscardEffect.Execute();
     }
 }

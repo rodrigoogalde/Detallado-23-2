@@ -43,7 +43,7 @@ public class Therock: SuperStar
     {
         const int cardsToRecover = 1;
         GameView.SayThatPlayerIsGoingToUseHisAbility(SuperCard.Name, SuperCard.SuperstarAbility!);
-        ShuffleCardsFromRingsideToArsenal shuffleCardsFromRingsideToArsenal = new(GameView, Player, cardsToRecover);
-        shuffleCardsFromRingsideToArsenal.Execute();
+        DeckShufflingEffect deckShufflingEffect = new(GameView, Player, cardsToRecover);
+        deckShufflingEffect.Execute();
     }
 }
