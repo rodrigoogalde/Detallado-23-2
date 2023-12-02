@@ -2,17 +2,15 @@ using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
-namespace RawDeal.Cards.Maneuver;
+namespace RawDeal.Cards.Type.Maneuver.Effects;
 
-public class OpponentDrawCards : ICardManeuverStrategy
+public class CollateralDamageManeuverExecutor: ICardManeuverStrategy
 {
-    private readonly int _cardsToDiscard;
     private readonly View _view;
-    private Player _player;
- 
-    public OpponentDrawCards(View view, Player player, int cardsToDiscard)
+    private readonly Player _player;
+    
+    public CollateralDamageManeuverExecutor(View view, Player player)
     {
-        _cardsToDiscard = cardsToDiscard;
         _view = view;
         _player = player;
     }
@@ -28,7 +26,7 @@ public class OpponentDrawCards : ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DrawCard drawCard = new DrawCard(opponent, _view, _cardsToDiscard);
-        drawCard.Execute();
+        CollateralDamageEffect collateralDamageEffect = new CollateralDamageEffect(_view, _player);
+        collateralDamageEffect.Execute();
     }
 }

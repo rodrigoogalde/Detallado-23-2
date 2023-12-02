@@ -33,10 +33,10 @@ public class Puppies: ICardActionStrategy
     public void PerformAction(Player opponent)
     {
         _player.MoveCardFromHandToRingArea(_card!);
-        ShuffleCardsFromRingsideToArsenal shuffle = 
-            new ShuffleCardsFromRingsideToArsenal(_view, _player, _numberOfCardsToShuffle);
+        DeckShufflingEffect shuffle = 
+            new DeckShufflingEffect(_view, _player, _numberOfCardsToShuffle);
         shuffle.Execute();
-        DrawCard drawCard = new DrawCard(_player, _view, _numberOfCardsToDraw);
-        drawCard.Execute();
+        DrawCardEffect drawCardEffect = new DrawCardEffect(_player, _view, _numberOfCardsToDraw);
+        drawCardEffect.Execute();
     }
 }

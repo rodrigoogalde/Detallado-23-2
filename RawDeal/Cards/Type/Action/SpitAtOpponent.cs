@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Options;
 using RawDeal.Utils;
@@ -31,9 +30,9 @@ public class SpitAtOpponent: ICardActionStrategy
     public void PerformAction(Player opponent)
     {
         _player.MoveCardFromHandToRingside(_card!);
-        DiscardCardFromHand discardCard = new DiscardCardFromHand(_view, _player, 1);
-        discardCard.Execute();
-        DiscardCardFromHand opponentDiscardCard = new DiscardCardFromHand(_view, opponent, 4);
-        opponentDiscardCard.Execute();
+        HandDiscardEffect handDiscardCard = new HandDiscardEffect(_view, _player, 1);
+        handDiscardCard.Execute();
+        HandDiscardEffect opponentHandDiscardCard = new HandDiscardEffect(_view, opponent, 4);
+        opponentHandDiscardCard.Execute();
     }
 }

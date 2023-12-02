@@ -1,6 +1,4 @@
-using RawDeal.Utils;
-
-namespace RawDeal.Cards.Maneuver;
+namespace RawDeal.Cards.Type.Maneuver;
 
 public interface ICardManeuverStrategy : ICardTypeStrategy
 {

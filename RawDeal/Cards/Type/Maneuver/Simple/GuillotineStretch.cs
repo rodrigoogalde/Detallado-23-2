@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
@@ -30,10 +29,10 @@ public class GuillotineStretch: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        DiscardCardFromHand discardCardFromHand = new DiscardCardFromHand(_view, opponent, 1);
-        discardCardFromHand.Execute();
+        HandDiscardEffect handDiscardEffect = new HandDiscardEffect(_view, opponent, 1);
+        handDiscardEffect.Execute();
         int cardsToDiscard = _view.AskHowManyCardsToDrawBecauseOfACardEffect(_superStar.Name!, 1);
-        DrawCard drawCards = new DrawCard(_player, _view, cardsToDiscard);
-        drawCards.Execute();
+        DrawCardEffect drawCardsEffect = new DrawCardEffect(_player, _view, cardsToDiscard);
+        drawCardsEffect.Execute();
     }
 }

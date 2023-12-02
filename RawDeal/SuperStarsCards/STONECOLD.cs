@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Collections;
 using RawDeal.Options;
 using RawDealView;
 using RawDealView.Options;
@@ -19,11 +20,8 @@ public class Stonecold: SuperStar
 
     public override bool HasTheConditionsToUseAbility()
     {
-        return Player.TransformMazeToStringFormat(CardSetFull.Arsenal).Count > NoCards;
-    }
-
-    public override void UseAbilityOncePerTurn()
-    {
+        StringListCollection cardsInArsenal = Player.TransformMazeToStringFormat(CardSetFull.Arsenal);
+        return cardsInArsenal.Count > NoCards;
     }
 
     public override void UseAbility(Player playerOnWait)

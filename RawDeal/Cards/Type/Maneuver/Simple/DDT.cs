@@ -1,4 +1,3 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
@@ -27,10 +26,9 @@ public class Ddt: ICardManeuverStrategy
 
     public void PerformManeuver(Player opponent)
     {
-        RecieveCollateralDamage recieveCollateralDamage = new RecieveCollateralDamage(_view, _player);
-        recieveCollateralDamage.Execute();
-        DiscardCardFromHand discardCard = new DiscardCardFromHand(_view, opponent, 2);
-        discardCard.Execute();    
-
+        CollateralDamageEffect collateralDamageEffect = new CollateralDamageEffect(_view, _player);
+        collateralDamageEffect.Execute();
+        HandDiscardEffect handDiscardCard = new HandDiscardEffect(_view, opponent, 2);
+        handDiscardCard.Execute();    
     }
 }

@@ -1,23 +1,20 @@
-using RawDeal.Cards.Maneuver;
 using RawDeal.Effects;
 using RawDeal.Utils;
 using RawDealView;
 
 namespace RawDeal.Cards.Type.Maneuver.Effects;
 
-public class PlayerDiscardCardFromHisHand : ICardManeuverStrategy
+public class ShuffleExecutor: ICardManeuverStrategy
 {
-    private IEffect _effect;
-    private readonly Player _player;
+    private readonly IEffect _effect;
     
-    public PlayerDiscardCardFromHisHand(View view, Player player, int cardsToDiscard)
+    public ShuffleExecutor(View view, Player player, int numberOfCards)
     {
-        _effect = new DiscardCardFromHand(view, player, cardsToDiscard);
-        _player = player;
+        _effect = new DeckShufflingEffect(view, player, numberOfCards);
     }
     public bool IsEffectApplicable()
     {
-        return _player.GetHandCards().Count >= 1;
+        return true;
     }
 
     public void PerformEffect(FormatterCardRepresentation card, Player opponent)

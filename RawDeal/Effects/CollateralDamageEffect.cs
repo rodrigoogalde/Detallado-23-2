@@ -4,13 +4,13 @@ using RawDealView;
 
 namespace RawDeal.Effects;
 
-public class RecieveCollateralDamage: IEffect
+public class CollateralDamageEffect: IEffect
 {
-    private View _view;
-    private Player _player;
-    private SuperStar _superStar;
+    private readonly View _view;
+    private readonly Player _player;
+    private readonly SuperStar _superStar;
     
-    public RecieveCollateralDamage(View view, Player player)
+    public CollateralDamageEffect(View view, Player player)
     {
         _view = view;
         _player = player;
@@ -23,6 +23,6 @@ public class RecieveCollateralDamage: IEffect
         _view.SayThatSuperstarWillTakeSomeDamage(_superStar.Name!, 1);
         if (!_player.TakeDamage(1)) return;
         _view.SayThatPlayerLostDueToSelfDamage(_superStar.Name!);
-        throw new PlayerLosesDueToSelfDamage();
+        throw new SelfDamageLossException();
     }
 }

@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Effects;
 using RawDeal.Options;
 using RawDealView;
 
@@ -22,28 +23,9 @@ public class Chrisjericho: SuperStar
 
     public override void UseAbility(Player playerOnWait)
     {
-        PlayerDiscardCards(TotalCardsToDiscard);
-        OpponentDiscardCards(TotalCardsToDiscard, playerOnWait);
-    }
-    
-    private void PlayerDiscardCards(int totalCardsToDiscard)
-    {
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            Player.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
-            SuperCard.Name, 
-            SuperCard.Name, 
-            totalCardsToDiscard);
-        Player.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
-    }
-    
-    private void OpponentDiscardCards(int totalCardsToDiscard, Player playerOnWait)
-    {
-        SuperStar superStarOpponent = playerOnWait.SuperStar;
-        var indexCardToDiscard = GameView.AskPlayerToSelectACardToDiscard(
-            playerOnWait.TransformMazeToStringFormat(CardSetFull.Hand).ToList(),
-            superStarOpponent.Name!, 
-            superStarOpponent.Name!, 
-            totalCardsToDiscard);
-        playerOnWait.DiscardCardFromHandToRingsideWithIndex(indexCardToDiscard);
+        HandDiscardEffect handDiscardEffect = new(GameView, Player, TotalCardsToDiscard);
+        handDiscardEffect.Execute();
+        HandDiscardEffect handDiscardCardFromOpponentHand = new(GameView, playerOnWait, TotalCardsToDiscard);
+        handDiscardCardFromOpponentHand.Execute();
     }
 }
