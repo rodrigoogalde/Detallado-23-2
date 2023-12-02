@@ -1,7 +1,6 @@
 using RawDeal.Cards;
 using RawDeal.Options;
 using RawDealView;
-using RawDealView.Options;
 
 namespace RawDeal.SuperStarsCards;
 

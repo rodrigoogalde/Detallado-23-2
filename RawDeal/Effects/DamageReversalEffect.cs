@@ -1,6 +1,4 @@
-using RawDeal.Cards;
 using RawDeal.Options;
-using RawDeal.SuperStarsCards;
 using RawDeal.Utils;
 using RawDealView;
 

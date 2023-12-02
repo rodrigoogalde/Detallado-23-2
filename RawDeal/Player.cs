@@ -125,7 +125,7 @@ public class Player
     public void PlayCardAsAction(Card cardToPlay, Player opponent)
     {   
         if (CheckIfJockeyForPositionIsPlayed(cardToPlay)) return; 
-        if (!_decksCollections.PerformAction(cardToPlay, opponent)) return;
+        _decksCollections.PerformAction(cardToPlay, opponent);
     }
     
     public bool CheckIfJockeyForPositionIsPlayed(Card cardToPlay)

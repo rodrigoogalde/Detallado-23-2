@@ -3,8 +3,6 @@ using RawDeal.Cards.Type.Maneuver.Effects;
 using RawDeal.Cards.Type.Maneuver.Simple;
 using RawDeal.Cards.Type.Reversal.General;
 using RawDeal.Cards.Type.Reversal.WithoutEffects;
-using RawDeal.Options;
-using RawDeal.SuperStarsCards;
 using RawDealView;
 
 namespace RawDeal.Cards;
